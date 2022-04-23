@@ -1,12 +1,11 @@
-#include "TcpListeningSocket.h"
+#include "network/TcpSocket.h"
+#include "network/TcpListeningSocket.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <climits>
 #include <string>
 #include <iostream>
-#include "SocketException.h"
-#include "common.h"
 
 #ifdef WINDOWS
 #else
@@ -17,29 +16,39 @@
 #endif
 
 
-TcpListeningSocket::TcpListeningSocket(const InternetProtocolVersion internetProtocol) :
+#ifdef WINDOWS
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "Iphlpapi.lib")
+#endif
+
+
+using namespace Gicame;
+
+
+TcpListeningSocket::TcpListeningSocket(const InternetProtocolVersion ipv) :
 	sockfd(0),
 	listening(false)
 {
-	sin_family = (internetProtocol == IPv4 ? AF_INET : AF_INET6);
+	sin_family = (ipv == InternetProtocolVersion::IPv4 ? AF_INET : AF_INET6);
 }
 
-//Do not close the socket in the destructor!! If you close it here you will
-//spend the entire day looking for bugs... Just like I did...
-//When you copy a TcpSocket/TcpListeningSocket, the old one will have an invalid
-//socketfd as a private data member!
-TcpListeningSocket::~TcpListeningSocket() {}
-
+// Do not close the socket in the destructor unless the class is "MOVABLE_BUT_NOT_COPYABLE"!!
+// If you close it here and your instance can be copied you will spend the entire day looking for
+// bugs... Just like I did...
+// When you copy an instance, the old one will have an invalid socketfd as a private data member!
+TcpListeningSocket::~TcpListeningSocket() {
+	this->close();
+}
 
 bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
-	if(listening)
-		throw SocketException("TcpListeningSocket::listenTo(...) -> socket already in listen state");
+	if (listening)
+		throw RUNTIME_ERROR("Socket already in listening state");
 
 	int errorCode;
 
 	#ifdef WINDOWS
 
-	//I'm going to copy all the procedure from the Microsoft offcial documentation
+	// I'm going to copy all the procedure from the Microsoft offcial documentation
 	SocketzInternals::startWsaIfNeeded();
 	struct addrinfo *result = NULL;
     struct addrinfo hints;
@@ -52,14 +61,14 @@ bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
 	std::string portString = std::to_string(port);
     errorCode = getaddrinfo(NULL, portString.c_str(), &hints, &result);
     if(errorCode != 0) {
-		throw SocketException("TcpListeningSocket::listenTo(...) -> getaddrinfo(...) failed");
+		throw RUNTIME_ERROR("getaddrinfo(...) failed");
     }
 
 	sockfd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if(sockfd == INVALID_SOCKET) {
         freeaddrinfo(result);
         WSACleanup();
-        throw SocketException("TcpListeningSocket::listenTo(...) -> socket(...) failed");
+        throw RUNTIME_ERROR("socket(...) failed");
     }
 
 	errorCode = bind(sockfd, result->ai_addr, (int)result->ai_addrlen);
@@ -67,29 +76,27 @@ bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
         freeaddrinfo(result);
         closesocket(sockfd);
         WSACleanup();
-        throw SocketException("TcpListeningSocket::listenTo(...) -> bind(...) failed");
+        throw RUNTIME_ERROR("bind(...) failed");
     }
 
     freeaddrinfo(result);
 
     errorCode = listen(sockfd, backlog);
-    if(errorCode == SOCKET_ERROR) {
+    if (errorCode == SOCKET_ERROR) {
         closesocket(sockfd);
         WSACleanup();
-        throw SocketException(
-			std::string("TcpListeningSocket::listenTo(...) -> listen(...) failed")
-		);
+        throw RUNTIME_ERROR("listen(...) failed");
     }
 
 	#else
 
 	sockfd = socket(sin_family, SOCK_STREAM, 0);
-	if(sockfd < 0) {
-		throw SocketException("TcpListeningSocket::listenTo(...) -> socket(...) failed");
+	if (sockfd < 0) {
+		throw RUNTIME_ERROR("socket(...) failed");
     }
 
 	//The bind procedure is different if IPv4 or IPv6 is used
-	if(sin_family == AF_INET) {
+	if (sin_family == AF_INET) {
 
 		//IPv4 case
 		struct sockaddr_in myAddr;
@@ -100,9 +107,7 @@ bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
 		errorCode = bind(sockfd, (struct sockaddr*) &myAddr, sizeof(myAddr));
 		if(errorCode < 0) {
 			::close(sockfd);
-			throw SocketException(
-				std::string("TcpListeningSocket::listenTo(...) -> bind(...) failed")
-			);
+			throw RUNTIME_ERROR("bind(...) failed");
 		}
 
 	} else {
@@ -116,17 +121,15 @@ bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
 		errorCode = bind(sockfd, (struct sockaddr*) &myAddr, sizeof(myAddr));
 		if(errorCode < 0) {
 			::close(sockfd);
-			throw SocketException(
-				std::string("TcpListeningSocket::listenTo(...) -> bind(...) failed")
-			);
+			throw RUNTIME_ERROR("bind(...) failed");
 		}
 
 	}
 
 	errorCode = listen(sockfd,backlog);
-	if(errorCode < 0) {
+	if (errorCode < 0) {
         ::close(sockfd);
-        throw SocketException("TcpListeningSocket::listenTo(...) -> listen(...) failed");
+        throw RUNTIME_ERROR("listen(...) failed");
     }
 
 	#endif
@@ -159,11 +162,9 @@ TcpSocket TcpListeningSocket::acceptRequest() {
 	#else
 	if(newsockfd < 0)
 	#endif
-		throw SocketException("TcpListeningSocket::acceptRequest() -> accept(...) failed");
+		throw RUNTIME_ERROR("accept(...) failed");
 
-	TcpSocket newTcpSocket = TcpSocket::fromSockfd(newsockfd, sin_family);
-
-	return newTcpSocket;
+	return TcpSocket::fromSockfd(newsockfd, SocketStatus::CONNECTED, sin_family);
 }
 
 void TcpListeningSocket::close() {

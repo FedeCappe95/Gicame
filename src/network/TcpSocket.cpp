@@ -21,7 +21,6 @@
 #endif
 
 
-using namespace std;
 using namespace Gicame;
 
 
@@ -34,7 +33,7 @@ TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
 	#endif
 	sin_family = (ipv == InternetProtocolVersion::IPv4 ? AF_INET : AF_INET6);
 	sockfd = socket(sin_family, SOCK_STREAM, 0);
-	if(sockfd < 0) {
+	if (sockfd < 0) {
 		throw RUNTIME_ERROR("Invalid sockfd");
     }
 }
@@ -44,9 +43,7 @@ TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
 // bugs... Just like I did...
 // When you copy a TcpSocket, the old one will have an invalid socketfd as a private data member!
 TcpSocket::~TcpSocket() {
-	if (socketStatus != SocketStatus::CLOSED) {
-		this->close();
-	}
+	this->close();
 }
 
 bool TcpSocket::connectTo(const std::string& ip, const uint16_t port) {

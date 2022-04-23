@@ -4,20 +4,16 @@
 
 #include <string>
 #include <vector>
-#include <climits>
 #include "../common.h"
-#include "../interfaces/ISender.h"
-#include "../interfaces/IReceiver.h"
+#include "../interfaces/IDataExchanger.h"
 #include "NetworkUtility.h"
 #include "NetworkDefinitions.h"
 
 
 namespace Gicame {
 
-	enum class SocketStatus { CONNECTED, CLOSED, ERROR };
 
-
-	class GICAME_API TcpSocket : public ISender, public IReceiver {
+	class GICAME_API TcpSocket : public IDataExchanger {
 
 		MOVABLE_BUT_NOT_COPYABLE;
 

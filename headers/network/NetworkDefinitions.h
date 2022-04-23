@@ -33,12 +33,13 @@ namespace Gicame {
     #endif
 
     enum class InternetProtocolVersion {IPv4, IPv6};
+    enum class SocketStatus { CONNECTED, CLOSED, ERROR };
 
 
     /*
      * Struct and classes
      */
-    
+
     struct IPv4 {
         union {
             uint32_t value;

@@ -4,10 +4,13 @@ CFLAGS       = -fPIC -Wall -Wextra -march=native
 RELEASEFLAGS = -O2
 
 HEADERS = $(echo headers/*.h)
-OBJ_FILES = build/TcpSocket.o
+OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o
 
 
 build/TcpSocket.o: src/network/TcpSocket.cpp headers/network/TcpSocket.h $(HEADERS)
+	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+
+build/TcpListeningSocket.o: src/network/TcpListeningSocket.cpp headers/network/TcpListeningSocket.h $(HEADERS)
 	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
 build/libgicame.so: $(OBJ_FILES)
