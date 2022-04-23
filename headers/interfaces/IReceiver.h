@@ -20,7 +20,7 @@ namespace Gicame {
     };
 
     inline std::vector<byte_t> IReceiver::receive(const uint32_t size) {
-        if (size > RECEIVER_MAX_SIZE) {
+        if (size > IReceiver::RECEIVER_MAX_SIZE) {
             throw RUNTIME_ERROR("Receiving too much");
         }
 

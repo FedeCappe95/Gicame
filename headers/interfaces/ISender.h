@@ -20,7 +20,7 @@ namespace Gicame {
     };
 
     inline uint32_t ISender::send(const std::vector<byte_t>& buffer) {
-        if (buffer.size() > SENDER_MAX_SIZE) {
+        if (buffer.size() > ISender::SENDER_MAX_SIZE) {
             throw RUNTIME_ERROR("Sending too much!");
         }
         return send(buffer.data(), buffer.size());
