@@ -8,7 +8,11 @@
 
 namespace Gicame {
 
-	class GICAME_API ObjectSender : public ISender {
+	/**
+	 * Send data to the other peer. The other peer does not have to know the data size a priori:
+	 * this information is sent before the data itself.
+	 */
+	class ObjectSender : public ISender {
 
 	private:
 		ISender* sender;

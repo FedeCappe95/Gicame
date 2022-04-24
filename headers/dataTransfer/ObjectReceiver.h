@@ -8,7 +8,11 @@
 
 namespace Gicame {
 
-	class GICAME_API ObjectReceiver : public IReceiver {
+	/**
+	 * Receive data from the other peer. ObjectReceiver does not have to know the data size a
+	 * priori: this information is sent before the data itself.
+	 */
+	class ObjectReceiver : public IReceiver {
 
 	private:
 		IReceiver* receiver;

@@ -12,7 +12,11 @@
 
 namespace Gicame {
 
-	class GICAME_API ObjectExchanger :
+	/**
+	 * An ObjectExchanger is both an ObjectSender and an ObjectReceiver. It implements a full-duplex
+	 * communication.
+	 */
+	class ObjectExchanger :
 		public IDataExchanger, public ObjectSender, public ObjectReceiver
 	{
 
