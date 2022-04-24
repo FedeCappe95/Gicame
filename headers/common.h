@@ -39,6 +39,7 @@
 
 // Type definitions
 typedef uint8_t byte_t;
+typedef void* ptr_t;
 
 
 // Macros
