@@ -3,7 +3,7 @@
 
 
 #include "../common.h"
-#include "../interfaces/IDataExhanger.h"
+#include "../interfaces/IDataExchanger.h"
 #include "BinaryInstanceSender.h"
 #include "BinaryInstanceReceiver.h"
 
@@ -11,13 +11,13 @@
 namespace Gicame {
 
 	/**
-	 * A BinaryInstanceExhanger is both a BinaryInstanceSender and a BinaryInstanceReceiver.
+	 * A BinaryInstanceExchanger is both a BinaryInstanceSender and a BinaryInstanceReceiver.
 	 * It implements a full-duplex communication.
 	 */
-	class BinaryInstanceExhanger : public BinaryInstanceSender, public BinaryInstanceReceiver {
+	class BinaryInstanceExchanger : public BinaryInstanceSender, public BinaryInstanceReceiver {
 
 	public:
-		BinaryInstanceExhanger(IDataExhanger* dataExchanger);
+		BinaryInstanceExchanger(IDataExchanger* dataExchanger);
 
 	};
 
@@ -26,7 +26,7 @@ namespace Gicame {
 	 * Inline implementation
 	 */
 
-	inline BinaryInstanceExhanger::BinaryInstanceExhanger(IDataExhanger* dataExchanger) :
+	inline BinaryInstanceExchanger::BinaryInstanceExchanger(IDataExchanger* dataExchanger) :
 		BinaryInstanceSender(dataExchanger),
 		BinaryInstanceReceiver(dataExchanger)
 	{}
