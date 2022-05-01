@@ -47,7 +47,12 @@ namespace Gicame {
 			 throw RUNTIME_ERROR("Incoming object size greater then buffer size");
 		 }
 
-		 return receiver->receive(buffer, incomingObjectSize);
+		 receivedBytes = 0;
+		 do {
+			 receivedBytes += receiver->receive((byte_t*)buffer + receivedBytes, incomingObjectSize - receivedBytes);
+		 } while (receivedBytes < incomingObjectSize);
+
+		 return receivedBytes;
 	 }
 
 	 inline std::vector<byte_t> ObjectReceiver::receive(const uint32_t maxSize) {
