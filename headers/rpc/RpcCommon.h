@@ -43,6 +43,7 @@ namespace Gicame {
 
     public:
         static constexpr uint32_t MAGIC = 0xDEADBEEFu;
+        static constexpr uint32_t MAGIC_FOR_EMPTY_REQUESTS = 0xFFFFFFFFu;
         static constexpr uint32_t MAX_PARAM_COUNT = 6u;
 
     public:
@@ -52,15 +53,22 @@ namespace Gicame {
         const uint8_t paramCount;
 
     public:
+        RpcExecutionRequest();
         RpcExecutionRequest(const FunctionId functionId, const uint8_t paramCount);
         bool checkIntegrity();
 
-    }__attribute__((packed));
+    }/*__attribute__((packed))*/;
 
 
     /*
      * Inline implementation
      */
+
+    inline RpcExecutionRequest::RpcExecutionRequest() :
+        magic(MAGIC_FOR_EMPTY_REQUESTS),
+        functionId(0),
+        paramCount(0)
+    {}
 
     inline RpcExecutionRequest::RpcExecutionRequest(const FunctionId functionId, const uint8_t paramCount) :
         magic(MAGIC),

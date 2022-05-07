@@ -19,16 +19,16 @@ namespace Gicame {
     private:
         struct FunctionDescriptor {
             RpcFunction rpcFunction;
-            const FunctionId functionId;
-            const uint32_t paramCount;
+            FunctionId functionId;
+            uint32_t paramCount;
             inline FunctionDescriptor(const RpcFunction rpcFunction, const FunctionId functionId, const uint32_t paramCount) :
                 rpcFunction(rpcFunction), functionId(functionId), paramCount(paramCount) {}
         };
 
     private:
         IDataExchanger* dataExchanger;
-        BinaryInstanceExchanger* binInstExch;
-        unordered_map<FunctionId, FunctionDescriptor> funStore;
+        BinaryInstanceExchanger binInstExch;
+        std::unordered_map<FunctionId, FunctionDescriptor> funStore;
 
     public:
         RpcServer(IDataExchanger* dataExchanger);
@@ -63,12 +63,11 @@ namespace Gicame {
     }
 
     inline void RpcServer::registerFunction(RpcFunction rpcFunction, const uint32_t paramCount, const FunctionId functionId) {
-        FunctionDescriptor fd(rpcFunction, functionId, paramCount);
-        funStore[functionId] = fd;
+        funStore.insert_or_assign(functionId, FunctionDescriptor(rpcFunction, functionId, paramCount));
     }
 
     inline void RpcServer::oneShot() {
-        RpcExecutionRequest exeRequest = binInstExch->receive<RpcExecutionRequest>();
+        RpcExecutionRequest exeRequest = binInstExch.receive<RpcExecutionRequest>();
         if (unlikely(!exeRequest.checkIntegrity())) {
             throw RUNTIME_ERROR("Invalid exeRequest: failed integrity check");
         }
@@ -78,7 +77,7 @@ namespace Gicame {
             throw RUNTIME_ERROR("Invalid exeRequest: invalid functionId");
         }
 
-        FunctionDescriptor& fd = funStoreIter.second;
+        FunctionDescriptor& fd = funStoreIter->second;
         if (unlikely(fd.paramCount != exeRequest.paramCount)) {
             throw RUNTIME_ERROR("Invalid exeRequest: wrong paramCount");
         }
