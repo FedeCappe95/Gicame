@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="File di origine">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="File di intestazione">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="File di risorse">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="File di intestazione\dataTransfer">
+      <UniqueIdentifier>{0d0b3722-5db8-4916-ac4d-2176d4e2d86d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\interfaces">
+      <UniqueIdentifier>{d8bcc775-8e82-481a-8fc5-556ec798912c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\network">
+      <UniqueIdentifier>{66f556bb-89cd-4444-816d-3a785bcaf9ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\os">
+      <UniqueIdentifier>{53d887b2-6729-4cf4-b95f-0c49a4e633d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\network">
+      <UniqueIdentifier>{b5a45a90-f290-4956-a99b-600ec9401b60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\rpc">
+      <UniqueIdentifier>{7cc01f40-06b9-4116-97a0-e1dc136d4683}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceExchanger.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceReceiver.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceSender.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\ObjectExchanger.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\ObjectReceiver.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\ObjectSender.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\interfaces\IDataExchanger.h">
+      <Filter>File di intestazione\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\interfaces\IReceiver.h">
+      <Filter>File di intestazione\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\interfaces\ISender.h">
+      <Filter>File di intestazione\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\network\NetworkDefinitions.h">
+      <Filter>File di intestazione\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\network\NetworkUtility.h">
+      <Filter>File di intestazione\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\network\TcpListeningSocket.h">
+      <Filter>File di intestazione\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\network\TcpSocket.h">
+      <Filter>File di intestazione\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\os\ErrorHandling.h">
+      <Filter>File di intestazione\os</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\common.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\rpc\RpcCommon.h">
+      <Filter>File di intestazione\rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\rpc\RpcServer.h">
+      <Filter>File di intestazione\rpc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\network\TcpSocket.cpp">
+      <Filter>File di origine\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\network\TcpListeningSocket.cpp">
+      <Filter>File di origine\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\network\NetworkUtility.cpp">
+      <Filter>File di origine\network</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

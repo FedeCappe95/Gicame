@@ -1,3 +1,4 @@
+#include "common.h"
 #include "network/TcpSocket.h"
 #include "network/TcpListeningSocket.h"
 #include <stdio.h>
@@ -49,7 +50,7 @@ bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
 	#ifdef WINDOWS
 
 	// I'm going to copy all the procedure from the Microsoft offcial documentation
-	SocketzInternals::startWsaIfNeeded();
+	// SocketzInternals::startWsaIfNeeded();  TODO
 	struct addrinfo *result = NULL;
     struct addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));

@@ -14,7 +14,7 @@ namespace Gicame {
         static constexpr uint32_t RECEIVER_MAX_SIZE = (uint32_t)INT32_MAX;
 
     public:
-        virtual uint32_t receive(void* buffer, const uint32_t size);
+        virtual uint32_t receive(void* buffer, const uint32_t size) = 0;
         virtual std::vector<byte_t> receive(const uint32_t size);
 
     };

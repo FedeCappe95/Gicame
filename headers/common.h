@@ -70,7 +70,7 @@ typedef void* ptr_t;
 // Classes and structs
 namespace Gicame {
 
-    class MovableButNonCopyable {
+    class GICAME_API MovableButNonCopyable {
 
     public:
         constexpr MovableButNonCopyable() {}

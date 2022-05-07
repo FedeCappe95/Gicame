@@ -1,3 +1,4 @@
+#include "common.h"
 #include "SocketException.h"
 
 SocketException::SocketException(const std::string& message) :

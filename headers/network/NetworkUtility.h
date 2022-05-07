@@ -29,10 +29,6 @@ namespace Gicame {
     #ifdef WINDOWS
     void startWsaIfNeeded();
     #endif
-    /*in_addr ipv4AddressFromString(const std::string& ipString);
-    in6_addr ipv6AddressFromString(const std::string& ipString);
-    std::string ipv4AddressToString(const in_addr* addr);
-    std::string ipv6AddressToString(const in6_addr* addr);*/
 
 };
 

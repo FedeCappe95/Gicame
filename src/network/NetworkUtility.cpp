@@ -35,96 +35,9 @@ void Gicame::startWsaIfNeeded() {
 		WSADATA wsaData;
 		int errorCode = WSAStartup(MAKEWORD(2,2), &wsaData);
 	    if(errorCode != 0) {
-	        throw SocketException(
-				std::string("Gicame::startWsaIfNeeded() -> WSAStartup(...) failde, result is ") +
-				std::to_string(errorCode) +
-				", WSAGetLastError() is " +
-				std::to_string(WSAGetLastError())
-			);
+			std::string errorMessage = std::string("WSAStartup(...) failed, result is ") + std::to_string(errorCode);
+			throw RUNTIME_ERROR(errorMessage);
 	    }
 	}
 }
 #endif
-
-/*in_addr Gicame::ipv4AddressFromString(const std::string& ipString) {
-	#ifdef WINDOWS
-
-	//Note: LPSTR stands for char*
-	struct sockaddr_storage ss;
-	int ssSize = sizeof(ss);
-	if(WSAStringToAddress((LPSTR)ipString.c_str(), AF_INET, NULL, (struct sockaddr *)&ss, &ssSize) != 0) {
-		throw SocketException("Hostname not found or error during parsing hostname");
-	}
-	return ((struct sockaddr_in *)&ss)->sin_addr;
-
-	#else
-
-	in_addr address;
-	if(inet_pton(AF_INET, ipString.c_str(), &address) <= 0){
-        throw SocketException("Hostname not found or error during parsing hostname");
-    }
-	return address;
-
-	#endif
-}
-
-in6_addr Gicame::ipv6AddressFromString(const std::string& ipString) {
-	#ifdef WINDOWS
-
-	//Note: LPSTR stands for char*
-	struct sockaddr_storage ss;
-	int ssSize = sizeof(ss);
-	if(WSAStringToAddress((LPSTR)ipString.c_str(), AF_INET6, NULL, (struct sockaddr *)&ss, &ssSize) != 0) {
-		throw SocketException("Hostname not found or error during parsing hostname");
-	}
-	return ((struct sockaddr_in6 *)&ss)->sin6_addr;
-
-	#else
-
-	in6_addr address;
-	if(inet_pton(AF_INET6, ipString.c_str(), &address) <= 0){
-        throw SocketException("Hostname not found or error during parsing hostname");
-    }
-	return address;
-
-	#endif
-}
-
-std::string Gicame::ipv4AddressToString(const in_addr* addr) {
-    char buf[INET_ADDRSTRLEN];
-
-    #ifdef WINDOWS
-
-	RtlIpv4AddressToString(addr, buf);
-
-    #else
-
-    if(inet_ntop(AF_INET, addr, buf, sizeof(buf)) == 0) {
-        //There was an error
-        return string("unknown");
-    }
-
-    #endif
-
-    return string(buf);
-}
-
-std::string Gicame::ipv6AddressToString(const in6_addr* addr) {
-    char buf[INET6_ADDRSTRLEN];
-
-    #ifdef WINDOWS
-
-    RtlIpv6AddressToString(addr, buf);
-
-    #else
-
-    if(inet_ntop(AF_INET6, addr, buf, sizeof(buf)) == 0) {
-        //There was an error
-        return "unknown";
-    }
-
-    #endif
-
-
-    return string(buf);
-}*/

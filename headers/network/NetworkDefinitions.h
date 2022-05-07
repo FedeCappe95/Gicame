@@ -33,7 +33,7 @@ namespace Gicame {
     #endif
 
     enum class InternetProtocolVersion {IPv4, IPv6};
-    enum class SocketStatus { CONNECTED, CLOSED, ERROR };
+    enum class SocketStatus { CONNECTED, CLOSED, SS_ERROR };
 
 
     /*
@@ -84,11 +84,7 @@ namespace Gicame {
 
     inline in_addr IPv4::toInAddr() const {
         in_addr addr;
-        #ifdef WINDOWS
-        addr.S_addr = value;
-        #else
         addr.s_addr = value;
-        #endif
         return addr;
     }
 
