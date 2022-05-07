@@ -1,5 +1,5 @@
-#ifndef __BINARYINSTANCERECEIVER_H__
-#define __BINARYINSTANCERECEIVER_H__
+#ifndef __BINARYINSTANCEEXCHANGER_H__
+#define __BINARYINSTANCEEXCHANGER_H__
 
 
 #include "../common.h"
