@@ -32,12 +32,12 @@ namespace Gicame {
 	 inline ObjectSender::ObjectSender(ISender* sender) : sender(sender) {}
 
 	 inline uint32_t ObjectSender::send(const void* buffer, const uint32_t size) {
-		 if (size > ISender::SENDER_MAX_SIZE) {
+		 if (unlikely(size > ISender::SENDER_MAX_SIZE)) {
              throw RUNTIME_ERROR("Sending too much");
          }
 
 		 uint32_t sentBytes = sender->send(&size, sizeof(size));
-		 if (sentBytes != sizeof(size)) {
+		 if (unlikely(sentBytes != sizeof(size))) {
 			 throw RUNTIME_ERROR("Error sending outgoing object size");
 		 }
 
@@ -50,7 +50,10 @@ namespace Gicame {
 	 }
 
 	 inline uint32_t ObjectSender::send(const std::vector<byte_t>& buffer) {
-         return send(buffer.data(), buffer.size());
+		 if (unlikely(buffer.size() > ISender::SENDER_MAX_SIZE)) {
+			 throw RUNTIME_ERROR("Sending too much");
+		 }
+         return send(buffer.data(), (uint32_t)buffer.size());
 	 }
 
 };

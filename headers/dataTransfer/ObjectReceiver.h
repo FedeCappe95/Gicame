@@ -18,7 +18,7 @@ namespace Gicame {
 		IReceiver* receiver;
 
 	public:
-		ObjectSender(IReceiver* receiver);
+		ObjectReceiver(IReceiver* receiver);
 		virtual uint32_t receive(void* buffer, const uint32_t size);
         virtual std::vector<byte_t> receive(const uint32_t maxSize);
 
@@ -35,15 +35,15 @@ namespace Gicame {
 		 uint32_t incomingObjectSize;
 		 uint32_t receivedBytes = receiver->receive(&incomingObjectSize, sizeof(incomingObjectSize));
 
-		 if (receivedBytes != sizeof(incomingObjectSize)) {
+		 if (unlikely(receivedBytes != sizeof(incomingObjectSize))) {
 			 throw RUNTIME_ERROR("Error receiving the incoming object size");
 		 }
 
-		 if (incomingObjectSize > IReceiver::RECEIVER_MAX_SIZE) {
+		 if (unlikely(incomingObjectSize > IReceiver::RECEIVER_MAX_SIZE)) {
              throw RUNTIME_ERROR("Receiving too much");
          }
 
-		 if (incomingObjectSize > size) {
+		 if (unlikely(incomingObjectSize > size)) {
 			 throw RUNTIME_ERROR("Incoming object size greater then buffer size");
 		 }
 
@@ -57,7 +57,7 @@ namespace Gicame {
 
 	 inline std::vector<byte_t> ObjectReceiver::receive(const uint32_t maxSize) {
          std::vector<byte_t> ret(maxSize, 0u);
-         uint32_t receivedBytes = receive(ret.data(), size);
+         uint32_t receivedBytes = receive(ret.data(), maxSize);
          ret.resize(receivedBytes);
          return ret;
 	 }
