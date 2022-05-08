@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rpc\RpcClient.h"
 
 #ifdef WINDOWS
 #else
