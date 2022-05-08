@@ -3,6 +3,8 @@
 
 
 #include "../common.h"
+#include "../interfaces/ISerializable.h"
+#include <vector>
 #include <functional>
 
 
@@ -39,7 +41,7 @@ namespace Gicame {
      * The RpcClient send an execution request to the RpcServer. The request is represented by an
      * instance of RpcExecutionRequest.
      */
-    class RpcExecutionRequest {
+    class RpcExecutionRequest : public ISerializable {
 
     public:
         static constexpr uint32_t MAGIC = 0xDEADBEEFu;
@@ -56,8 +58,12 @@ namespace Gicame {
         RpcExecutionRequest();
         RpcExecutionRequest(const FunctionId functionId, const uint8_t paramCount);
         bool checkIntegrity();
+        std::vector<byte_t> serialize();
 
-    }/*__attribute__((packed))*/;
+    public:
+        static RpcExecutionRequest deserialize(const std::vector<byte_t>& serialized);
+
+    };
 
 
     /*
@@ -85,6 +91,25 @@ namespace Gicame {
 
     inline bool RpcExecutionRequest::checkIntegrity() {
         return magic == MAGIC && paramCount < MAX_PARAM_COUNT;
+    }
+
+    inline std::vector<byte_t> RpcExecutionRequest::serialize() {
+        std::vector<byte_t> serialized;
+        serialized.reserve(sizeof(magic) + sizeof(functionId) + sizeof(params) + sizeof(paramCount));
+        for (byte_t* ptr = (byte_t*)&magic; ptr < (byte_t*)&magic + sizeof(magic); ++ptr)
+            serialized.emplace_back(*ptr);
+        for (byte_t* ptr = (byte_t*)&functionId; ptr < (byte_t*)&functionId + sizeof(functionId); ++ptr)
+            serialized.emplace_back(*ptr);
+        for (uint32_t paramIndex = 0; paramIndex < MAX_PARAM_COUNT; ++paramIndex)
+            for (byte_t* ptr = (byte_t*)&params[paramIndex]; ptr < (byte_t*)&params[paramIndex] + sizeof(params[paramIndex]); ++ptr)
+                serialized.emplace_back(*ptr);
+        for (byte_t* ptr = (byte_t*)&paramCount; ptr < (byte_t*)&paramCount + sizeof(paramCount); ++ptr)
+            serialized.emplace_back(*ptr);
+        return serialized;
+    }
+
+    inline RpcExecutionRequest RpcExecutionRequest::deserialize(const std::vector<byte_t>& serialized) {
+        return RpcExecutionRequest();  // WIP
     }
 
 };

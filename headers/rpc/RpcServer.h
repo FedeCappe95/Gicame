@@ -17,18 +17,21 @@ namespace Gicame {
         MOVABLE_BUT_NOT_COPYABLE;
 
     private:
-        struct FunctionDescriptor {
+        /**
+         * Describe an RPC Function stored in the RpcServer
+         */
+        struct RpcFunctionDescriptor {
             RpcFunction rpcFunction;
             FunctionId functionId;
             uint32_t paramCount;
-            inline FunctionDescriptor(const RpcFunction rpcFunction, const FunctionId functionId, const uint32_t paramCount) :
+            inline RpcFunctionDescriptor(const RpcFunction rpcFunction, const FunctionId functionId, const uint32_t paramCount) :
                 rpcFunction(rpcFunction), functionId(functionId), paramCount(paramCount) {}
         };
 
     private:
         IDataExchanger* dataExchanger;
         BinaryInstanceExchanger binInstExch;
-        std::unordered_map<FunctionId, FunctionDescriptor> funStore;
+        std::unordered_map<FunctionId, RpcFunctionDescriptor> funStore;
 
     public:
         RpcServer(IDataExchanger* dataExchanger);
@@ -63,7 +66,7 @@ namespace Gicame {
     }
 
     inline void RpcServer::registerFunction(RpcFunction rpcFunction, const uint32_t paramCount, const FunctionId functionId) {
-        funStore.insert_or_assign(functionId, FunctionDescriptor(rpcFunction, functionId, paramCount));
+        funStore.insert_or_assign(functionId, RpcFunctionDescriptor(rpcFunction, functionId, paramCount));
     }
 
     inline void RpcServer::oneShot() {
@@ -77,7 +80,7 @@ namespace Gicame {
             throw RUNTIME_ERROR("Invalid exeRequest: invalid functionId");
         }
 
-        FunctionDescriptor& fd = funStoreIter->second;
+        RpcFunctionDescriptor& fd = funStoreIter->second;
         if (unlikely(fd.paramCount != exeRequest.paramCount)) {
             throw RUNTIME_ERROR("Invalid exeRequest: wrong paramCount");
         }

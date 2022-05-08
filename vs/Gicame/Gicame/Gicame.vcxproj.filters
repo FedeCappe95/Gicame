@@ -90,6 +90,12 @@
     <ClInclude Include="..\..\..\headers\rpc\RpcServer.h">
       <Filter>File di intestazione\rpc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\rpc\RpcClient.h">
+      <Filter>File di intestazione\rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\interfaces\ISerializable.h">
+      <Filter>File di intestazione\interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

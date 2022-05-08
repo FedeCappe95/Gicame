@@ -177,11 +177,13 @@
     <ClInclude Include="..\..\..\headers\interfaces\IDataExchanger.h" />
     <ClInclude Include="..\..\..\headers\interfaces\IReceiver.h" />
     <ClInclude Include="..\..\..\headers\interfaces\ISender.h" />
+    <ClInclude Include="..\..\..\headers\interfaces\ISerializable.h" />
     <ClInclude Include="..\..\..\headers\network\NetworkDefinitions.h" />
     <ClInclude Include="..\..\..\headers\network\NetworkUtility.h" />
     <ClInclude Include="..\..\..\headers\network\TcpListeningSocket.h" />
     <ClInclude Include="..\..\..\headers\network\TcpSocket.h" />
     <ClInclude Include="..\..\..\headers\os\ErrorHandling.h" />
+    <ClInclude Include="..\..\..\headers\rpc\RpcClient.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcCommon.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcServer.h" />
     <ClInclude Include="framework.h" />
