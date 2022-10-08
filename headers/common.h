@@ -49,7 +49,7 @@ typedef void* ptr_t;
 #if defined(_MSC_VER) && !defined(MSVC)
     #define MSVC
 #endif
-#define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__ ": ") + MSG)
+#define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + ": " + MSG)
 #define MOVABLE_BUT_NOT_COPYABLE Gicame::MovableButNonCopyable movableButNonCopyable
 #if defined(_MSC_VER)
 	#define likely(A) (A)
