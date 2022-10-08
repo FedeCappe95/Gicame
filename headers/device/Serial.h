@@ -10,7 +10,7 @@
 
 namespace Gicame::Device {
 
-	class Serial /*: public Gicame::IDataExchanger*/ {  // Data type conflict
+	class GICAME_API Serial /*: public Gicame::IDataExchanger*/ {  // Data type conflict
 
 		MOVABLE_BUT_NOT_COPYABLE;
 
