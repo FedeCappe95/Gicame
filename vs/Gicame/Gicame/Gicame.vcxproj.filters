@@ -31,6 +31,12 @@
     <Filter Include="File di intestazione\rpc">
       <UniqueIdentifier>{7cc01f40-06b9-4116-97a0-e1dc136d4683}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\device">
+      <UniqueIdentifier>{8449c0d0-192a-40ff-8015-941e473dea1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\device">
+      <UniqueIdentifier>{e1c5163d-7c61-46d9-9ae3-526feb0caaab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -96,6 +102,9 @@
     <ClInclude Include="..\..\..\headers\interfaces\ISerializable.h">
       <Filter>File di intestazione\interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\device\Serial.h">
+      <Filter>File di intestazione\device</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -109,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\network\NetworkUtility.cpp">
       <Filter>File di origine\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\device\Serial.cpp">
+      <Filter>File di origine\device</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
