@@ -24,6 +24,13 @@ namespace Gicame::Device {
 		static constexpr uint32_t SB_ONE5STOPBITS = 1;
 		static constexpr uint32_t SB_TWOSTOPBITS = 2;
 
+	public:
+		struct SerialPort {
+			std::string name;
+			uint32_t index;
+			inline SerialPort(const std::string& name, const uint32_t index) : name(name), index(index) {}
+		};
+
 	private:
 		void* handle;
 		const uint32_t comIndex;
@@ -48,6 +55,10 @@ namespace Gicame::Device {
 		 * Close the serial communication is previously open
 		 */
 		void close();
+
+	public:
+		static std::vector<SerialPort> enumerateSerialPorts();
+
 	};
 
 };

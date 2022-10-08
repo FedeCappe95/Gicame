@@ -9,7 +9,7 @@
 using namespace Gicame::Device;
 
 
-#define nyi() throw std::runtime_error("Gicame::Device::Serial::" __FUNCTION__ "(...): not yet implemented")
+#define nyi() throw std::runtime_error(std::string("Gicame::Device::Serial::") + __FUNCTION__ + "(...): not yet implemented");
 
 
 bool Serial::open() {
@@ -54,9 +54,10 @@ cleanup:
     close();
     return false;
 
-#elif
+#else
 
     nyi();
+    return false;
 
 #endif
 }
@@ -70,9 +71,12 @@ size_t Serial::send(const uint8_t* what, const size_t size) {
     WriteFile(handle, what, (DWORD)size, &dNoOfBytesWritten, NULL);
     return dNoOfBytesWritten;
 
-#elif
+#else
 
+    UNUSED(what);
+    UNUSED(size);
     nyi();
+    return 0;
 
 #endif
 }
@@ -93,9 +97,12 @@ uint8_t* Serial::receive(uint8_t* outBuffer, const size_t size) {
 
     return outBuffer;
 
-#elif
+#else
 
+    UNUSED(outBuffer);
+    UNUSED(size);
     nyi();
+    return NULL;
 
 #endif
 }
@@ -107,9 +114,36 @@ void Serial::close() {
         CloseHandle(handle);
     handle = NULL;
 
-#elif
+#else
 
     nyi();
 
 #endif
+}
+
+std::vector<Serial::SerialPort> Serial::enumerateSerialPorts() {
+    std::vector<Serial::SerialPort> result;
+
+#ifdef WINDOWS
+
+    char outBuffer[5000];
+
+    for (uint32_t i = 0; i < 255u; ++i) {
+        const std::string name = "COM" + std::to_string(i);
+        DWORD outSize = QueryDosDeviceA(name.c_str(), outBuffer, sizeof(outBuffer));
+
+        if (unlikely(GetLastError() == ERROR_INSUFFICIENT_BUFFER))
+            RUNTIME_ERROR("insufficient buffer");
+
+        if (likely(outSize > 0))
+            result.emplace_back(outBuffer, i);
+    }
+
+#else
+
+    nyi();
+
+#endif
+
+    return result;
 }

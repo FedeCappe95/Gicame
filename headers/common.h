@@ -70,6 +70,7 @@ typedef void* ptr_t;
 #else
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif
+#define UNUSED(X) ((void)X)
 
 
 // Classes and structs
