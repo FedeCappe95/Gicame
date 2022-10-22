@@ -7,7 +7,7 @@
 #include "../common.h"
 #include "../interfaces/IDataExchanger.h"
 #include "../dataTransfer/BinaryInstanceExchanger.h"
-#include "RpcCommon.h"
+#include "./RpcCommon.h"
 
 
 namespace Gicame {

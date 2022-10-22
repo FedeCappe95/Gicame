@@ -2,12 +2,11 @@
 #define __RPCCLIENT_H__
 
 
-#include <unordered_map>
-#include <functional>
 #include "../common.h"
 #include "../interfaces/IDataExchanger.h"
 #include "../dataTransfer/BinaryInstanceExchanger.h"
-#include "RpcCommon.h"
+#include "./RpcCommon.h"
+#include "./RerBuilding.h"
 
 
 namespace Gicame {
@@ -20,28 +19,25 @@ namespace Gicame {
         IDataExchanger* dataExchanger;
 
     private:
-        void sendExeRequest(const FunctionId functionId, const std::vector<RpcParamDescriptor> params, const std::vector<void*> paramValues);
+        /**
+         * Send an RpcExecutionRequest and its serialized parameters
+         */
+        void sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues);
 
     public:
         RpcClient(IDataExchanger* dataExchanger);
 
         /**
-         * Template functions to retrieve lamdas to send the RpcExecutionRequests
+         * Build a lamdas to send the RpcExecutionRequests
          */
         template <class RetType>
         auto get(const FunctionId functionId);
-        template <class RetType, class Arg0Type>
-        auto get(const FunctionId functionId);
-        template <class RetType, class Arg0Type, class Arg1Type>
-        auto get(const FunctionId functionId);
-        template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type>
-        auto get(const FunctionId functionId);
-        template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type, class Arg3Type>
-        auto get(const FunctionId functionId);
-        template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type, class Arg3Type, class Arg4Type>
-        auto get(const FunctionId functionId);
-        template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type, class Arg3Type, class Arg4Type, class Arg5Type>
-        auto get(const FunctionId functionId);
+
+        /**
+         * Build a lamdas to send the RpcExecutionRequests
+         */
+        template <class RetType, class... Args>
+        inline auto RpcClient::get(const FunctionId functionId, const Args... args);
 
     };
 
@@ -55,102 +51,40 @@ namespace Gicame {
         // Nothing here
     }
 
-    inline void RpcClient::sendExeRequest(
-        const FunctionId functionId, const std::vector<RpcParamDescriptor> params, const std::vector<void*> paramValues
-    ) {
-        if (unlikely(params.size() != paramValues.size())) {
-            throw RUNTIME_ERROR("Invalid couple of arguments params and paramValues");
+    inline void RpcClient::sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues) {
+        // Compute dimensions
+        const size_t paramCount = paramValues.size();
+        size_t totalParamsSize = 0;
+        for (size_t paramIndex = 0; paramIndex < paramCount; ++paramIndex)
+            totalParamsSize += paramValues[paramIndex].size();
+        
+        // Accumulate all paramValues into a single buffer to send all of them together
+        std::vector<byte_t> sendingBuffer(totalParamsSize);
+        byte_t* sendingBufferPtr = sendingBuffer.data();
+        for (size_t paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
+            for (size_t i = 0; i < paramValues[paramIndex].size(); ++i, ++sendingBufferPtr)
+                *sendingBufferPtr = paramValues[paramIndex][i];
         }
 
-        uint32_t paramCount = (uint32_t)params.size();
-
-        std::vector<byte_t> paramSerializedBuffer;
-        RpcExecutionRequest rer(functionId, paramCount);
-
-        for (uint32_t paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
-            rer.params[paramIndex] = params[paramIndex];
-            byte_t* paramPointer = (byte_t*)paramValues[paramIndex];
-            for (size_t i = 0; i < rer.params[paramIndex].size; ++i) {
-                paramSerializedBuffer.emplace_back(*paramPointer);
-                ++paramPointer;
-            }
-        }
-
+        // Data exchange
         dataExchanger->send(rer.serialize());
-
-        if (!paramSerializedBuffer.empty())
-            dataExchanger->send(paramSerializedBuffer);
+        if (!sendingBuffer.empty())
+            dataExchanger->send(sendingBuffer);
     }
 
     template <class RetType>
     inline auto RpcClient::get(const FunctionId functionId) {
         return [&]() {
-            sendExeRequest(functionId, std::vector<RpcParamDescriptor>(), {});
+            RpcExecutionRequest rer(functionId, 0);
+            sendExeRequest(rer, {});
         };
     }
 
-    template <class RetType, class Arg0Type>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&](Arg0Type arg0) {
-            sendExeRequest(functionId, { RpcParamDescriptor(sizeof(Arg0Type)) }, { &arg0 });
-        };
-    }
-
-    template <class RetType, class Arg0Type, class Arg1Type>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&](Arg0Type arg0, Arg1Type arg1) {
-            sendExeRequest(
-                functionId,
-                { RpcParamDescriptor(sizeof(Arg0Type)), RpcParamDescriptor(sizeof(Arg1Type)) },
-                { &arg0, &arg1 }
-            );
-        };
-    }
-
-    template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&](Arg0Type arg0, Arg1Type arg1, Arg2Type arg2) {
-            sendExeRequest(
-                functionId,
-                { RpcParamDescriptor(sizeof(Arg0Type)), RpcParamDescriptor(sizeof(Arg1Type)), RpcParamDescriptor(sizeof(Arg2Type)) },
-                { &arg0, &arg1, &arg2 }
-            );
-        };
-    }
-
-    template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type, class Arg3Type>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&](Arg0Type arg0, Arg1Type arg1, Arg2Type arg2, Arg3Type arg3) {
-            sendExeRequest(
-                functionId,
-                { RpcParamDescriptor(sizeof(Arg0Type)), RpcParamDescriptor(sizeof(Arg1Type)), RpcParamDescriptor(sizeof(Arg2Type)),
-                  RpcParamDescriptor(sizeof(Arg3Type)) },
-                { &arg0, &arg1, &arg2, &arg3 }
-            );
-        };
-    }
-
-    template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type, class Arg3Type, class Arg4Type>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&](Arg0Type arg0, Arg1Type arg1, Arg2Type arg2, Arg3Type arg3, Arg4Type arg4) {
-            sendExeRequest(
-                functionId,
-                { RpcParamDescriptor(sizeof(Arg0Type)), RpcParamDescriptor(sizeof(Arg1Type)), RpcParamDescriptor(sizeof(Arg2Type)),
-                  RpcParamDescriptor(sizeof(Arg3Type)), RpcParamDescriptor(sizeof(Arg4Type)) },
-                { &arg0, &arg1, &arg2, &arg3, &arg4 }
-            );
-        };
-    }
-
-    template <class RetType, class Arg0Type, class Arg1Type, class Arg2Type, class Arg3Type, class Arg4Type, class Arg5Type>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&](Arg0Type arg0, Arg1Type arg1, Arg2Type arg2, Arg3Type arg3, Arg4Type arg4, Arg5Type arg5) {
-            sendExeRequest(
-                functionId,
-                { RpcParamDescriptor(sizeof(Arg0Type)), RpcParamDescriptor(sizeof(Arg1Type)), RpcParamDescriptor(sizeof(Arg2Type)),
-                  RpcParamDescriptor(sizeof(Arg3Type)), RpcParamDescriptor(sizeof(Arg4Type)), RpcParamDescriptor(sizeof(Arg5Type)) },
-                { &arg0, &arg1, &arg2, &arg3, &arg4, &arg5 }
-            );
+    template <class RetType, class... Args>
+    inline auto RpcClient::get(const FunctionId functionId, const Args... args) {
+        const RpcExecutionRequest rer = Gicame::RerBuilding::build(functionId, args...);
+        return [](const Args... args) {
+            sendExeRequest(rer, {});  // WIP
         };
     }
 
