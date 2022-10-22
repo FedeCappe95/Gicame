@@ -176,6 +176,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\headers\common.h" />
+    <ClInclude Include="..\..\..\headers\dataSerialization\BinarySerializer.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceExchanger.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceReceiver.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceSender.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="..\..\..\headers\network\TcpListeningSocket.h" />
     <ClInclude Include="..\..\..\headers\network\TcpSocket.h" />
     <ClInclude Include="..\..\..\headers\os\ErrorHandling.h" />
+    <ClInclude Include="..\..\..\headers\rpc\RerBuilding.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcClient.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcCommon.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcServer.h" />
@@ -203,6 +205,7 @@
     <ClCompile Include="..\..\..\src\network\NetworkUtility.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpListeningSocket.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpSocket.cpp" />
+    <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

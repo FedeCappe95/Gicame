@@ -52,7 +52,7 @@ namespace Gicame {
         const uint32_t magic;
         const FunctionId functionId;
         RpcParamDescriptor params[MAX_PARAM_COUNT];
-        const uint8_t paramCount;
+        uint8_t paramCount;
 
     public:
         RpcExecutionRequest();

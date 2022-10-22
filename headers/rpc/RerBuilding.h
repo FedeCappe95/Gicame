@@ -28,7 +28,7 @@ namespace Gicame::RerBuilding {
     template <class... Args>
     inline RpcExecutionRequest build(const FunctionId functionId, Args... args) {
         RpcExecutionRequest rer(functionId, 0);
-        innerBuild(rer);
+        innerBuild(rer, args...);
         return rer;
     }
 

@@ -16,6 +16,9 @@ build/TcpListeningSocket.o: src/network/TcpListeningSocket.cpp headers/network/T
 build/Serial.o: src/device/Serial.cpp $(HEADERS)
 	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
+build/Serial.o: src/rpc/RpcClient.cpp $(HEADERS)
+	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+
 build/libgicame.so: $(OBJ_FILES)
 	# Building the shared library
 	$(CC) $^ $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -shared -o $@

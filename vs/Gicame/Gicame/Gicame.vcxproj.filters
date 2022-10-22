@@ -37,6 +37,12 @@
     <Filter Include="File di origine\device">
       <UniqueIdentifier>{e1c5163d-7c61-46d9-9ae3-526feb0caaab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\dataSerialization">
+      <UniqueIdentifier>{c2231eb2-4537-45ab-bbfc-682aa7556cfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\rpc">
+      <UniqueIdentifier>{421e8045-03a8-4184-ac97-643e3296c214}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -105,6 +111,12 @@
     <ClInclude Include="..\..\..\headers\device\Serial.h">
       <Filter>File di intestazione\device</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataSerialization\BinarySerializer.h">
+      <Filter>File di intestazione\dataSerialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\rpc\RerBuilding.h">
+      <Filter>File di intestazione\rpc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -121,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\device\Serial.cpp">
       <Filter>File di origine\device</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp">
+      <Filter>File di origine\rpc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
