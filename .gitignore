@@ -36,7 +36,11 @@
 
 # Visual Studio
 vs/Gicame/.vs
-vs/Gicame/x64/*
-vs/Gicame/x86/*
-vs/Gicame/Gicame/x64/*
-vs/Gicame/Gicame/x86/*
+vs/Gicame/Release-Win32/*
+vs/Gicame/Debug-Win32/*
+vs/Gicame/Release-x64/*
+vs/Gicame/Debug-x64/*
+vs/Gicame/Gicame/Release-Win32/*
+vs/Gicame/Gicame/Debug-Win32/*
+vs/Gicame/Gicame/Release-x64/*
+vs/Gicame/Gicame/Debug-x64/*
