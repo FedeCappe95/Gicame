@@ -21,9 +21,13 @@
 #endif
 
 
-using namespace std;
+#ifdef WINDOWS
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "Iphlpapi.lib")
+#endif
 
 
+// Data
 #ifdef WINDOWS
 static bool wsaStarted = false;
 #endif

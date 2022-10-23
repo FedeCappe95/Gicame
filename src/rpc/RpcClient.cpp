@@ -8,7 +8,7 @@ RpcClient::RpcClient(IDataExchanger* dataExchanger) : dataExchanger(dataExchange
     // Nothing here
 }
 
-void RpcClient::sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues) {
+uint64_t RpcClient::sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues) {
     // Compute dimensions
     const size_t paramCount = paramValues.size();
     size_t totalParamsSize = 0;
@@ -27,4 +27,8 @@ void RpcClient::sendExeRequest(const RpcExecutionRequest& rer, const std::vector
     dataExchanger->send(rer.serialize());
     if (!sendingBuffer.empty())
         dataExchanger->send(sendingBuffer);
+
+    // Receive result
+    const std::vector<byte_t> reply = dataExchanger->receive(sizeof(uint64_t));
+    return *((uint64_t*)reply.data());
 }

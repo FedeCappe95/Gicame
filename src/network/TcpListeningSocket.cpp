@@ -50,7 +50,7 @@ bool TcpListeningSocket::listenTo(const uint16_t port, const uint16_t backlog) {
 	#ifdef WINDOWS
 
 	// I'm going to copy all the procedure from the Microsoft offcial documentation
-	// SocketzInternals::startWsaIfNeeded();  TODO
+	startWsaIfNeeded();
 	struct addrinfo *result = NULL;
     struct addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));

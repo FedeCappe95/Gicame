@@ -2,8 +2,8 @@
 #define __ISERIALIZABLE_H__
 
 
-#include "../common.h"
 #include <vector>
+#include "../common.h"
 
 
 namespace Gicame {

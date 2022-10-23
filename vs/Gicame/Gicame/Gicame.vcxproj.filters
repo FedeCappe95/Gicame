@@ -137,5 +137,11 @@
     <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp">
       <Filter>File di origine\rpc</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\network\NetworkDefinitions.cpp">
+      <Filter>File di origine\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\rpc\RpcServer.cpp">
+      <Filter>File di origine\rpc</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

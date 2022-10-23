@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -125,6 +125,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,6 +166,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -202,10 +204,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\device\Serial.cpp" />
+    <ClCompile Include="..\..\..\src\network\NetworkDefinitions.cpp" />
     <ClCompile Include="..\..\..\src\network\NetworkUtility.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpListeningSocket.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpSocket.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp" />
+    <ClCompile Include="..\..\..\src\rpc\RpcServer.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -11,7 +11,7 @@
 
 namespace Gicame {
 
-    class RpcClient {
+    class GICAME_API RpcClient {
 
         MOVABLE_BUT_NOT_COPYABLE;
 
@@ -22,7 +22,7 @@ namespace Gicame {
         /**
          * Send an RpcExecutionRequest and its serialized parameters
          */
-        void sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues);
+        uint64_t sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues);
 
     public:
         RpcClient(IDataExchanger* dataExchanger);
@@ -30,14 +30,8 @@ namespace Gicame {
         /**
          * Build a lamdas to send the RpcExecutionRequests
          */
-        template <class RetType>
-        auto get(const FunctionId functionId);
-
-        /**
-         * Build a lamdas to send the RpcExecutionRequests
-         */
         template <class RetType, class... Args>
-        auto get(const FunctionId functionId, const Args... args);
+        auto get(const FunctionId functionId);
 
     };
 
@@ -46,25 +40,17 @@ namespace Gicame {
      * Inline implementation
      */
 
-    template <class RetType>
-    inline auto RpcClient::get(const FunctionId functionId) {
-        return [&]() {
-            RpcExecutionRequest rer(functionId, 0);
-            sendExeRequest(rer, {});
-            // TODO: read reply;
-            RetType ret;
-            return ret;
-        };
-    }
-
     template <class RetType, class... Args>
-    inline auto RpcClient::get(const FunctionId functionId, const Args... args) {
-        const RpcExecutionRequest rer = Gicame::RerBuilding::build(functionId, args...);
-        return [](const Args... args) {
-            sendExeRequest(rer, {});  // WIP
-            // TODO: read reply;
-            RetType ret;
-            return ret;
+    inline auto RpcClient::get(const FunctionId functionId) {
+        RpcClient* thisRpcClient = this;
+        return [=](const Args... args) {
+            const RpcExecutionRequest rer = Gicame::RerBuilding::build(functionId, args...);
+            if (rer.paramCount == 2) {  // Patch WIP
+                const uint64_t result = thisRpcClient->sendExeRequest(rer, { {0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00} });  // WIP
+                return (RetType)result;
+            }
+            const uint64_t result = thisRpcClient->sendExeRequest(rer, {});
+            return (RetType)result;
         };
     }
 

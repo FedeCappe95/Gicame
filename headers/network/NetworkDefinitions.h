@@ -2,22 +2,11 @@
 #define __NETWORK_DEFINITIONS_H__
 
 
-#include "common.h"
-#include "NetworkUtility.h"
-#include <sstream>
-#include <iomanip>
+#include "../common.h"
+#include "./NetworkUtility.h"
 
 
 namespace Gicame {
-
-    /*
-     * Constants
-     */
-
-    static constexpr uint32_t NETMASK_32BIT = 0xFFFFFFFFU;
-    static constexpr uint32_t NETMASK_24BIT = 0x00FFFFFFU;
-    static constexpr uint32_t NETMASK_16BIT = 0x0000FFFFU;
-    static constexpr uint32_t NETMASK_8BIT  = 0x000000FFU;
 
 
     /*
@@ -32,15 +21,25 @@ namespace Gicame {
     typedef int SocketDescriptor;
     #endif
 
-    enum class InternetProtocolVersion {IPv4, IPv6};
+    enum class InternetProtocolVersion { IPv4, IPv6 };
     enum class SocketStatus { CONNECTED, CLOSED, SS_ERROR };
+
+
+    /*
+     * Constants
+     */
+
+    static constexpr IPv4NetMask NETMASK_32BIT = 0xFFFFFFFFU;
+    static constexpr IPv4NetMask NETMASK_24BIT = 0x00FFFFFFU;
+    static constexpr IPv4NetMask NETMASK_16BIT = 0x0000FFFFU;
+    static constexpr IPv4NetMask NETMASK_8BIT = 0x000000FFU;
 
 
     /*
      * Struct and classes
      */
 
-    struct IPv4 {
+    struct GICAME_API IPv4 {
         union {
             uint32_t value;
             uint8_t byteValues[4];
@@ -56,7 +55,7 @@ namespace Gicame {
         bool operator==(const IPv4& other) const;
 	};
 
-	struct MacAddress {
+	struct GICAME_API MacAddress {
         union {
             uint64_t value;
             uint8_t byteValues[6];
@@ -69,24 +68,8 @@ namespace Gicame {
 
 
     /*
-     * IPv4 implementation
+     * IPv4 inline implementation
      */
-
-    inline IPv4::IPv4(const std::string& strValue) {
-        inet_pton(AF_INET, strValue.c_str(), (void*)&value);
-    }
-
-    inline std::string IPv4::toString() const {
-        char strBuffer[128] = { 0 };
-        inet_ntop(AF_INET, &value, strBuffer, sizeof(strBuffer));
-        return std::string(strBuffer);
-    }
-
-    inline in_addr IPv4::toInAddr() const {
-        in_addr addr;
-        addr.s_addr = value;
-        return addr;
-    }
 
     inline bool IPv4::matchSubnet(const IPv4& subnet, const IPv4NetMask netmask) const {
         return (value & netmask) == (subnet.value & netmask);
@@ -110,18 +93,8 @@ namespace Gicame {
 
 
     /*
-     * MacAddress implementation
+     * MacAddress inline implementation
      */
-
-     inline std::string MacAddress::toString() const {
-         std::stringstream ss;
-         ss << std::hex;
-         uint32_t i;
-         for (i = 0; i < sizeof(byteValues) - 1; ++i)
-             ss << std::setfill('0') << std::setw(2) << (unsigned int)byteValues[i] << ":";
-         ss << std::setfill('0') << std::setw(2) << (unsigned int)byteValues[i];
-         return ss.str();
-     }
 
      inline bool MacAddress::operator==(const MacAddress& other) const {
          return value == other.value;

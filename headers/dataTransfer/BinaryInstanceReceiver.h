@@ -4,7 +4,7 @@
 
 #include "../common.h"
 #include "../interfaces/IReceiver.h"
-#include "ObjectReceiver.h"
+#include "./ObjectReceiver.h"
 
 
 namespace Gicame {

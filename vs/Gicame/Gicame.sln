@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gicame", "Gicame\Gicame.vcxproj", "{DE37DC5B-B3BF-477F-949D-5507786879FD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-RpcClientOverTcp", "Example-RpcClientOverTcp\Example-RpcClientOverTcp.vcxproj", "{FBF8A579-135A-4F14-A095-F84C2259E0B6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-RpcServerOverTcp", "Example-RpcServerOverTcp\Example-RpcServerOverTcp.vcxproj", "{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,22 @@ Global
 		{DE37DC5B-B3BF-477F-949D-5507786879FD}.Release|x64.Build.0 = Release|x64
 		{DE37DC5B-B3BF-477F-949D-5507786879FD}.Release|x86.ActiveCfg = Release|Win32
 		{DE37DC5B-B3BF-477F-949D-5507786879FD}.Release|x86.Build.0 = Release|Win32
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Debug|x64.ActiveCfg = Debug|x64
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Debug|x64.Build.0 = Debug|x64
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Debug|x86.ActiveCfg = Debug|Win32
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Debug|x86.Build.0 = Debug|Win32
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Release|x64.ActiveCfg = Release|x64
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Release|x64.Build.0 = Release|x64
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Release|x86.ActiveCfg = Release|Win32
+		{FBF8A579-135A-4F14-A095-F84C2259E0B6}.Release|x86.Build.0 = Release|Win32
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Debug|x64.ActiveCfg = Debug|x64
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Debug|x64.Build.0 = Debug|x64
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Debug|x86.ActiveCfg = Debug|Win32
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Debug|x86.Build.0 = Debug|Win32
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x64.ActiveCfg = Release|x64
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x64.Build.0 = Release|x64
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x86.ActiveCfg = Release|Win32
+		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

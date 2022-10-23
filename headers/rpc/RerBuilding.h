@@ -10,15 +10,20 @@
  */
 namespace Gicame::RerBuilding {
 
-    template <class Arg, class... OtherArgs>
-    inline void innerBuild(RpcExecutionRequest& rer, Arg arg, OtherArgs... otherArgs) {
-        rer.params[++(rer.paramCount)] = RpcParamDescriptor(sizeof(Arg));
-        innerBuild(rer, otherArgs);
+    template <class Arg>
+    inline void innerBuild(RpcExecutionRequest& rer) {
+        // Do nothing
     }
 
     template <class Arg>
     inline void innerBuild(RpcExecutionRequest& rer, Arg arg) {
-        rer.params[++(rer.paramCount)] = RpcParamDescriptor(sizeof(Arg));
+        rer.params[(rer.paramCount)++] = RpcParamDescriptor(sizeof(Arg));
+    }
+
+    template <class Arg, class... OtherArgs>
+    inline void innerBuild(RpcExecutionRequest& rer, Arg arg, OtherArgs... otherArgs) {
+        rer.params[(rer.paramCount)++] = RpcParamDescriptor(sizeof(Arg));
+        innerBuild(rer, otherArgs...);
     }
 
     /**
@@ -29,6 +34,16 @@ namespace Gicame::RerBuilding {
     inline RpcExecutionRequest build(const FunctionId functionId, Args... args) {
         RpcExecutionRequest rer(functionId, 0);
         innerBuild(rer, args...);
+        return rer;
+    }
+
+    /**
+    * Build a RpcExecutionRequest for the following functionId and the following parameters (args).
+    * It uses innerBuild.
+    */
+    template <class... Args>
+    inline RpcExecutionRequest build(const FunctionId functionId) {
+        RpcExecutionRequest rer(functionId, 0);
         return rer;
     }
 

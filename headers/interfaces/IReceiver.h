@@ -2,8 +2,8 @@
 #define __IRECEIVER_H__
 
 
-#include "../common.h"
 #include <vector>
+#include "../common.h"
 
 
 namespace Gicame {
@@ -16,6 +16,7 @@ namespace Gicame {
     public:
         virtual uint32_t receive(void* buffer, const uint32_t size) = 0;
         virtual std::vector<byte_t> receive(const uint32_t size);
+        virtual bool isReceiverConnected() const = 0;
 
     };
 

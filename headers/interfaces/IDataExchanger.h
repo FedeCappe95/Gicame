@@ -3,13 +3,18 @@
 
 
 #include "../common.h"
-#include "IReceiver.h"
-#include "ISender.h"
+#include "./IReceiver.h"
+#include "./ISender.h"
 
 
 namespace Gicame {
 
-    class GICAME_API IDataExchanger : public IReceiver, public ISender {};
+    class GICAME_API IDataExchanger : public IReceiver, public ISender {
+    
+    public:
+        virtual bool isConnected() const = 0;
+
+    };
 
 };
 

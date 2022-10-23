@@ -4,7 +4,7 @@ CFLAGS       = -fPIC -Wall -Wextra -march=native
 RELEASEFLAGS = -O2
 
 HEADERS = $(echo headers/*.h)
-OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o
+OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o build/RpcClient.o build/RpcServer.o build/NetworkDefinitions.o
 
 
 build/TcpSocket.o: src/network/TcpSocket.cpp headers/network/TcpSocket.h $(HEADERS)
@@ -13,10 +13,16 @@ build/TcpSocket.o: src/network/TcpSocket.cpp headers/network/TcpSocket.h $(HEADE
 build/TcpListeningSocket.o: src/network/TcpListeningSocket.cpp headers/network/TcpListeningSocket.h $(HEADERS)
 	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Serial.o: src/device/Serial.cpp $(HEADERS)
+build/NetworkDefinitions.o: src/network/NetworkDefinitions.cpp headers/network/NetworkDefinitions.h $(HEADERS)
 	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Serial.o: src/rpc/RpcClient.cpp $(HEADERS)
+build/Serial.o: src/device/Serial.cpp headers/device/Serial.h $(HEADERS)
+	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+
+build/RpcClient.o: src/rpc/RpcClient.cpp headers/rpc/RpcClient.h $(HEADERS)
+	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+
+build/RpcServer.o: src/rpc/RpcServer.cpp headers/rpc/RpcServer.h $(HEADERS)
 	$(CC) $< $(FLAGS) $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
 build/libgicame.so: $(OBJ_FILES)

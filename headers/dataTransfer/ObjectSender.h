@@ -19,8 +19,9 @@ namespace Gicame {
 
 	public:
 		ObjectSender(ISender* sender);
-		virtual uint32_t send(const void* buffer, const uint32_t size);
-		virtual uint32_t send(const std::vector<byte_t>& buffer);
+		virtual uint32_t send(const void* buffer, const uint32_t size) override;
+		virtual uint32_t send(const std::vector<byte_t>& buffer) override;
+		virtual bool isSenderConnected() const override;
 
 	};
 
@@ -54,6 +55,10 @@ namespace Gicame {
 			 throw RUNTIME_ERROR("Sending too much");
 		 }
          return send(buffer.data(), (uint32_t)buffer.size());
+	 }
+
+	 inline bool ObjectSender::isSenderConnected() const {
+		 return sender->isSenderConnected();
 	 }
 
 };

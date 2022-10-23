@@ -4,7 +4,7 @@
 
 #include "../common.h"
 #include "../interfaces/ISender.h"
-#include "ObjectSender.h"
+#include "./ObjectSender.h"
 
 
 namespace Gicame {

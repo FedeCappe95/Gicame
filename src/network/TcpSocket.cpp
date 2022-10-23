@@ -38,10 +38,20 @@ TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
     }
 }
 
+TcpSocket::TcpSocket(TcpSocket&& other) noexcept :
+	sockfd(other.sockfd),
+	socketStatus(other.socketStatus),
+	sin_family(other.sin_family)
+{
+	other.sockfd = -1;  // Prevent close() on destructor
+}
+
 // Do not close the socket in the destructor unless the TcpSocket is "MOVABLE_BUT_NOT_COPYABLE"!!
 // If you close it here and your TcpSocket can be copied you will spend the entire day looking for
 // bugs... Just like I did...
 // When you copy a TcpSocket, the old one will have an invalid socketfd as a private data member!
+// In this implementation, TcpSocket is "MOVABLE_BUT_NOT_COPYABLE", so it's safe (and required) to
+// close the socket here.
 TcpSocket::~TcpSocket() {
 	this->close();
 }
@@ -148,6 +158,14 @@ void TcpSocket::close() {
 		sockfd = 0;
 	}
 	socketStatus = SocketStatus::CLOSED;
+}
+
+bool TcpSocket::isConnected() const {
+	if (socketStatus != SocketStatus::CONNECTED)
+		return false;
+	int errorCode;
+	this->getSockOptions(SOL_SOCKET, SO_ERROR, &errorCode);
+	return errorCode >= 0;
 }
 
 TcpSocket TcpSocket::fromSockfd(SocketDescriptor sockfd, const SocketStatus socketStatus, const short sin_family) {

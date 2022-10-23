@@ -6,9 +6,9 @@
 #include <vector>
 #include "../common.h"
 #include "../interfaces/IDataExchanger.h"
-#include "NetworkUtility.h"
-#include "NetworkDefinitions.h"
-#include "TcpSocket.h"
+#include "./NetworkUtility.h"
+#include "./NetworkDefinitions.h"
+#include "./TcpSocket.h"
 
 
 namespace Gicame {

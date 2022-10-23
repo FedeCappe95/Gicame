@@ -6,8 +6,8 @@
 #include <vector>
 #include "../common.h"
 #include "../interfaces/IDataExchanger.h"
-#include "NetworkUtility.h"
-#include "NetworkDefinitions.h"
+#include "./NetworkUtility.h"
+#include "./NetworkDefinitions.h"
 
 
 namespace Gicame {
@@ -20,15 +20,16 @@ namespace Gicame {
 	private:
 		SocketDescriptor sockfd;
 		SocketStatus socketStatus;
-		short sin_family; //IPv4 (AF_INET) or IPv6 (AF_INET6)
+		short sin_family; // IPv4 (AF_INET) or IPv6 (AF_INET6)
 
 	private:
-		constexpr TcpSocket(
+		inline TcpSocket(
 			const SocketDescriptor sockfd, const SocketStatus socketStatus, const short sin_family
 		) : sockfd(sockfd), socketStatus(socketStatus), sin_family(sin_family) {}
 
 	public:
 		TcpSocket(const InternetProtocolVersion ipv = InternetProtocolVersion::IPv4);
+		TcpSocket(TcpSocket&& other) noexcept;
 		~TcpSocket();
 
 		/**
@@ -52,7 +53,9 @@ namespace Gicame {
 		/**
 		 * Return true if the socket is connected
 		 */
-		bool isConnected() const;
+		virtual bool isConnected() const override;
+		virtual bool isSenderConnected() const override { return isConnected(); }
+		virtual bool isReceiverConnected() const override { return isConnected(); }
 
 		/**
 		 * Current socket status
@@ -90,10 +93,6 @@ namespace Gicame {
 	/*
 	 * Inline implementation
 	 */
-
-	inline bool TcpSocket::isConnected() const {
- 		return (socketStatus == SocketStatus::CONNECTED);
- 	}
 
  	inline SocketStatus TcpSocket::getSocketStatus() const {
  		return socketStatus;

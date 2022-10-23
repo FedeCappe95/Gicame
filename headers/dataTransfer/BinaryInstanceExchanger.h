@@ -4,8 +4,8 @@
 
 #include "../common.h"
 #include "../interfaces/IDataExchanger.h"
-#include "BinaryInstanceSender.h"
-#include "BinaryInstanceReceiver.h"
+#include "./BinaryInstanceSender.h"
+#include "./BinaryInstanceReceiver.h"
 
 
 namespace Gicame {

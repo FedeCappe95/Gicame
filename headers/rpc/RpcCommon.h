@@ -2,13 +2,19 @@
 #define __RPCCOMMON_H__
 
 
-#include "../common.h"
-#include "../interfaces/ISerializable.h"
 #include <vector>
 #include <functional>
+#include "../common.h"
+#include "../interfaces/ISerializable.h"
+#include "./RpcCommon.h"
 
 
 namespace Gicame {
+
+    /*
+     * Prototypes
+     */
+    class RpcExecutionRequest;
 
     /**
      * An RpcFunction is identified by a natural number on 32 bits
@@ -18,8 +24,7 @@ namespace Gicame {
     /**
      * Type of RPC callbacks
      */
-    //typedef std::function<uint64_t(RpcExecutionRequest*)> RpcFunction;
-    #define RpcFunction std::function<uint64_t(RpcExecutionRequest*)>
+    using RpcFunction = std::function<uint64_t(RpcExecutionRequest*, const std::vector<std::vector<byte_t>>&)>;
 
     /**
      * Describe a paramenter of a RpcExecutionRequest
