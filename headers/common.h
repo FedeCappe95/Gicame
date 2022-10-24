@@ -95,7 +95,7 @@ namespace Gicame::Utilities {
 
     template<typename Type>
     static constexpr uint64_t maxOf() {
-        static constexpr uint64_t TYPE_MAX = (uint64_t(1u) << (sizeof(Type) * 8u)) - 1u;
+        constexpr uint64_t TYPE_MAX = (uint64_t(1u) << (sizeof(Type) * 8u)) - 1u;
         return TYPE_MAX;
     }
 

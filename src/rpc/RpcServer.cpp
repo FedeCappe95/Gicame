@@ -1,3 +1,4 @@
+#include <cassert>
 #include "rpc/RpcServer.h"
 
 
@@ -8,7 +9,7 @@ RpcServer::RpcServer(IDataExchanger* dataExchanger) :
     dataExchanger(dataExchanger)
 {
     // Default InvalidRequestEventHandler
-    invalidRequestEventHandler = [&](const RpcExecutionRequest& rer, const InvalidRequestReason reason) {
+    invalidRequestEventHandler = [&]([[maybe_unused]] const RpcExecutionRequest& rer, const InvalidRequestReason reason) {
         switch (reason) {
         case InvalidRequestReason::INVALID_FUNCTION_ID:
             throw RUNTIME_ERROR("Invalid request: invalid functionId");

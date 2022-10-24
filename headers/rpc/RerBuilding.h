@@ -16,12 +16,12 @@ namespace Gicame::RerBuilding {
     }
 
     template <class Arg>
-    inline void innerBuild(RpcExecutionRequest& rer, Arg arg) {
+    inline void innerBuild(RpcExecutionRequest& rer, [[maybe_unused]] Arg arg) {
         rer.params[(rer.paramCount)++] = RpcParamDescriptor(sizeof(Arg));
     }
 
     template <class Arg, class... OtherArgs>
-    inline void innerBuild(RpcExecutionRequest& rer, Arg arg, OtherArgs... otherArgs) {
+    inline void innerBuild(RpcExecutionRequest& rer, [[maybe_unused]] Arg arg, OtherArgs... otherArgs) {
         rer.params[(rer.paramCount)++] = RpcParamDescriptor(sizeof(Arg));
         innerBuild(rer, otherArgs...);
     }
