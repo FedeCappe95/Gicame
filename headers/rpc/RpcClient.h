@@ -22,7 +22,7 @@ namespace Gicame {
         /**
          * Send an RpcExecutionRequest and its serialized parameters
          */
-        uint64_t sendExeRequest(const RpcExecutionRequest& rer, const std::vector<std::vector<byte_t>> paramValues);
+        uint64_t sendExeRequest(const RpcExecutionRequest& rer, const std::vector<byte_t> paramsDump);
 
     public:
         RpcClient(IDataExchanger* dataExchanger);
@@ -44,12 +44,8 @@ namespace Gicame {
     inline auto RpcClient::get(const FunctionId functionId) {
         RpcClient* thisRpcClient = this;
         return [=](const Args... args) {
-            const RpcExecutionRequest rer = Gicame::RerBuilding::build(functionId, args...);
-            if (rer.paramCount == 2) {  // Patch WIP
-                const uint64_t result = thisRpcClient->sendExeRequest(rer, { {0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00} });  // WIP
-                return (RetType)result;
-            }
-            const uint64_t result = thisRpcClient->sendExeRequest(rer, {});
+            auto [rer, paramsDump] = Gicame::RerBuilding::build(functionId, args...);
+            const uint64_t result = thisRpcClient->sendExeRequest(rer, paramsDump);
             return (RetType)result;
         };
     }

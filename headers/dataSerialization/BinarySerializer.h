@@ -9,12 +9,14 @@
 
 // Macros
 #define STD_SERILIZES_FOR_PRIMITIVE_TYPE(Type) \
-inline std::vector<byte_t> BinarySerializer<Type>::serialize(const Type& data) { \
+template <> \
+inline std::vector<byte_t> BinarySerializer::serialize(const Type& data) { \
 	std::vector<byte_t> result(sizeof(Type)); \
 	*((Type*)result.data()) = data; \
 	return result; \
 } \
-inline void BinarySerializer<Type>::serialize(const Type& data, void* outBuffer) { \
+template <> \
+inline void BinarySerializer::serialize(const Type& data, void* outBuffer) { \
 	*((Type*)outBuffer) = data; \
 }
 
@@ -26,13 +28,14 @@ namespace Gicame {
 	/**
 	 * Generic binary serializer
 	 */
-	template <class DataType>
 	class BinarySerializer {
 
 	public:
 		constexpr BinarySerializer() {};
-		std::vector<byte_t> serialize(const DataType& data);    // Method A
-		void serialize(const DataType& data, void* outBuffer);  // Method B
+		template <class Type>
+		std::vector<byte_t> serialize(const Type& data);    // Method A
+		template <class Type>
+		void serialize(const Type& data, void* outBuffer);  // Method B
 
 	};
 
@@ -44,14 +47,16 @@ namespace Gicame {
 	/**
 	 * Serialization for ISerializable interface (Method A)
 	 */
-	inline std::vector<byte_t> BinarySerializer<ISerializable>::serialize(const ISerializable& data) {
+	template <>
+	inline std::vector<byte_t> BinarySerializer::serialize(const ISerializable& data) {
 		return data.serialize();
 	}
 
 	/**
 	 * Serialization for ISerializable interface (Method B)
 	 */
-	inline void BinarySerializer<ISerializable>::serialize(const ISerializable& data, void* outBuffer) {
+	template <>
+	inline void BinarySerializer::serialize(const ISerializable& data, void* outBuffer) {
 		const std::vector<byte_t> dataBytes = data.serialize();
 		const size_t dataSize = dataBytes.size();
 		for (size_t i = 0; i < dataSize; ++i)

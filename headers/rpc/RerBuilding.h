@@ -2,7 +2,9 @@
 #define __RERBUILDING_H__
 
 
+#include <tuple>
 #include "./RpcCommon.h"
+#include "../dataSerialization/BinarySerializer.h"
 
 
 /**
@@ -10,20 +12,17 @@
  */
 namespace Gicame::RerBuilding {
 
-    template <class Arg>
-    inline void innerBuild(RpcExecutionRequest& rer) {
-        // Do nothing
+    template<class Arg, class... OtherArgs>
+    inline void paramSerialization(BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg) {
+        const std::vector<byte_t> serializedParam = serializer.serialize(arg);
+        dump.insert(dump.end(), serializedParam.begin(), serializedParam.end());
     }
 
-    template <class Arg>
-    inline void innerBuild(RpcExecutionRequest& rer, [[maybe_unused]] Arg arg) {
-        rer.params[(rer.paramCount)++] = RpcParamDescriptor(sizeof(Arg));
-    }
-
-    template <class Arg, class... OtherArgs>
-    inline void innerBuild(RpcExecutionRequest& rer, [[maybe_unused]] Arg arg, OtherArgs... otherArgs) {
-        rer.params[(rer.paramCount)++] = RpcParamDescriptor(sizeof(Arg));
-        innerBuild(rer, otherArgs...);
+    template<class Arg, class... OtherArgs>
+    inline void paramSerialization(BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg, OtherArgs... args) {
+        const std::vector<byte_t> serializedParam = serializer.serialize(arg);
+        dump.insert(dump.end(), serializedParam.begin(), serializedParam.end());
+        paramSerialization(serializer, dump, args...);
     }
 
     /**
@@ -31,10 +30,26 @@ namespace Gicame::RerBuilding {
     * It uses innerBuild.
     */
     template <class... Args>
-    inline RpcExecutionRequest build(const FunctionId functionId, Args... args) {
-        RpcExecutionRequest rer(functionId, 0);
-        innerBuild(rer, args...);
-        return rer;
+    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build(const FunctionId functionId, Args... args) {
+        constexpr size_t paramCount = sizeof...(args);
+        constexpr size_t paramSizes[] = {sizeof(args)...};
+
+        if (paramCount > RpcExecutionRequest::MAX_PARAM_COUNT)
+            throw RUNTIME_ERROR("Too many parameters");
+
+        RpcExecutionRequest rer(functionId, paramCount);
+        size_t totalSize = 0;
+        for (size_t paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
+            rer.params[paramIndex].size = paramSizes[paramIndex];
+            totalSize += paramSizes[paramIndex];
+        }
+
+        std::vector<byte_t> paramsDump;
+        paramsDump.reserve(totalSize);
+        BinarySerializer serializer;
+        paramSerialization(serializer, paramsDump, args...);
+
+        return std::make_tuple(rer, paramsDump);
     }
 
     /**
@@ -42,9 +57,10 @@ namespace Gicame::RerBuilding {
     * It uses innerBuild.
     */
     template <class... Args>
-    inline RpcExecutionRequest build(const FunctionId functionId) {
+    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build(const FunctionId functionId) {
         RpcExecutionRequest rer(functionId, 0);
-        return rer;
+        std::vector<byte_t> paramsDump;
+        return std::make_tuple(rer, paramsDump);
     }
 
 };
