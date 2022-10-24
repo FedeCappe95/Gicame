@@ -44,3 +44,7 @@ vs/Gicame/Gicame/Release-Win32/*
 vs/Gicame/Gicame/Debug-Win32/*
 vs/Gicame/Gicame/Release-x64/*
 vs/Gicame/Gicame/Debug-x64/*
+Release-Win32/
+Release-Win64/
+Debug-Win32/
+Debug-Win64/
