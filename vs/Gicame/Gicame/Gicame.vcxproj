@@ -199,6 +199,7 @@
     <ClInclude Include="..\..\..\headers\rpc\RpcClient.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcCommon.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcServer.h" />
+    <ClInclude Include="..\..\..\headers\sm\SharedMemory.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
@@ -210,6 +211,7 @@
     <ClCompile Include="..\..\..\src\network\TcpSocket.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcServer.cpp" />
+    <ClCompile Include="..\..\..\src\sm\SharedMemory.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

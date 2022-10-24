@@ -91,5 +91,23 @@ namespace Gicame {
 
 };
 
+namespace Gicame::Utilities {
+
+    template<typename Type>
+    static constexpr uint64_t maxOf() {
+        static constexpr uint64_t TYPE_MAX = (uint64_t(1u) << (sizeof(Type) * 8u)) - 1u;
+        return TYPE_MAX;
+    }
+
+    template<typename Target, typename Original>
+    static inline Target safeNumericCast(const Original original) {
+        if (sizeof(Original) > sizeof(Target) && uint64_t(original) > maxOf<Target>()) {
+            throw RUNTIME_ERROR("original too big");
+        }
+        return (Target)original;
+    }
+
+}
+
 
 #endif

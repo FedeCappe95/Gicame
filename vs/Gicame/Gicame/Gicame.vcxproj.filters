@@ -43,6 +43,12 @@
     <Filter Include="File di origine\rpc">
       <UniqueIdentifier>{421e8045-03a8-4184-ac97-643e3296c214}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\sm">
+      <UniqueIdentifier>{0c3bfe99-cda0-4062-bafa-5e930f576fd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\sm">
+      <UniqueIdentifier>{8d952421-c624-41d8-a42e-6421549851a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -117,6 +123,9 @@
     <ClInclude Include="..\..\..\headers\rpc\RerBuilding.h">
       <Filter>File di intestazione\rpc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\sm\SharedMemory.h">
+      <Filter>File di intestazione\sm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -142,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\rpc\RpcServer.cpp">
       <Filter>File di origine\rpc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sm\SharedMemory.cpp">
+      <Filter>File di origine\sm</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
