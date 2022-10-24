@@ -7,7 +7,20 @@ using namespace Gicame;
 RpcServer::RpcServer(IDataExchanger* dataExchanger) :
     dataExchanger(dataExchanger)
 {
-    // Nothing here
+    // Default InvalidRequestEventHandler
+    invalidRequestEventHandler = [&](const RpcExecutionRequest& rer, const InvalidRequestReason reason) {
+        switch (reason) {
+        case InvalidRequestReason::INVALID_FUNCTION_ID:
+            throw RUNTIME_ERROR("Invalid request: invalid functionId");
+        case InvalidRequestReason::BAD_PARAMETERS:
+            throw RUNTIME_ERROR("Invalid request: bad parameters");
+        case InvalidRequestReason::RER_INTEGRITY_CHECK_FAILED:
+            throw RUNTIME_ERROR("Invalid request: failed integrity check");
+        default:
+            throw RUNTIME_ERROR("Invalid request");
+        }
+        return false;
+    };
 }
 
 void RpcServer::registerFunction(RpcFunction rpcFunction, const FunctionId functionId) {
@@ -22,13 +35,13 @@ bool RpcServer::oneShot() {
         return false;
     RpcExecutionRequest exeRequest = RpcExecutionRequest::deserialize(serExeRequest);
     if (unlikely(!exeRequest.checkIntegrity())) {
-        throw RUNTIME_ERROR("Invalid exeRequest: failed integrity check");
+        return invalidRequestEventHandler(exeRequest, InvalidRequestReason::RER_INTEGRITY_CHECK_FAILED);
     }
 
     // Find the RpcFunctionDescriptor
     auto funStoreIter = funStore.find(exeRequest.functionId);
     if (unlikely(funStoreIter == funStore.end())) {
-        throw RUNTIME_ERROR("Invalid exeRequest: invalid functionId");
+        return invalidRequestEventHandler(exeRequest, InvalidRequestReason::INVALID_FUNCTION_ID);
     }
     RpcFunctionDescriptor& fd = funStoreIter->second;
 
@@ -39,6 +52,9 @@ bool RpcServer::oneShot() {
         totalParametersSize += exeRequest.params[paramIndex].size;
     if (totalParametersSize > 0) {
         const std::vector<byte_t> allParametersBuffer = dataExchanger->receive((uint32_t)totalParametersSize);
+        if (allParametersBuffer.size() != totalParametersSize) {
+            return invalidRequestEventHandler(exeRequest, InvalidRequestReason::BAD_PARAMETERS);
+        }
         const byte_t* ptr = allParametersBuffer.data();
         for (size_t paramIndex = 0; paramIndex < exeRequest.paramCount; ++paramIndex) {
             params[paramIndex] = std::vector<byte_t>(exeRequest.params[paramIndex].size);
@@ -64,4 +80,8 @@ void RpcServer::run() {
         if (!connectionStatus)
             break;
     }
+}
+
+void RpcServer::setInvalidRequestEventHandler(InvalidRequestEventHandler& handler) {
+    invalidRequestEventHandler = handler;
 }

@@ -17,7 +17,13 @@ namespace Gicame {
 
         MOVABLE_BUT_NOT_COPYABLE;
 
-    private:
+    public:  // Public types
+        enum class InvalidRequestReason {
+            RER_INTEGRITY_CHECK_FAILED, INVALID_FUNCTION_ID, BAD_PARAMETERS
+        };
+        using InvalidRequestEventHandler = std::function<bool(const RpcExecutionRequest&, const InvalidRequestReason)>;
+
+    private:  // Private types
         /**
          * Describe an RPC Function stored in the RpcServer
          */
@@ -28,18 +34,19 @@ namespace Gicame {
                 rpcFunction(rpcFunction), functionId(functionId) {}
         };
 
-    private:
+    private:  // Private data
 #ifdef MSVC
 #pragma warning(push)
 #pragma warning(disable:4251)
 #endif
         IDataExchanger* dataExchanger;
         std::unordered_map<FunctionId, RpcFunctionDescriptor> funStore;
+        InvalidRequestEventHandler invalidRequestEventHandler;
 #ifdef MSVC
 #pragma warning(pop)
 #endif
 
-    public:
+    public:  // Public methods
         RpcServer(IDataExchanger* dataExchanger);
 
         /**
@@ -56,6 +63,11 @@ namespace Gicame {
          * Process execution requests in loop
          */
         void run();
+
+        /**
+         * Invalid execution request handler
+         */
+        void setInvalidRequestEventHandler(InvalidRequestEventHandler& handler);
 
     };
 
