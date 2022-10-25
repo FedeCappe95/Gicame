@@ -209,6 +209,7 @@
     <ClCompile Include="..\..\..\src\network\NetworkUtility.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpListeningSocket.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpSocket.cpp" />
+    <ClCompile Include="..\..\..\src\os\ErrorHandling.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcServer.cpp" />
     <ClCompile Include="..\..\..\src\sm\SharedMemory.cpp" />

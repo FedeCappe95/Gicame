@@ -4,7 +4,7 @@ CFLAGS       = -fPIC -Wall -Wextra
 RELEASEFLAGS = -O2
 
 HEADERS = $(echo headers/*.h)
-OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o build/RpcClient.o build/RpcServer.o build/NetworkDefinitions.o
+OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o build/RpcClient.o build/RpcServer.o build/NetworkDefinitions.o build/ErrorHandling.o
 
 
 all: build/libgicame.so build/RpcClientOverTcp build/RpcServerOverTcp
@@ -26,6 +26,9 @@ build/RpcClient.o: src/rpc/RpcClient.cpp headers/rpc/RpcClient.h $(HEADERS)
 	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
 build/RpcServer.o: src/rpc/RpcServer.cpp headers/rpc/RpcServer.h $(HEADERS)
+	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+
+build/ErrorHandling.o: src/os/ErrorHandling.cpp headers/os/ErrorHandling.h $(HEADERS)
 	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
 build/libgicame.so: $(OBJ_FILES)

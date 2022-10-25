@@ -49,6 +49,9 @@
     <Filter Include="File di origine\sm">
       <UniqueIdentifier>{8d952421-c624-41d8-a42e-6421549851a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\os">
+      <UniqueIdentifier>{9381ead3-6054-4c24-b6f4-5cc5cc9f291c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -154,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\sm\SharedMemory.cpp">
       <Filter>File di origine\sm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\os\ErrorHandling.cpp">
+      <Filter>File di origine\os</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
