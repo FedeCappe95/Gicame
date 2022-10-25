@@ -16,7 +16,7 @@ bool Serial::open() {
 #ifdef WINDOWS
 
     if (unlikely(handle))
-        RUNTIME_ERROR("Trying to open an already open serial connection");
+        throw RUNTIME_ERROR("Trying to open an already open serial connection");
 
     const std::string portName = std::string("\\\\.\\COM") + std::to_string(comIndex);
     handle = CreateFileA(
@@ -66,7 +66,7 @@ size_t Serial::send(const uint8_t* what, const size_t size) {
 #ifdef WINDOWS
 
     if (unlikely(size > UINT32_MAX))
-        RUNTIME_ERROR("size exceeded max value of 2^32-1");
+        throw RUNTIME_ERROR("size exceeded max value of 2^32-1");
     DWORD dNoOfBytesWritten;
     WriteFile(handle, what, (DWORD)size, &dNoOfBytesWritten, NULL);
     return dNoOfBytesWritten;
@@ -85,7 +85,7 @@ uint8_t* Serial::receive(uint8_t* outBuffer, const size_t size) {
 #ifdef WINDOWS
 
     if (unlikely(size > UINT32_MAX))
-        RUNTIME_ERROR("size exceeded max value of 2^32-1");
+        throw RUNTIME_ERROR("size exceeded max value of 2^32-1");
 
     size_t count = 0;
     DWORD r;
@@ -133,7 +133,7 @@ std::vector<Serial::SerialPort> Serial::enumerateSerialPorts() {
         DWORD outSize = QueryDosDeviceA(name.c_str(), outBuffer, sizeof(outBuffer));
 
         if (unlikely(GetLastError() == ERROR_INSUFFICIENT_BUFFER))
-            RUNTIME_ERROR("insufficient buffer");
+            throw RUNTIME_ERROR("insufficient buffer");
 
         if (likely(outSize > 0))
             result.emplace_back(outBuffer, i);

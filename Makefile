@@ -1,4 +1,4 @@
-CC           = gcc
+CC           = x86_64-w64-mingw32-gcc
 FLAGS        = -x c++ -std=c++17 -DGICAME_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build
 CFLAGS       = -fPIC -Wall -Wextra -march=native
 RELEASEFLAGS = -O2

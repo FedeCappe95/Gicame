@@ -15,7 +15,7 @@
 #endif
 
 
-#ifdef WINDOWS
+#ifdef MSVC
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 #endif

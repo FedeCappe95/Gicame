@@ -51,6 +51,10 @@ typedef void* ptr_t;
     #define MSVC
 #endif
 
+#ifdef __MINGW32__
+    #define MINGW
+#endif
+
 #define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + ": " + MSG)
 
 #define MOVABLE_BUT_NOT_COPYABLE Gicame::MovableButNonCopyable movableButNonCopyable
@@ -60,7 +64,7 @@ typedef void* ptr_t;
 	#define unlikely(A) (A)
 #else
 	#define likely(A) __builtin_expect((A) != 0, 1)
-	#define unlikely(A) __builtin_expect((A), 0)
+	#define unlikely(A) __builtin_expect(bool(A), 0)
 #endif
 
 #if defined(_MSC_VER) && defined(GICAME_EXPORTS)
