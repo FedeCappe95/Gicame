@@ -1,6 +1,6 @@
 CC           = g++
 FLAGS        = -std=c++17 -DGICAME_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build
-CFLAGS       = -fPIC -Wall -Wextra -march=native
+CFLAGS       = -fPIC -Wall -Wextra
 RELEASEFLAGS = -O2
 
 HEADERS = $(echo headers/*.h)

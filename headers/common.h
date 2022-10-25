@@ -35,11 +35,22 @@
 #include <stdint.h>
 #include <stdexcept>
 #include <limits.h>
+#include <string>
 
 
 // Type definitions
 typedef uint8_t byte_t;
 typedef void* ptr_t;
+
+
+// Error message composition
+namespace Gicame::Utilities {
+
+    static inline std::string composeErrorMessage(const std::string& senderName, const std::string& message) {
+        return senderName + std::string("(...): ") + message;
+    }
+
+}
 
 
 // Macros
@@ -55,7 +66,7 @@ typedef void* ptr_t;
     #define MINGW
 #endif
 
-#define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + ": " + MSG)
+#define RUNTIME_ERROR(MSG) std::runtime_error(Gicame::Utilities::composeErrorMessage(std::string(__FUNCTION__), MSG))
 
 #define MOVABLE_BUT_NOT_COPYABLE Gicame::MovableButNonCopyable movableButNonCopyable
 
@@ -102,6 +113,7 @@ namespace Gicame {
 
 };
 
+// Classes and structs (utilities)
 namespace Gicame::Utilities {
 
     template<typename Type>
