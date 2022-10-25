@@ -46,11 +46,15 @@ typedef void* ptr_t;
 #if defined(_WIN32) && !defined(WINDOWS)
     #define WINDOWS
 #endif
+
 #if defined(_MSC_VER) && !defined(MSVC)
     #define MSVC
 #endif
+
 #define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + ": " + MSG)
+
 #define MOVABLE_BUT_NOT_COPYABLE Gicame::MovableButNonCopyable movableButNonCopyable
+
 #if defined(_MSC_VER)
 	#define likely(A) (A)
 	#define unlikely(A) (A)
@@ -58,6 +62,7 @@ typedef void* ptr_t;
 	#define likely(A) __builtin_expect((A) != 0, 1)
 	#define unlikely(A) __builtin_expect((A), 0)
 #endif
+
 #if defined(_MSC_VER) && defined(GICAME_EXPORTS)
 	#define GICAME_API __declspec(dllexport)
 #elif defined(_MSC_VER) && !defined(GICAME_EXPORTS)
@@ -65,11 +70,13 @@ typedef void* ptr_t;
 #else
 	#define GICAME_API
 #endif
+
 #ifdef _MSC_VER
 #define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 #else
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif
+
 #define UNUSED(X) ((void)X)
 
 

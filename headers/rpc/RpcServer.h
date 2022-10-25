@@ -35,11 +35,11 @@ namespace Gicame {
         };
 
     private:  // Private data
+        IDataExchanger* dataExchanger;
 #ifdef MSVC
 #pragma warning(push)
 #pragma warning(disable:4251)
 #endif
-        IDataExchanger* dataExchanger;
         std::unordered_map<FunctionId, RpcFunctionDescriptor> funStore;
         InvalidRequestEventHandler invalidRequestEventHandler;
 #ifdef MSVC
@@ -52,7 +52,7 @@ namespace Gicame {
         /**
          * Add or replace a function to the RpcServer
          */
-        void registerFunction(RpcFunction rpcFunction, const FunctionId functionId);
+        void registerRpcFunction(RpcFunction rpcFunction, const FunctionId functionId);
 
         /**
          * Process a single execution request

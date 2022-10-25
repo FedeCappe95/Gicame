@@ -4,7 +4,10 @@
 using namespace Gicame;
 
 
-RpcClient::RpcClient(IDataExchanger* dataExchanger) : dataExchanger(dataExchanger) {
+RpcClient::RpcClient(IDataExchanger* dataExchanger, const BinarySerializer& serializer) :
+    dataExchanger(dataExchanger),
+    serializer(serializer)
+{
     // Nothing here
 }
 

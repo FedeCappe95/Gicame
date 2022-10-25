@@ -7,6 +7,7 @@
 #include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"
 #include "./RerBuilding.h"
+#include "../dataSerialization/BinarySerializer.h"
 
 
 namespace Gicame {
@@ -17,6 +18,7 @@ namespace Gicame {
 
     private:
         IDataExchanger* dataExchanger;
+        BinarySerializer serializer;
 
     private:
         /**
@@ -25,7 +27,7 @@ namespace Gicame {
         uint64_t sendExeRequest(const RpcExecutionRequest& rer, const std::vector<byte_t> paramsDump);
 
     public:
-        RpcClient(IDataExchanger* dataExchanger);
+        RpcClient(IDataExchanger* dataExchanger, const BinarySerializer& serializer = BinarySerializer());
 
         /**
          * Build a lamdas to send the RpcExecutionRequests
@@ -44,7 +46,7 @@ namespace Gicame {
     inline auto RpcClient::get(const FunctionId functionId) {
         RpcClient* thisRpcClient = this;
         return [=](const Args... args) {
-            auto [rer, paramsDump] = Gicame::RerBuilding::build(functionId, args...);
+            auto [rer, paramsDump] = Gicame::RerBuilding::build(serializer, functionId, args...);
             const uint64_t result = thisRpcClient->sendExeRequest(rer, paramsDump);
             return (RetType)result;
         };

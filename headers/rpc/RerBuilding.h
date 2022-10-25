@@ -13,13 +13,13 @@
 namespace Gicame::RerBuilding {
 
     template<class Arg, class... OtherArgs>
-    inline void paramSerialization(BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg) {
+    inline void paramSerialization(const BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg) {
         const std::vector<byte_t> serializedParam = serializer.serialize(arg);
         dump.insert(dump.end(), serializedParam.begin(), serializedParam.end());
     }
 
     template<class Arg, class... OtherArgs>
-    inline void paramSerialization(BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg, OtherArgs... args) {
+    inline void paramSerialization(const BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg, OtherArgs... args) {
         const std::vector<byte_t> serializedParam = serializer.serialize(arg);
         dump.insert(dump.end(), serializedParam.begin(), serializedParam.end());
         paramSerialization(serializer, dump, args...);
@@ -30,9 +30,9 @@ namespace Gicame::RerBuilding {
     * It uses innerBuild.
     */
     template <class... Args>
-    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build(const FunctionId functionId, Args... args) {
+    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build(const BinarySerializer& serializer, const FunctionId functionId, Args... args) {
         constexpr size_t paramCount = sizeof...(args);
-        constexpr size_t paramSizes[] = {sizeof(args)...};
+        const size_t paramSizes[] = { serializer.serializedSize(args)... };
 
         if (paramCount > RpcExecutionRequest::MAX_PARAM_COUNT)
             throw RUNTIME_ERROR("Too many parameters");
@@ -46,7 +46,6 @@ namespace Gicame::RerBuilding {
 
         std::vector<byte_t> paramsDump;
         paramsDump.reserve(totalSize);
-        BinarySerializer serializer;
         paramSerialization(serializer, paramsDump, args...);
 
         return std::make_tuple(rer, paramsDump);
@@ -57,7 +56,7 @@ namespace Gicame::RerBuilding {
     * It uses innerBuild.
     */
     template <class... Args>
-    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build(const FunctionId functionId) {
+    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build([[maybe_unused]] const BinarySerializer& serializer, const FunctionId functionId) {
         RpcExecutionRequest rer(functionId, 0);
         std::vector<byte_t> paramsDump;
         return std::make_tuple(rer, paramsDump);

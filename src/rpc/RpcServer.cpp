@@ -24,7 +24,7 @@ RpcServer::RpcServer(IDataExchanger* dataExchanger) :
     };
 }
 
-void RpcServer::registerFunction(RpcFunction rpcFunction, const FunctionId functionId) {
+void RpcServer::registerRpcFunction(RpcFunction rpcFunction, const FunctionId functionId) {
     funStore.insert_or_assign(functionId, RpcFunctionDescriptor(rpcFunction, functionId));
 }
 

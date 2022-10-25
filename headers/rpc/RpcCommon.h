@@ -29,7 +29,7 @@ namespace Gicame {
     /**
      * Describe a paramenter of a RpcExecutionRequest
      */
-    class RpcParamDescriptor {
+    class GICAME_API RpcParamDescriptor {
 
     public:
         uint64_t size;
@@ -46,7 +46,7 @@ namespace Gicame {
      * The RpcClient send an execution request to the RpcServer. The request is represented by an
      * instance of RpcExecutionRequest.
      */
-    class RpcExecutionRequest : public ISerializable {
+    class GICAME_API RpcExecutionRequest : public ISerializable {
 
     public:
         static constexpr uint32_t MAGIC = 0xDEADBEEFu;
