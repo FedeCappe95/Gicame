@@ -29,14 +29,14 @@ int main() {
 
 	RpcServer rpcServer(&socket);
 	rpcServer.registerRpcFunction(
-		[&](RpcExecutionRequest* rer, const std::vector<std::vector<byte_t>>& params) {
+		[&]([[maybe_unused]] RpcExecutionRequest* rer, [[maybe_unused]] const std::vector<std::vector<byte_t>>& params) {
 			sayHello();
 			return 0;
 		},
 		RPC_ID_SAY_HELLO
 	);
 	rpcServer.registerRpcFunction(
-		[&](RpcExecutionRequest* rer, const std::vector<std::vector<byte_t>>& params) {
+		[&]([[maybe_unused]] RpcExecutionRequest* rer, [[maybe_unused]] const std::vector<std::vector<byte_t>>& params) {
 			const uint64_t result = sum(3, 5);
 			return result;
 		},

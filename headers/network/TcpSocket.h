@@ -34,13 +34,18 @@ namespace Gicame {
 
 		/**
 		 * Connect to the host specified by "ip". The host has to listen on port "port"
-		*/
+		 */
 		bool connectTo(const std::string& ip, const uint16_t port);
 
 		/**
 		 * Connect to the host specified by "ip". The host has to listen on port "port"
-		*/
+		 */
 		bool connectTo(const IPv4& ip, const uint16_t port);
+
+		/**
+		 * Connect to the host specified by "ip". The host has to listen on port "port"
+		 */
+		bool connectTo(const IPv6& ip, const uint16_t port);
 
 		virtual uint32_t send(const void* buffer, const uint32_t size) override;
 		virtual uint32_t receive(void* buffer, const uint32_t size) override;
@@ -69,14 +74,14 @@ namespace Gicame {
 
 		/**
 		 * Old-style socket options (getters)
-		*/
+		 */
 		bool getSockOptions(const int level, const int optname, void* outValue, const uint32_t outValueSize) const;
 		template <typename OutType>
 		bool getSockOptions(const int level, const int optname, OutType* outValue) const;
 
 		/**
 		 * Old-style socket options (setters)
-		*/
+		 */
 		bool setSockOptions(const int level, const int optname, const void* inValue, const uint32_t inValueSize);
 		template <typename InType>
 		bool setSockOptions(const int level, const int optname, const InType inValue);
@@ -84,7 +89,7 @@ namespace Gicame {
 	public:
 		/**
 		 * Utility function: convert a socket descriptor to a TcpSocket instance
-		*/
+		 */
 		static TcpSocket fromSockfd(SocketDescriptor sockfd, const SocketStatus socketStatus, const short sin_family);
 
 	};

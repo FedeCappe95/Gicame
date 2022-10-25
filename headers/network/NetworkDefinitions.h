@@ -41,8 +41,8 @@ namespace Gicame {
 
     struct GICAME_API IPv4 {
         union {
-            uint32_t value;
-            uint8_t byteValues[4];
+            uint32_t value;         // Main data type
+            uint8_t byteValues[4];  // Alternative type
         };
         constexpr IPv4(const uint32_t value) : value(value) {}
         IPv4(const std::string& strValue);
@@ -54,6 +54,16 @@ namespace Gicame {
         bool isBroadcastAddress(const IPv4NetMask netmask = NETMASK_24BIT) const;
         bool operator==(const IPv4& other) const;
 	};
+
+    struct GICAME_API IPv6 {
+        uint8_t value[16];
+        constexpr IPv6() : value{} {}
+        IPv6(const std::string& strValue);
+        std::string toString() const;
+        in6_addr toIn6Addr() const;
+        bool operator==(const IPv6& other) const;
+        static IPv6 fromIPv4(const IPv4& ipv4);
+    };
 
 	struct GICAME_API MacAddress {
         union {
@@ -89,6 +99,18 @@ namespace Gicame {
 
     inline bool IPv4::operator==(const IPv4& other) const {
         return value == other.value;
+    }
+
+
+    /*
+     * IPv6 inline implementation
+     */
+
+    inline bool IPv6::operator==(const IPv6& other) const {
+        for (size_t i = 0; i < 16u / sizeof(size_t); ++i)
+            if (((size_t*)(value))[i] != ((size_t*)(other.value))[i])
+                return false;
+        return true;
     }
 
 

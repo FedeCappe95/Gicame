@@ -71,13 +71,12 @@ bool TcpSocket::connectTo(const std::string& ip, const uint16_t port) {
 		serverAddr.sin_addr = IPv4(ip).toInAddr();
 		connectionStatus = connect(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	} else {
-		throw RUNTIME_ERROR("Not yet implemented!");
 		//Connect using IPv6
 		struct sockaddr_in6 serverAddr;
 		memset(&serverAddr, 0x00, sizeof(serverAddr));
 		serverAddr.sin6_family = sin_family;
 	    serverAddr.sin6_port = htons(port);
-		//serverAddr.sin6_addr = ipv6AddressFromString(ip);  TODO
+		serverAddr.sin6_addr = IPv6(ip).toIn6Addr();
 		connectionStatus = connect(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	}
 
@@ -97,8 +96,27 @@ bool TcpSocket::connectTo(const IPv4& ip, const uint16_t port) {
 	struct sockaddr_in serverAddr;
 	memset(&serverAddr, 0x00, sizeof(serverAddr));
 	serverAddr.sin_family = sin_family;
-    serverAddr.sin_port = htons(port);
+	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr = ip.toInAddr();
+	int connectionStatus = connect(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+	socketStatus = connectionStatus == 0 ? SocketStatus::CONNECTED : SocketStatus::SS_ERROR;
+
+	return isConnected();
+}
+
+bool TcpSocket::connectTo(const IPv6& ip, const uint16_t port) {
+	if (isConnected())
+		throw RUNTIME_ERROR("Already connected socket");
+
+	if (sin_family != AF_INET6) {
+		throw RUNTIME_ERROR("Trying to connect to a IPv6 using a IPv4 socket");
+	}
+
+	struct sockaddr_in6 serverAddr;
+	memset(&serverAddr, 0x00, sizeof(serverAddr));
+	serverAddr.sin6_family = sin_family;
+	serverAddr.sin6_port = htons(port);
+	serverAddr.sin6_addr = ip.toIn6Addr();
 	int connectionStatus = connect(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	socketStatus = connectionStatus == 0 ? SocketStatus::CONNECTED : SocketStatus::SS_ERROR;
 

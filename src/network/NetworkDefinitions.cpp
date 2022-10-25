@@ -51,3 +51,25 @@ std::string MacAddress::toString() const {
     ss << std::setfill('0') << std::setw(2) << (unsigned int)byteValues[i];
     return ss.str();
 }
+
+IPv6::IPv6(const std::string& strValue) {
+    inet_pton(AF_INET6, strValue.c_str(), (void*)&value);
+}
+
+std::string IPv6::toString() const {
+    char strBuffer[128] = { 0 };
+    inet_ntop(AF_INET6, &value, strBuffer, sizeof(strBuffer));
+    return std::string(strBuffer);
+}
+
+in6_addr IPv6::toIn6Addr() const {
+    return *((in6_addr*)this);
+}
+
+IPv6 IPv6::fromIPv4(const IPv4& ipv4) {
+    IPv6 ipv6;
+    *((uint32_t*)ipv6.value) = ipv4.value;
+    for (size_t i = 1u; i < 4u; ++i)
+        ((uint32_t*)ipv6.value)[i] = 0;
+    return ipv6;
+}

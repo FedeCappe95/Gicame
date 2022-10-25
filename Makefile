@@ -40,13 +40,11 @@ build/libgicame.a: $(OBJ_FILES)
 	ar rcs $^
 
 build/RpcClientOverTcp: examples/RpcClientOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
-	$(CC) $(FLAGS) -lgicame $< $(CFLAGS) $(RELEASEFLAGS) -o $@
+	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
 
 build/RpcServerOverTcp: examples/RpcServerOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
-	$(CC) $(FLAGS) -lgicame $< $(CFLAGS) $(RELEASEFLAGS) -o $@
+	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
 
 clean:
-	-rm build/*.so
-	-rm build/*.o
-	-rm build/*.a
-	-rm build/*.out
+	-rm build/*
+	-touch build/.gitkeep
