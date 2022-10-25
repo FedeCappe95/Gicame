@@ -1,5 +1,5 @@
-CC           = gcc
-FLAGS        = -x c++ -std=c++17 -DGICAME_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build
+CC           = g++
+FLAGS        = -std=c++17 -DGICAME_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build
 CFLAGS       = -fPIC -Wall -Wextra -march=native
 RELEASEFLAGS = -O2
 
