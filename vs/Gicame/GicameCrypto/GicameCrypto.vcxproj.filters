@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="File di origine">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="File di intestazione">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="File di risorse">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="File di intestazione\certificate">
+      <UniqueIdentifier>{4e48ec21-46e3-4dfc-b1e1-3639a45ed67d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\ds">
+      <UniqueIdentifier>{d787a611-a4b2-4b2b-9f0a-36a0b81d33b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\encryption">
+      <UniqueIdentifier>{11a70508-c1af-4726-ad8c-b6ab6da1407a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\hash">
+      <UniqueIdentifier>{15ca92d5-c760-4552-b18e-8c5bef8b0ae8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\key">
+      <UniqueIdentifier>{b887b001-c159-4196-93f2-4150077d9b0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\random">
+      <UniqueIdentifier>{00fae0a7-e9c1-4f31-bef4-198cd0ea39d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\certificate">
+      <UniqueIdentifier>{56aa22d4-39b9-4b93-89c5-2c67bc61be73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\ds">
+      <UniqueIdentifier>{13834b9c-69b6-43c7-8739-7ccfdc4a2e27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\encryption">
+      <UniqueIdentifier>{9cf6ae78-188f-4119-a2da-78289085a748}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\hash">
+      <UniqueIdentifier>{400464a3-c266-43e4-a24c-b1acea89395a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\key">
+      <UniqueIdentifier>{e9eb84e7-0147-4795-b57b-8a2d1a2760da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\random">
+      <UniqueIdentifier>{f674609f-e393-4a86-a7e2-8f12807aa150}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\common">
+      <UniqueIdentifier>{0f3ae71e-340a-45b0-b280-8923d80ad1f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs">
+      <UniqueIdentifier>{23aad8de-4287-490f-a570-613e31516797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\opensslInterface">
+      <UniqueIdentifier>{532701fb-e051-4d45-9fa7-4ac75ae072d2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\common.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\certificate\X509Certificate.h">
+      <Filter>File di intestazione\certificate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\certificate\X509Store.h">
+      <Filter>File di intestazione\certificate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\ds\Signer.h">
+      <Filter>File di intestazione\ds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\ds\Verifier.h">
+      <Filter>File di intestazione\ds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\encryption\EncryptionAlgorithm.h">
+      <Filter>File di intestazione\encryption</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\encryption\Encryptor.h">
+      <Filter>File di intestazione\encryption</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\encryption\Decryptor.h">
+      <Filter>File di intestazione\encryption</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\hash\HashCalculator.h">
+      <Filter>File di intestazione\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\hash\HmacCalculator.h">
+      <Filter>File di intestazione\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\hash\HashAlgorithm.h">
+      <Filter>File di intestazione\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\key\SymmetricKey.h">
+      <Filter>File di intestazione\key</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\key\EvpKey.h">
+      <Filter>File di intestazione\key</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\random\Random.h">
+      <Filter>File di intestazione\random</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\common\IAlgorithmDescriptor.h">
+      <Filter>File di intestazione\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\opensslInterface\OpenSslInterface.h">
+      <Filter>File di intestazione\opensslInterface</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\certificate\X509Certificate.cpp">
+      <Filter>File di origine\certificate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\certificate\X509Store.cpp">
+      <Filter>File di origine\certificate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\ds\Signer.cpp">
+      <Filter>File di origine\ds</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\ds\Verifier.cpp">
+      <Filter>File di origine\ds</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\encryption\Decryptor.cpp">
+      <Filter>File di origine\encryption</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\encryption\Encryptor.cpp">
+      <Filter>File di origine\encryption</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\hash\HashCalculator.cpp">
+      <Filter>File di origine\hash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\hash\HmacCalculator.cpp">
+      <Filter>File di origine\hash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\key\EvpKey.cpp">
+      <Filter>File di origine\key</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\key\SymmetricKey.cpp">
+      <Filter>File di origine\key</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\random\Random.cpp">
+      <Filter>File di origine\random</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="C:\Program Files\OpenSSL-Win64\lib\libssl.lib">
+      <Filter>Libs</Filter>
+    </Library>
+    <Library Include="C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib">
+      <Filter>Libs</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

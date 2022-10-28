@@ -1,0 +1,39 @@
+#ifndef __ENCRYPTOR_H__
+#define __ENCRYPTOR_H__
+
+
+#include <vector>
+#include "common.h"
+#include "EncryptionAlgorithm.h"
+#include "../key/SymmetricKey.h"
+
+
+
+namespace Gicame::Crypto {
+
+	class GICAME_CRYPTO_API Encryptor {
+
+	private:
+		SymmetricKey key;
+		void* ctx;
+		size_t ciphertextLen;
+
+	public:
+		Encryptor(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv);
+		~Encryptor();
+		size_t getCiphertextLen();
+		size_t encrypt(const void* source, const size_t sourceSize, void* out);
+		std::vector<byte_t> encrypt(const void* source, const size_t sourceSize);
+		size_t finalize(void* out);
+		std::vector<byte_t> finalize();
+
+	public:
+		static size_t staticEncrypt(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest);
+		static std::vector<byte_t> staticEncrypt(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize);
+
+	};
+
+};
+
+
+#endif

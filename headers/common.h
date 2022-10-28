@@ -36,6 +36,7 @@
 #include <stdexcept>
 #include <limits.h>
 #include <string>
+//#include <type_traits>
 
 
 // Type definitions
@@ -79,11 +80,27 @@ namespace Gicame::Utilities {
 #endif
 
 #if defined(_MSC_VER) && defined(GICAME_EXPORTS)
-	#define GICAME_API __declspec(dllexport)
+#define GICAME_API __declspec(dllexport)
 #elif defined(_MSC_VER) && !defined(GICAME_EXPORTS)
-	#define GICAME_API __declspec(dllimport)
+#define GICAME_API __declspec(dllimport)
 #else
-	#define GICAME_API
+#define GICAME_API
+#endif
+
+#if defined(_MSC_VER) && defined(GICAME_CRYPTO_EXPORTS)
+#define GICAME_CRYPTO_API __declspec(dllexport)
+#elif defined(_MSC_VER) && !defined(GICAME_CRYPTO_EXPORTS)
+#define GICAME_CRYPTO_API __declspec(dllimport)
+#else
+#define GICAME_CRYPTO_API
+#endif
+
+#if defined(_MSC_VER) && defined(GICAME_COMMON_EXPORTS)
+#define GICAME_COMMON_API __declspec(dllexport)
+#elif defined(_MSC_VER) && !defined(GICAME_COMMON_EXPORTS)
+#define GICAME_COMMON_API __declspec(dllimport)
+#else
+#define GICAME_COMMON_API
 #endif
 
 #ifdef _MSC_VER
@@ -98,7 +115,7 @@ namespace Gicame::Utilities {
 // Classes and structs
 namespace Gicame {
 
-    class GICAME_API MovableButNonCopyable {
+    class GICAME_COMMON_API MovableButNonCopyable {
 
     public:
         constexpr MovableButNonCopyable() {}
@@ -117,17 +134,70 @@ namespace Gicame {
 namespace Gicame::Utilities {
 
     template<typename Type>
-    static constexpr uint64_t maxOf() {
-        constexpr uint64_t TYPE_MAX = (uint64_t(1u) << (sizeof(Type) * 8u)) - 1u;
-        return TYPE_MAX;
+    static constexpr bool isSigned() {
+        constexpr Type allOnes = ~((Type)0);                                  // 8bit: 0b11111111
+        constexpr Type maxIfSigned = ~((Type)1 << (sizeof(Type) * 8u - 1u));  // 8bit: 0b01111111
+        return maxIfSigned > allOnes;
+    }
+
+    template<typename Type, typename OutType = uint64_t>
+    static constexpr OutType maxOf() {
+        if (isSigned<Type>())
+            return OutType(~((Type)1 << (sizeof(Type) * 8u - 1u)));
+        else
+            return OutType(~((Type)0));
+    }
+
+    template<typename Type, typename OutType = uint64_t>
+    static constexpr OutType minOf() {
+        if (isSigned<Type>())
+            return OutType(((Type)1 << (sizeof(Type) * 8u - 1u)));   // 8bit: 0b10000000
+        else
+            return OutType(0);                                       // 8bit: 0b00000000
     }
 
     template<typename Target, typename Original>
     static inline Target safeNumericCast(const Original original) {
-        if (sizeof(Original) > sizeof(Target) && uint64_t(original) > maxOf<Target>()) {
+        // Both unsigned
+        if (!isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
             throw RUNTIME_ERROR("original too big");
-        }
+
+        // Both signed
+        if (isSigned<Target>() && isSigned<Original>() && int64_t(original) > maxOf<Target, int64_t>())
+            throw RUNTIME_ERROR("original too big");
+
+        // Both signed
+        if (isSigned<Target>() && isSigned<Original>() && int64_t(original) < minOf<Target, int64_t>())
+            throw RUNTIME_ERROR("original too negative");
+
+        // From signed to unsigned (negative check)
+        if (!isSigned<Target>() && isSigned<Original>() && original < 0)
+            throw RUNTIME_ERROR("original is negative and Target is unsigned");
+
+        // From positive signed to unsigned
+        if (!isSigned<Target>() && isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
+            throw RUNTIME_ERROR("original too big");
+
+        // From unsigned to signed
+        if (isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
+            throw RUNTIME_ERROR("original too big");
+
         return (Target)original;
+    }
+
+    static inline void eraseMemory(void* addr, size_t size) {
+#ifdef __STDC_LIB_EXT1__
+
+        memset_s(pointer, size, 0, size);
+
+#else
+
+        volatile byte_t* p = (volatile byte_t*)addr;
+        while (--size) {
+            *p++ = 0;
+        }
+
+#endif
     }
 
 }

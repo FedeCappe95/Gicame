@@ -1,0 +1,22 @@
+#ifndef __RANDOM_H__
+#define __RANDOM_H__
+
+
+#include "common.h"
+
+
+namespace Gicame::Crypto::Random {
+
+	GICAME_CRYPTO_API byte_t* getRandomBytes(void* buffer, const size_t size);
+
+	template<typename T>
+	static inline T getRandom() {
+		T result;
+		getRandomBytes(&T, sizeof(T));
+		return T;
+	}
+
+};
+
+
+#endif

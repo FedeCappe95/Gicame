@@ -1,0 +1,69 @@
+#ifndef __ENCRYPTIONALGORITHM_H__
+#define __ENCRYPTIONALGORITHM_H__
+
+
+#include "common.h"
+#include "crypto/common/IAlgorithmDescriptor.h"
+
+#ifdef GICAME_CRYPTO_EXPORTS
+#include <openssl/evp.h>
+#endif
+
+
+
+namespace Gicame::Crypto {
+
+    class GICAME_CRYPTO_API EncryptionAlgorithm : public IAlgorithmDescriptor {
+
+    public:
+        enum Value {
+    		AES_128_CBC,
+    		AES_256_CBC,
+    		AES_128_ECB,
+    		AES_256_ECB
+    	};
+
+    private:
+        EncryptionAlgorithm() = delete;
+
+    private:
+        Value value;
+
+    public:
+    	constexpr EncryptionAlgorithm(const Value value) noexcept : value(value) {}
+    	constexpr operator Value() const { return value; }  // Allow switch and comarison
+    	constexpr bool operator==(EncryptionAlgorithm other) { return value == other.value; }
+    	constexpr bool operator!=(EncryptionAlgorithm other) { return value != other.value; }
+        inline size_t keySize() const noexcept override {
+            static size_t sizes[] = { 16, 32, 16, 32 };
+            return sizes[value];
+        }
+        inline size_t blockSize() const noexcept {
+            static size_t sizes[] = { 16, 32, 16, 32 };
+            return sizes[value];
+        }
+
+#ifdef GICAME_CRYPTO_EXPORTS
+    public:
+        inline const EVP_CIPHER* toEvpCipher() const {
+            switch (value) {
+            case EncryptionAlgorithm::AES_128_CBC:
+                return EVP_aes_128_cbc();
+            case EncryptionAlgorithm::AES_256_CBC:
+                return EVP_aes_256_cbc();
+            case EncryptionAlgorithm::AES_128_ECB:
+                return EVP_aes_128_ecb();
+            case EncryptionAlgorithm::AES_256_ECB:
+                return EVP_aes_256_ecb();
+            default:
+                throw RUNTIME_ERROR("Unrecognized cipherName");
+            }
+        }
+#endif
+
+    };
+
+};
+
+
+#endif

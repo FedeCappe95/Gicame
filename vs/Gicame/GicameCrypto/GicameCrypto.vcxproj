@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,32 +21,32 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{542c9bd0-02fa-44dc-a3da-880aca32ca4b}</ProjectGuid>
-    <RootNamespace>ExampleRpcServerOverTcp</RootNamespace>
+    <ProjectGuid>{C63630B5-9B13-4A65-B1D8-E14B248E4522}</ProjectGuid>
+    <RootNamespace>Gicame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -71,33 +71,49 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <ReferencePath>$(VC_ReferencesPath_x86);</ReferencePath>
     <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(Configuration)-$(Platform)\</IntDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
     <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(Configuration)-$(Platform)\</IntDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(Configuration)-$(Platform)\</IntDir>
+    <IncludePath>C:\Program Files\OpenSSL-Win64\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(Configuration)-$(Platform)\</IntDir>
+    <IncludePath>C:\Program Files\OpenSSL-Win64\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GICAME_COMMON_EXPORTS;WIN32;_DEBUG;GICAME_CRYPTO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,32 +122,39 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GICAME_COMMON_EXPORTS;WIN32;NDEBUG;GICAME_CRYPTO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GICAME_COMMON_EXPORTS;_DEBUG;GICAME_CRYPTO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,30 +163,60 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GICAME_COMMON_EXPORTS;NDEBUG;GICAME_CRYPTO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\examples\RpcServerOverTcp\main.cpp" />
+    <ClInclude Include="..\..\..\headers\common.h" />
+    <ClInclude Include="..\..\..\headers\crypto\certificate\X509Certificate.h" />
+    <ClInclude Include="..\..\..\headers\crypto\certificate\X509Store.h" />
+    <ClInclude Include="..\..\..\headers\crypto\common\IAlgorithmDescriptor.h" />
+    <ClInclude Include="..\..\..\headers\crypto\ds\Signer.h" />
+    <ClInclude Include="..\..\..\headers\crypto\ds\Verifier.h" />
+    <ClInclude Include="..\..\..\headers\crypto\encryption\Decryptor.h" />
+    <ClInclude Include="..\..\..\headers\crypto\encryption\EncryptionAlgorithm.h" />
+    <ClInclude Include="..\..\..\headers\crypto\encryption\Encryptor.h" />
+    <ClInclude Include="..\..\..\headers\crypto\hash\HashAlgorithm.h" />
+    <ClInclude Include="..\..\..\headers\crypto\hash\HashCalculator.h" />
+    <ClInclude Include="..\..\..\headers\crypto\hash\HmacCalculator.h" />
+    <ClInclude Include="..\..\..\headers\crypto\key\EvpKey.h" />
+    <ClInclude Include="..\..\..\headers\crypto\key\SymmetricKey.h" />
+    <ClInclude Include="..\..\..\headers\crypto\opensslInterface\OpenSslInterface.h" />
+    <ClInclude Include="..\..\..\headers\crypto\random\Random.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\examples\RpcServerOverTcp\RemoteFunctions.h" />
+    <ClCompile Include="..\..\..\src\crypto\certificate\X509Certificate.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\certificate\X509Store.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\ds\Signer.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\ds\Verifier.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\encryption\Decryptor.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\encryption\Encryptor.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\hash\HashCalculator.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\hash\HmacCalculator.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\key\EvpKey.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\key\SymmetricKey.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\random\Random.cpp" />
+    <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Gicame\Gicame.vcxproj">
-      <Project>{de37dc5b-b3bf-477f-949d-5507786879fd}</Project>
-    </ProjectReference>
+    <Library Include="C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib" />
+    <Library Include="C:\Program Files\OpenSSL-Win64\lib\libssl.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

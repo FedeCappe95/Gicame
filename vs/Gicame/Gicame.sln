@@ -9,6 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-RpcClientOverTcp", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-RpcServerOverTcp", "Example-RpcServerOverTcp\Example-RpcServerOverTcp.vcxproj", "{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GicameCrypto", "GicameCrypto\GicameCrypto.vcxproj", "{C63630B5-9B13-4A65-B1D8-E14B248E4522}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-EncryptDecryptFile", "Example-EncryptDecryptFile\Example-EncryptDecryptFile.vcxproj", "{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +45,22 @@ Global
 		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x64.Build.0 = Release|x64
 		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x86.ActiveCfg = Release|Win32
 		{542C9BD0-02FA-44DC-A3DA-880ACA32CA4B}.Release|x86.Build.0 = Release|Win32
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Debug|x64.ActiveCfg = Debug|x64
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Debug|x64.Build.0 = Debug|x64
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Debug|x86.ActiveCfg = Debug|Win32
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Debug|x86.Build.0 = Debug|Win32
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Release|x64.ActiveCfg = Release|x64
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Release|x64.Build.0 = Release|x64
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Release|x86.ActiveCfg = Release|Win32
+		{C63630B5-9B13-4A65-B1D8-E14B248E4522}.Release|x86.Build.0 = Release|Win32
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Debug|x64.ActiveCfg = Debug|x64
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Debug|x64.Build.0 = Debug|x64
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Debug|x86.ActiveCfg = Debug|Win32
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Debug|x86.Build.0 = Debug|Win32
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x64.ActiveCfg = Release|x64
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x64.Build.0 = Release|x64
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x86.ActiveCfg = Release|Win32
+		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

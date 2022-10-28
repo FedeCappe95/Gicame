@@ -161,5 +161,8 @@
     <ClCompile Include="..\..\..\src\os\ErrorHandling.cpp">
       <Filter>File di origine\os</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\common.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
