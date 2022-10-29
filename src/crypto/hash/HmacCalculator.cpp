@@ -36,7 +36,7 @@ HmacCalculator::~HmacCalculator() {
 	}
 }
 
-void HmacCalculator::updateHash(const std::vector<byte_t>& source) {
+void HmacCalculator::update(const std::vector<byte_t>& source) {
 	if (unlikely(!ctx)) {
 		throw RUNTIME_ERROR("ctx is NULL");
 	}
@@ -48,7 +48,7 @@ void HmacCalculator::updateHash(const std::vector<byte_t>& source) {
 	}
 }
 
-void HmacCalculator::updateHash(const void* source, const size_t size) {
+void HmacCalculator::update(const void* source, const size_t size) {
 	if (unlikely(!ctx)) {
 		throw RUNTIME_ERROR("ctx is NULL");
 	}
@@ -60,13 +60,13 @@ void HmacCalculator::updateHash(const void* source, const size_t size) {
 	}
 }
 
-std::vector<byte_t> HmacCalculator::getHash() {
+std::vector<byte_t> HmacCalculator::finalize() {
 	std::vector<byte_t> res(hashAlgorithm.hashSize());
-	getHash(res.data());
+	finalize(res.data());
 	return res;
 }
 
-size_t HmacCalculator::getHash(void* dest) {
+size_t HmacCalculator::finalize(void* dest) {
 	if (unlikely(!ctx)) {
 		throw RUNTIME_ERROR("ctx is NULL");
 	}
@@ -86,20 +86,20 @@ size_t HmacCalculator::getHash(void* dest) {
 	return hashSize;
 }
 
-std::vector<byte_t> HmacCalculator::staticHash(
+std::vector<byte_t> HmacCalculator::hmac(
 	const SymmetricKey& key, const HashAlgorithm hashAlgorithm, const void* source,
 	const size_t size
 ) {
 	HmacCalculator hmacCalc(key, hashAlgorithm);
-	hmacCalc.updateHash(source, size);
-	return hmacCalc.getHash();
+	hmacCalc.update(source, size);
+	return hmacCalc.finalize();
 }
 
-size_t HmacCalculator::staticHash(
+size_t HmacCalculator::hmac(
 	const SymmetricKey& key, const HashAlgorithm hashAlgorithm, const void* source,
 	const size_t size, void* out
 ) {
 	HmacCalculator hmacCalc(key, hashAlgorithm);
-	hmacCalc.updateHash(source, size);
-	return hmacCalc.getHash(out);
+	hmacCalc.update(source, size);
+	return hmacCalc.finalize(out);
 }

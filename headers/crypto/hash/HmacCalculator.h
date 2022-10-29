@@ -24,14 +24,14 @@ namespace Gicame::Crypto {
 	public:
 		HmacCalculator(const SymmetricKey& key, const HashAlgorithm hashAlgorithm);
 		~HmacCalculator();
-		void updateHash(const std::vector<byte_t>& source);
-		void updateHash(const void* source, const size_t size);
-		std::vector<byte_t> getHash();
-		size_t getHash(void* dest);
+		void update(const std::vector<byte_t>& source);
+		void update(const void* source, const size_t size);
+		std::vector<byte_t> finalize();
+		size_t finalize(void* dest);
 
 	public:
-		static std::vector<byte_t> staticHash(const SymmetricKey& key, const HashAlgorithm hashAlgorithm, const void* source, const size_t size);
-		static size_t staticHash(const SymmetricKey& key, const HashAlgorithm hashAlgorithm, const void* source, const size_t size, void* out);
+		static std::vector<byte_t> hmac(const SymmetricKey& key, const HashAlgorithm hashAlgorithm, const void* source, const size_t size);
+		static size_t hmac(const SymmetricKey& key, const HashAlgorithm hashAlgorithm, const void* source, const size_t size, void* out);
 
 	};
 

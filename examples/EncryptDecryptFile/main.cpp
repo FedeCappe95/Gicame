@@ -60,8 +60,8 @@ int main() {
 	const SymmetricKey key = SymmetricKey::createSymmetricKey(keyBuffer, sizeof(keyBuffer), ea);
 
 	const std::vector<byte_t> fileContent = readFileContent(filePath);
-	const std::vector<byte_t> encrypted = Encryptor::staticEncrypt(key, ea, iv, fileContent.data(), fileContent.size());
-	const std::vector<byte_t> decrypted = Decryptor::staticDecrypt(key, ea, iv, encrypted.data(), encrypted.size());
+	const std::vector<byte_t> encrypted = Encryptor::encrypt(key, ea, iv, fileContent.data(), fileContent.size());
+	const std::vector<byte_t> decrypted = Decryptor::decrypt(key, ea, iv, encrypted.data(), encrypted.size());
 
 	std::cout << "encrypted and decrypted are " << (encrypted == decrypted ? "" : "not ") << "equal"  << std::endl;
 	std::cout << "fileContent and decrypted are " << (fileContent == decrypted ? "" : "not ") << "equal"  << std::endl;

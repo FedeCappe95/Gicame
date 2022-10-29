@@ -21,14 +21,14 @@ namespace Gicame::Crypto {
 		Decryptor(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv);
 		~Decryptor();
 		size_t getPlaintextLen();
-		size_t decrypt(const void* source, const size_t sourceSize, void* out);
-		std::vector<byte_t> decrypt(const void* source, const size_t sourceSize);
+		size_t update(const void* source, const size_t sourceSize, void* out);
+		std::vector<byte_t> update(const void* source, const size_t sourceSize);
 		size_t finalize(void* out);
 		std::vector<byte_t> finalize();
 
 	public:
-		static size_t staticDecrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest);
-		static std::vector<byte_t> staticDecrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize);
+		static size_t decrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest);
+		static std::vector<byte_t> decrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize);
 
 	};
 

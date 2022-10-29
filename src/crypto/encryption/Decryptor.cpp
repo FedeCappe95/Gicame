@@ -41,7 +41,7 @@ Decryptor::~Decryptor() {
 	}
 }
 
-size_t Decryptor::decrypt(const void* source, const size_t sourceSize, void* out) {
+size_t Decryptor::update(const void* source, const size_t sourceSize, void* out) {
     if (unlikely(!ecctx)) {
         throw RUNTIME_ERROR("ctx is NULL. finalized() already called?");
     }
@@ -69,11 +69,11 @@ size_t Decryptor::decrypt(const void* source, const size_t sourceSize, void* out
     return shotLen;
 }
 
-std::vector<byte_t> Decryptor::decrypt(const void* source, const size_t sourceSize) {
+std::vector<byte_t> Decryptor::update(const void* source, const size_t sourceSize) {
 	// sourceSize + 16 is the max size of the plaintext (this block)
 	// len will be the real size of the plaintext (this block)
     std::vector<byte_t> plaintext(sourceSize + 16);
-    const size_t len = decrypt(source, sourceSize, plaintext.data());
+    const size_t len = update(source, sourceSize, plaintext.data());
 
     if (unlikely(len < plaintext.size())) {
         plaintext.resize(len);
@@ -117,16 +117,16 @@ size_t Decryptor::getPlaintextLen() {
     return plaintextLen;
 }
 
-size_t Decryptor::staticDecrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest) {
+size_t Decryptor::decrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest) {
     Decryptor decryptor(key, algorithm, iv);
-    const size_t len = decryptor.decrypt(source, sourceSize, dest);
+    const size_t len = decryptor.update(source, sourceSize, dest);
     const size_t lastLen = decryptor.finalize((byte_t*)dest + len);
     return len + lastLen;
 }
 
-std::vector<byte_t> Decryptor::staticDecrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize) {
+std::vector<byte_t> Decryptor::decrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize) {
     std::vector<byte_t> dest(sourceSize);
-    size_t len = Decryptor::staticDecrypt(key, algorithm, iv, source, sourceSize, dest.data());
+    size_t len = Decryptor::decrypt(key, algorithm, iv, source, sourceSize, dest.data());
     dest.resize(len);
     return dest;
 }
