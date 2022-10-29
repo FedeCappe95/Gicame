@@ -42,6 +42,13 @@ namespace Gicame::Crypto {
             static size_t sizes[] = { 16, 32, 16, 32 };
             return sizes[value];
         }
+        inline size_t chipertextSize(const size_t plaintextSize) const {
+            const size_t bs = blockSize();
+            const size_t rem = plaintextSize % bs;
+            const size_t cts = rem ? plaintextSize + (bs - rem) : plaintextSize;
+            if (unlikely(plaintextSize > cts))
+                throw RUNTIME_ERROR("Overflow: plaintextSize too large");
+        }
 
 #ifdef GICAME_CRYPTO_EXPORTS
     public:
