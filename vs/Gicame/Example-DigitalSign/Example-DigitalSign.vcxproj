@@ -19,18 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\examples\DigitalSign\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\GicameCrypto\GicameCrypto.vcxproj">
       <Project>{c63630b5-9b13-4a65-b1d8-e14b248e4522}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\examples\EncryptDecryptFile\main.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}</ProjectGuid>
-    <RootNamespace>ExampleEncryptDecryptFile</RootNamespace>
+    <ProjectGuid>{8c9da575-1665-4e9c-a496-322e83c4d600}</ProjectGuid>
+    <RootNamespace>ExampleDigitalSign</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -117,7 +117,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
@@ -154,7 +153,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GicameCrypto", "GicameCrypt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-EncryptDecryptFile", "Example-EncryptDecryptFile\Example-EncryptDecryptFile.vcxproj", "{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-DigitalSign", "Example-DigitalSign\Example-DigitalSign.vcxproj", "{8C9DA575-1665-4E9C-A496-322E83C4D600}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x64.Build.0 = Release|x64
 		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x86.ActiveCfg = Release|Win32
 		{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}.Release|x86.Build.0 = Release|Win32
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Debug|x64.ActiveCfg = Debug|x64
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Debug|x64.Build.0 = Debug|x64
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Debug|x86.ActiveCfg = Debug|Win32
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Debug|x86.Build.0 = Debug|Win32
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Release|x64.ActiveCfg = Release|x64
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Release|x64.Build.0 = Release|x64
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Release|x86.ActiveCfg = Release|Win32
+		{8C9DA575-1665-4E9C-A496-322E83C4D600}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
