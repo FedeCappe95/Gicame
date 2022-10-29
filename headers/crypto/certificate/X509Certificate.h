@@ -13,18 +13,21 @@ struct x509_st;
 
 namespace Gicame::Crypto {
 
+	class X509Store;
+
 	class X509Certificate {
+
+		friend class X509Store;  // X509Store needs to access ptr
 
 		MOVABLE_BUT_NOT_COPYABLE;
 
 	private:
 		std::shared_ptr<x509_st> ptr;
-		X509Certificate();
+
+	private:
 		X509Certificate(x509_st* cert);
 
 	public:
-		x509_st* get();
-		std::shared_ptr<x509_st> getSp();
 		GICAME_CRYPTO_API std::vector<byte_t> toDer() const;
 		GICAME_CRYPTO_API std::vector<byte_t> toPem() const;
 		GICAME_CRYPTO_API EvpKey getPublicKey() const;
@@ -37,10 +40,11 @@ namespace Gicame::Crypto {
 		GICAME_CRYPTO_API X509Certificate& addIssuerName(const std::string& field, const std::string& value);
 
 	public:
-		GICAME_CRYPTO_API static X509Certificate fromLegacyX509(x509_st* cert);
 		GICAME_CRYPTO_API static X509Certificate newEmptyX509Certificate();
-		GICAME_CRYPTO_API static X509Certificate fromDer(std::vector<byte_t> der);
-		GICAME_CRYPTO_API static X509Certificate fromPem(std::vector<byte_t> pem);
+		GICAME_CRYPTO_API static X509Certificate fromDer(const std::vector<byte_t>& der);
+		GICAME_CRYPTO_API static X509Certificate fromPem(const std::vector<byte_t>& pem);
+		GICAME_CRYPTO_API static X509Certificate fromDerFile(const std::string& filePath);
+		GICAME_CRYPTO_API static X509Certificate fromPemFile(const std::string& filePath);
 
 	};
 

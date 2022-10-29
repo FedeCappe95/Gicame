@@ -1,5 +1,6 @@
 #include "crypto/key/EvpKey.h"
 #include "crypto/opensslInterface/OpenSslInterface.h"
+#include "io/Io.h"
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
@@ -93,12 +94,12 @@ EvpKey EvpKey::newEmptyEvpKey() {
     return EvpKey::fromOpenSslEvpKey(EVP_PKEY_new());
 }
 
-EvpKey EvpKey::fromPublicKeyPem(const std::vector<byte_t>& serialized) {
-	if (unlikely(serialized.size() > (size_t)INT_MAX)) {
+EvpKey EvpKey::fromPublicKeyPem(const std::vector<byte_t>& data) {
+	if (unlikely(data.size() > (size_t)INT_MAX)) {
 		throw RUNTIME_ERROR("serialized too big");
 	}
 
-    BIO* bio = BIO_new_mem_buf(serialized.data(), (int)serialized.size());
+    BIO* bio = BIO_new_mem_buf(data.data(), (int)data.size());
     if (unlikely(!bio)) {
         throw RUNTIME_ERROR("unable to allocate bio");
     }
@@ -111,12 +112,12 @@ EvpKey EvpKey::fromPublicKeyPem(const std::vector<byte_t>& serialized) {
     return EvpKey::fromOpenSslEvpKey(evp);
 }
 
-EvpKey EvpKey::fromPrivateKeyPem(const std::vector<byte_t>& serialized) {
-	if (unlikely(serialized.size() > (size_t)INT_MAX)) {
+EvpKey EvpKey::fromPrivateKeyPem(const std::vector<byte_t>& data) {
+	if (unlikely(data.size() > (size_t)INT_MAX)) {
 		throw RUNTIME_ERROR("serialized too big");
 	}
 
-    BIO* bio = BIO_new_mem_buf(serialized.data(), (int)serialized.size());
+    BIO* bio = BIO_new_mem_buf(data.data(), (int)data.size());
     if (unlikely(!bio)) {
         throw RUNTIME_ERROR("unable to allocate bio");
     }
@@ -130,31 +131,9 @@ EvpKey EvpKey::fromPrivateKeyPem(const std::vector<byte_t>& serialized) {
 }
 
 EvpKey EvpKey::fromPublicKeyPemFile(const std::string& path) {
-    FILE* pubKeyFile;
-    fopen_s(&pubKeyFile, path.c_str(), "r");
-    if (unlikely(!pubKeyFile)) {
-        throw RUNTIME_ERROR("unable to open key file");
-    }
-    EVP_PKEY* evp = PEM_read_PUBKEY(pubKeyFile, NULL, NULL, NULL);
-    fclose(pubKeyFile);
-    if (unlikely(!evp)) {
-        throw RUNTIME_ERROR("unable to generate EVP_PKEY from file");
-    }
-
-    return EvpKey::fromOpenSslEvpKey(evp);
+    return EvpKey::fromPublicKeyPem(Gicame::IO::readFileContent(path));
 }
 
 EvpKey EvpKey::fromPrivateKeyPemFile(const std::string& path) {
-    FILE* privKeyFile;
-    fopen_s(&privKeyFile, path.c_str(), "r");
-    if (unlikely(!privKeyFile)) {
-        throw RUNTIME_ERROR("unable to open key file");
-    }
-    EVP_PKEY* evp = PEM_read_PrivateKey(privKeyFile, NULL, NULL, NULL);
-    fclose(privKeyFile);
-    if (unlikely(!evp)) {
-        throw RUNTIME_ERROR("unable to generate EVP_PKEY from file");
-    }
-
-    return EvpKey::fromOpenSslEvpKey(evp);
+    return EvpKey::fromPrivateKeyPem(Gicame::IO::readFileContent(path));
 }

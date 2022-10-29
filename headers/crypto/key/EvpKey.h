@@ -29,8 +29,8 @@ namespace Gicame::Crypto {
 	public:
 		static EvpKey fromOpenSslEvpKey(evp_pkey_st* evpKeyLegacy);
 		GICAME_CRYPTO_API static EvpKey newEmptyEvpKey();
-		GICAME_CRYPTO_API static EvpKey fromPublicKeyPem(const std::vector<byte_t>& serialized);
-		GICAME_CRYPTO_API static EvpKey fromPrivateKeyPem(const std::vector<byte_t>& serialized);
+		GICAME_CRYPTO_API static EvpKey fromPublicKeyPem(const std::vector<byte_t>& data);
+		GICAME_CRYPTO_API static EvpKey fromPrivateKeyPem(const std::vector<byte_t>& data);
 		GICAME_CRYPTO_API static EvpKey fromPublicKeyPemFile(const std::string& path);
 		GICAME_CRYPTO_API static EvpKey fromPrivateKeyPemFile(const std::string& path);
 

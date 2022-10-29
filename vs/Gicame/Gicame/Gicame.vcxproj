@@ -190,6 +190,7 @@
     <ClInclude Include="..\..\..\headers\interfaces\IReceiver.h" />
     <ClInclude Include="..\..\..\headers\interfaces\ISender.h" />
     <ClInclude Include="..\..\..\headers\interfaces\ISerializable.h" />
+    <ClInclude Include="..\..\..\headers\io\Io.h" />
     <ClInclude Include="..\..\..\headers\network\NetworkDefinitions.h" />
     <ClInclude Include="..\..\..\headers\network\NetworkUtility.h" />
     <ClInclude Include="..\..\..\headers\network\TcpListeningSocket.h" />

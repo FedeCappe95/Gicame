@@ -24,12 +24,10 @@ X509Store::~X509Store() {
 }
 
 X509Store& X509Store::addCertificate(X509Certificate& certificate) {
-    std::shared_ptr<X509> sp = certificate.getSp();
-
     // Prevent X509* deallocation by making and store a copy of sp in certSet
-    certSet.insert(sp);
+    certSet.insert(certificate.ptr);
 
-    if (unlikely(!X509_STORE_add_cert(nativeStore, sp.get()))) {
+    if (unlikely(!X509_STORE_add_cert(nativeStore, certificate.ptr.get()))) {
         throw RUNTIME_ERROR("X509_STORE_add_cert failed");
     }
 
@@ -63,7 +61,7 @@ bool X509Store::verify(X509Certificate& certificate) {
         throw RUNTIME_ERROR("X509_STORE_CTX_new failed");
     }
 
-    if (unlikely(!X509_STORE_CTX_init(ctx, nativeStore, certificate.get(), NULL))) {
+    if (unlikely(!X509_STORE_CTX_init(ctx, nativeStore, certificate.ptr.get(), NULL))) {
         X509_STORE_CTX_free(ctx);
         throw RUNTIME_ERROR("X509_STORE_CTX_init failed");
     }

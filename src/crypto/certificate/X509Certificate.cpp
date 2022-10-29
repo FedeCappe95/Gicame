@@ -1,5 +1,6 @@
 #include "crypto/certificate/X509Certificate.h"
 #include "crypto/opensslInterface/OpenSslInterface.h"
+#include "io/Io.h"
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/dh.h>
@@ -13,22 +14,11 @@
 using namespace Gicame::Crypto;
 
 
-X509Certificate::X509Certificate() {
-    // Do nothing
-}
 
 X509Certificate::X509Certificate(X509* cert) :
     ptr(cert, X509_free)
 {
-    // Do nothing
-}
-
-X509* X509Certificate::get() {
-    return ptr.get();
-}
-
-std::shared_ptr<X509> X509Certificate::getSp() {
-    return ptr;
+    // Nothing to do
 }
 
 std::vector<byte_t> X509Certificate::toDer() const {
@@ -177,13 +167,6 @@ X509Certificate& X509Certificate::addIssuerName(const std::string& field, const 
     return *this;
 }
 
-X509Certificate X509Certificate::fromLegacyX509(X509* cert) {
-    if (unlikely(!cert)) {
-        throw RUNTIME_ERROR("cert is NULL");
-    }
-    return X509Certificate(cert);
-}
-
 X509Certificate X509Certificate::newEmptyX509Certificate() {
     X509* cert = X509_new();
     if (unlikely(!cert)) {
@@ -192,7 +175,7 @@ X509Certificate X509Certificate::newEmptyX509Certificate() {
     return X509Certificate(cert);
 }
 
-X509Certificate X509Certificate::fromDer(std::vector<byte_t> der) {
+X509Certificate X509Certificate::fromDer(const std::vector<byte_t>& der) {
     const byte_t* derDataPtr = der.data();
     const size_t derSize = der.size();
 
@@ -208,7 +191,7 @@ X509Certificate X509Certificate::fromDer(std::vector<byte_t> der) {
     return X509Certificate(cert);
 }
 
-X509Certificate X509Certificate::fromPem(std::vector<byte_t> pem) {
+X509Certificate X509Certificate::fromPem(const std::vector<byte_t>& pem) {
     const size_t pemSize = pem.size();
     if (unlikely(pemSize > (size_t)INT_MAX)) {
         throw RUNTIME_ERROR("pemSize too big");
@@ -226,5 +209,14 @@ X509Certificate X509Certificate::fromPem(std::vector<byte_t> pem) {
         throw RUNTIME_ERROR("unable to generate X509 from bio");
     }
 
-    return X509Certificate::fromLegacyX509(cert);
+    return X509Certificate(cert);
+}
+
+
+X509Certificate X509Certificate::fromDerFile(const std::string& filePath) {
+    return X509Certificate::fromDer(Gicame::IO::readFileContent(filePath));
+}
+
+X509Certificate X509Certificate::fromPemFile(const std::string& filePath) {
+    return X509Certificate::fromPem(Gicame::IO::readFileContent(filePath));
 }

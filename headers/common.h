@@ -67,7 +67,7 @@ namespace Gicame::Utilities {
     #define MINGW
 #endif
 
-#define RUNTIME_ERROR(MSG) std::runtime_error(Gicame::Utilities::composeErrorMessage(std::string(__FUNCTION__), MSG))
+#define RUNTIME_ERROR(MSG) std::runtime_error(Gicame::Utilities::composeErrorMessage(std::string(__FUNCTION__), (MSG)))
 
 #define MOVABLE_BUT_NOT_COPYABLE Gicame::MovableButNonCopyable movableButNonCopyable
 

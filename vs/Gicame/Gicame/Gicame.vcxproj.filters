@@ -52,6 +52,9 @@
     <Filter Include="File di origine\os">
       <UniqueIdentifier>{9381ead3-6054-4c24-b6f4-5cc5cc9f291c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\io">
+      <UniqueIdentifier>{1034f172-8728-4c2d-aa05-8e4d50e1d3a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -128,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\headers\sm\SharedMemory.h">
       <Filter>File di intestazione\sm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\io\Io.h">
+      <Filter>File di intestazione\io</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
