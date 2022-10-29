@@ -11,10 +11,11 @@ using namespace Gicame::Crypto;
 #define ecctx ((EVP_CIPHER_CTX*)(ctx))
 
 
-Encryptor::Encryptor(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv) :
+Encryptor::Encryptor(const SymmetricKey& key, const EncryptionAlgorithm algorithm, const byte_t* iv) :
 	key(key),
 	ctx(NULL),
-	ciphertextLen(0)
+	ciphertextLen(0),
+	algorithm(algorithm)
 {
 	if (unlikely(algorithm.keySize() != key.getKeySize())) {
 		throw RUNTIME_ERROR("key length is not correct");
@@ -97,7 +98,7 @@ size_t Encryptor::finalize(void* out) {
 }
 
 std::vector<byte_t> Encryptor::finalize() {
-    std::vector<byte_t> ciphertext(16);
+    std::vector<byte_t> ciphertext(algorithm.blockSize());
 
 	const size_t paddingLen = finalize(ciphertext.data());
 
@@ -112,14 +113,14 @@ size_t Encryptor::getCiphertextLen() {
     return ciphertextLen;
 }
 
-size_t Encryptor::encrypt(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest) {
+size_t Encryptor::encrypt(const SymmetricKey& key, const EncryptionAlgorithm algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest) {
 	Encryptor encryptor(key, algorithm, iv);
 	const size_t shotLen = encryptor.update(source, sourceSize, dest);
 	const size_t paddingLen = encryptor.finalize((byte_t*)dest + shotLen);
 	return shotLen + paddingLen;
 }
 
-std::vector<byte_t> Encryptor::encrypt(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize) {
+std::vector<byte_t> Encryptor::encrypt(const SymmetricKey& key, const EncryptionAlgorithm algorithm, const byte_t* iv, const void* source, const size_t sourceSize) {
 	Encryptor encryptor(key, algorithm, iv);
 	std::vector<byte_t> result = encryptor.update(source, sourceSize);
 	const std::vector<byte_t> resultFinal = encryptor.finalize();

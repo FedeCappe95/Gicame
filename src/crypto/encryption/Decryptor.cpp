@@ -11,10 +11,11 @@ using namespace Gicame::Crypto;
 #define ecctx ((EVP_CIPHER_CTX*)(ctx))
 
 
-Decryptor::Decryptor(const SymmetricKey& key, const EncryptionAlgorithm& algorithm, const byte_t* iv) :
+Decryptor::Decryptor(const SymmetricKey& key, const EncryptionAlgorithm algorithm, const byte_t* iv) :
     key(key),
     ctx(NULL),
-    plaintextLen(0)
+    plaintextLen(0),
+    algorithm(algorithm)
 {
     if (unlikely(algorithm.keySize() != key.getKeySize())) {
 		throw RUNTIME_ERROR("key length is not correct");
@@ -102,7 +103,7 @@ size_t Decryptor::finalize(void* out) {
 }
 
 std::vector<byte_t> Decryptor::finalize() {
-    std::vector<byte_t> plaintext(16);
+    std::vector<byte_t> plaintext(algorithm.blockSize());
 
     size_t lastLen = finalize(plaintext.data());
 
@@ -117,14 +118,14 @@ size_t Decryptor::getPlaintextLen() {
     return plaintextLen;
 }
 
-size_t Decryptor::decrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest) {
+size_t Decryptor::decrypt(SymmetricKey key, const EncryptionAlgorithm algorithm, const byte_t* iv, const void* source, const size_t sourceSize, void* dest) {
     Decryptor decryptor(key, algorithm, iv);
     const size_t len = decryptor.update(source, sourceSize, dest);
     const size_t lastLen = decryptor.finalize((byte_t*)dest + len);
     return len + lastLen;
 }
 
-std::vector<byte_t> Decryptor::decrypt(SymmetricKey key, const EncryptionAlgorithm& algorithm, const byte_t* iv, const void* source, const size_t sourceSize) {
+std::vector<byte_t> Decryptor::decrypt(SymmetricKey key, const EncryptionAlgorithm algorithm, const byte_t* iv, const void* source, const size_t sourceSize) {
     std::vector<byte_t> dest(sourceSize);
     size_t len = Decryptor::decrypt(key, algorithm, iv, source, sourceSize, dest.data());
     dest.resize(len);
