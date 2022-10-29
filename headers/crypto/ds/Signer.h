@@ -25,13 +25,12 @@ namespace Gicame::Crypto {
 		~Signer();
 		void update(const std::vector<byte_t>& source);
 		void update(const void* source, const size_t sourceSize);
-		std::vector<byte_t> sign(EvpKey privKey);
-		size_t sign(EvpKey privKey, void* outSign);
+		std::vector<byte_t> finalize(EvpKey privKey);
+		size_t finalize(EvpKey privKey, void* outSign);
 
 	public:
-		static std::vector<byte_t> staticSign(EvpKey privKey, const std::vector<byte_t>& source);
-		static std::vector<byte_t> staticSign(EvpKey privKey, const void* source, const size_t sourceSize);
-		static size_t staticSign(EvpKey privKey, const void* source, const size_t sourceSize, void* dest);
+		static std::vector<byte_t> sign(EvpKey privKey, const void* source, const size_t sourceSize);
+		static size_t sign(EvpKey privKey, const void* source, const size_t sourceSize, void* dest);
 
 	};
 

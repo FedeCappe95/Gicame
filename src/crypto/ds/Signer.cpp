@@ -39,7 +39,7 @@ void Signer::update(const void* source, const size_t sourceSize) {
     }
 }
 
-std::vector<byte_t> Signer::sign(EvpKey privKey) {
+std::vector<byte_t> Signer::finalize(EvpKey privKey) {
     unsigned int size = Gicame::Utilities::safeNumericCast<unsigned int>(privKey.maxOutputBufferSize());
     std::vector<byte_t> dest(size);
     if (unlikely(!EVP_SignFinal(ctx, dest.data(), &size, privKey.get()))) {
@@ -49,7 +49,7 @@ std::vector<byte_t> Signer::sign(EvpKey privKey) {
     return dest;
 }
 
-size_t Signer::sign(EvpKey privKey, void* outSign) {
+size_t Signer::finalize(EvpKey privKey, void* outSign) {
     unsigned int size;
     if (unlikely(!EVP_SignFinal(ctx, (byte_t*)outSign, &size, privKey.get()))) {
         throw RUNTIME_ERROR("EVP_SignFinal failed");
@@ -57,20 +57,14 @@ size_t Signer::sign(EvpKey privKey, void* outSign) {
     return Gicame::Utilities::safeNumericCast<size_t>(size);
 }
 
-std::vector<byte_t> Signer::staticSign(EvpKey privKey, const std::vector<byte_t>& source) {
-    Signer signer;
-    signer.update(source);
-    return signer.sign(privKey);
-}
-
-std::vector<byte_t> Signer::staticSign(EvpKey privKey, const void* source, const size_t sourceSize) {
+std::vector<byte_t> Signer::sign(EvpKey privKey, const void* source, const size_t sourceSize) {
     Signer signer;
     signer.update(source, sourceSize);
-    return signer.sign(privKey);
+    return signer.finalize(privKey);
 }
 
-size_t Signer::staticSign(EvpKey privKey, const void* source, const size_t sourceSize, void* dest) {
+size_t Signer::sign(EvpKey privKey, const void* source, const size_t sourceSize, void* dest) {
     Signer signer;
     signer.update(source, sourceSize);
-    return signer.sign(privKey, dest);
+    return signer.finalize(privKey, dest);
 }

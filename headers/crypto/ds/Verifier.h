@@ -25,12 +25,12 @@ namespace Gicame::Crypto {
 		~Verifier();
 		void update(const std::vector<byte_t>& source);
 		void update(const void* source, const size_t size);
-		bool verify(EvpKey pubKey, const std::vector<byte_t>& sign);
-		bool verify(EvpKey pubKey, const void* sign, const size_t size);
+		bool finalize(EvpKey pubKey, const std::vector<byte_t>& sign);
+		bool finalize(EvpKey pubKey, const void* sign, const size_t size);
 
 	public:
-		static bool staticVerification(EvpKey pubKey, const std::vector<byte_t>& source, const std::vector<byte_t>& sign);
-		static bool staticVerification(EvpKey pubKey, const void* source, const size_t sourceSize, const void* sign, const size_t signSize);
+		static bool verify(EvpKey pubKey, const std::vector<byte_t>& source, const std::vector<byte_t>& sign);
+		static bool verify(EvpKey pubKey, const void* source, const size_t sourceSize, const void* sign, const size_t signSize);
 
 	};
 

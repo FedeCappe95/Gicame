@@ -39,28 +39,28 @@ void Verifier::update(const void* source, const size_t size) {
     }
 }
 
-bool Verifier::verify(EvpKey pubKey, const std::vector<byte_t>& sign) {
-    return verify(pubKey, sign.data(), sign.size());
+bool Verifier::finalize(EvpKey pubKey, const std::vector<byte_t>& sign) {
+    return finalize(pubKey, sign.data(), sign.size());
 }
 
-bool Verifier::verify(EvpKey pubKey, const void* sign, const size_t size) {
+bool Verifier::finalize(EvpKey pubKey, const void* sign, const size_t size) {
     const unsigned int sizeAsUi = Gicame::Utilities::safeNumericCast<unsigned int>(size);
     return EVP_VerifyFinal(ctx, (byte_t*)sign, sizeAsUi, pubKey.get()) == 1;
 }
 
-bool Verifier::staticVerification(
+bool Verifier::verify(
     EvpKey pubKey, const std::vector<byte_t>& source, const std::vector<byte_t>& sign
 ) {
     Verifier verifier;
     verifier.update(source);
-    return verifier.verify(pubKey, sign);
+    return verifier.finalize(pubKey, sign);
 }
 
-bool Verifier::staticVerification(
+bool Verifier::verify(
     EvpKey pubKey, const void* source, const size_t sourceSize, const void* sign,
     const size_t signSize
 ) {
     Verifier verifier;
     verifier.update(source, sourceSize);
-    return verifier.verify(pubKey, sign, signSize);
+    return verifier.finalize(pubKey, sign, signSize);
 }
