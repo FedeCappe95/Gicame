@@ -54,8 +54,12 @@ std::vector<byte_t> EvpKey::privateKeyToPem() const {
 }
 
 void EvpKey::publicKeySaveToPemFile(const std::string& path) const {
+#ifdef MSVC
     FILE* keyFile;
     fopen_s(&keyFile, path.c_str(), "w");
+#else
+    FILE* keyFile = fopen(path.c_str(), "w");
+#endif
     if (unlikely(!keyFile)) {
         throw RUNTIME_ERROR("unable to open key file");
     }
@@ -67,8 +71,12 @@ void EvpKey::publicKeySaveToPemFile(const std::string& path) const {
 }
 
 void EvpKey::privateKeySaveToPemFile(const std::string& path) const {
+#ifdef MSVC
     FILE* keyFile;
     fopen_s(&keyFile, path.c_str(), "w");
+#else
+    FILE* keyFile = fopen(path.c_str(), "w");
+#endif
     if (unlikely(!keyFile)) {
         throw RUNTIME_ERROR("unable to open key file");
     }

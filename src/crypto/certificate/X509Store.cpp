@@ -11,7 +11,7 @@ using namespace Gicame::Crypto;
 
 
 X509Store::X509Store() {
-    X509_STORE* nativeStore = X509_STORE_new();
+    nativeStore = X509_STORE_new();
     if (unlikely(!nativeStore)) {
         throw RUNTIME_ERROR("X509_STORE_new failed");
     }
@@ -35,8 +35,12 @@ X509Store& X509Store::addCertificate(X509Certificate& certificate) {
 }
 
 X509Store& X509Store::addCrlFromPemFile(const std::string& filePath) {
+#ifdef MSVC
     FILE* fp;
     fopen_s(&fp, filePath.c_str(), "r");
+#else
+    FILE* fp = fopen(filePath.c_str(), "r");
+#endif
     if (unlikely(!fp)) {
         throw RUNTIME_ERROR("Invalid filePath");
     }

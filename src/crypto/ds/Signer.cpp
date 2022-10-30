@@ -1,7 +1,7 @@
-#include "crypto/ds/Signer.h"
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
+#include "crypto/ds/Signer.h"
 
 
 using namespace Gicame::Crypto;
@@ -18,7 +18,7 @@ Signer::Signer() :
     }
 
     if (unlikely(!EVP_SignInit(ctx, digestAlg))) {
-        EVP_MD_CTX_free(ctx);
+        EVP_MD_CTX_destroy(ctx);
         ctx = NULL;
         throw RUNTIME_ERROR("EVP_SignInit failed");
     }
@@ -26,7 +26,7 @@ Signer::Signer() :
 
 Signer::~Signer() {
     if (likely(ctx))
-        EVP_MD_CTX_free(ctx);
+        EVP_MD_CTX_destroy(ctx);
 }
 
 void Signer::update(const std::vector<byte_t>& source) {

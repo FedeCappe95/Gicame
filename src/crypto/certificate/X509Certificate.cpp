@@ -1,6 +1,7 @@
 #include "crypto/certificate/X509Certificate.h"
 #include "crypto/opensslInterface/OpenSslInterface.h"
 #include "io/Io.h"
+#include <cstring>
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/dh.h>

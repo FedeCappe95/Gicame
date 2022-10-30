@@ -1,7 +1,7 @@
-#include "crypto/ds/Verifier.h"
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
+#include "crypto/ds/Verifier.h"
 
 
 using namespace Gicame::Crypto;
@@ -16,7 +16,7 @@ Verifier::Verifier() {
     }
 
     if (unlikely(!EVP_VerifyInit(ctx, digestAlg))) {
-        EVP_MD_CTX_free(ctx);
+        EVP_MD_CTX_destroy(ctx);
         ctx = NULL;
         throw RUNTIME_ERROR("EVP_VerifyInit failed");
     }
@@ -24,7 +24,7 @@ Verifier::Verifier() {
 
 Verifier::~Verifier() {
     if (likely(ctx)) {
-        EVP_MD_CTX_free(ctx);
+        EVP_MD_CTX_destroy(ctx);
     }
 }
 

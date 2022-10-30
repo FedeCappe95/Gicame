@@ -12,8 +12,8 @@ namespace Gicame::Crypto::Random {
 	template<typename T>
 	static inline T getRandom() {
 		T result;
-		getRandomBytes(&T, sizeof(T));
-		return T;
+		getRandomBytes(&result, sizeof(T));
+		return result;
 	}
 
 };

@@ -8,8 +8,10 @@
 #include "../key/EvpKey.h"
 
 
-struct evp_md_ctx_st;
-struct evp_md_st;
+#ifndef GICAME_CRYPTO_EXPORTS
+struct EVP_MD;
+struct EVP_MD_CTX;
+#endif
 
 
 namespace Gicame::Crypto {
@@ -17,8 +19,8 @@ namespace Gicame::Crypto {
 	class GICAME_CRYPTO_API Verifier {
 
 	private:
-		evp_md_ctx_st* ctx;
-		const evp_md_st* digestAlg;
+		EVP_MD_CTX* ctx;
+		const EVP_MD* digestAlg;
 
 	public:
 		Verifier();

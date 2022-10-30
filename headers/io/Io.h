@@ -17,14 +17,14 @@ namespace Gicame::IO {
 		throw RUNTIME_ERROR(std::string("Gicame::IO IO error on file") + filePath);
 	}
 
-	static size_t fileSize(const std::string& filePath) {
+	static inline size_t fileSize(const std::string& filePath) {
 		std::ifstream inFile(filePath, std::ifstream::ate | std::ifstream::binary);
 		const size_t size = static_cast<size_t>(inFile.tellg());
 		inFile.close();
 		return size;
 	}
 
-    static std::vector<byte_t> readFileContent(
+    [[maybe_unused]] static std::vector<byte_t> readFileContent(
 		const std::string& filePath,
 		const IoErrorEventHandler& ioErrorEventHandler = standardIoErrorEventHandler
 	) {
@@ -42,7 +42,7 @@ namespace Gicame::IO {
 		return content;
 	}
 
-	static void writeFileContent(
+	[[maybe_unused]] static void writeFileContent(
 		const std::string& filePath,
 		const std::vector<byte_t>& content,
 		const IoErrorEventHandler& ioErrorEventHandler = standardIoErrorEventHandler
