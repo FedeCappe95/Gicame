@@ -38,12 +38,12 @@ int main() {
 	const std::vector<byte_t> fileContent = Gicame::IO::readFileContent(filePath);
 
 	// Make the digital sign
-	const EvpKey privKey = EvpKey::fromPrivateKeyPem(Gicame::IO::readFileContent("../../../examples/KeyPairExample/privKey.pem"));
+	const EvpKey privKey = EvpKey::fromPrivateKeyPemFile("../../../examples/KeyPairExample/privKey.pem");
 	const std::vector<byte_t> digitalSign = Signer::sign(privKey, fileContent.data(), fileContent.size());
 	printDigitalSign(digitalSign);
 
 	// Verify the digital sign
-	const X509Certificate certificate = X509Certificate::fromPem(Gicame::IO::readFileContent("../../../examples/KeyPairExample/cert.pem"));
+	const X509Certificate certificate = X509Certificate::fromPemFile("../../../examples/KeyPairExample/cert.pem");
 	const EvpKey pubKey = certificate.getPublicKey();
 	const bool verified = Verifier::verify(pubKey, fileContent, digitalSign);
 
