@@ -2,10 +2,10 @@
 **Generic Inter-process Communication And Message Exchange**
 
 ## What is Gicame
-Gicame is a C++ **cross-platform** library created to expose simple and modern interfaces for building applications that would normally be difficult and composed by OS-dependent code.
+Gicame is a C++17 **cross-platform** library created to expose simple and modern interfaces for building applications that would normally be difficult and composed by OS-dependent code.
 It wants to be:
  - as simple as possible,
- - fully accessible via C ++ constructs and
+ - fully accessible via C++ constructs and
  - compatible with all major operating systems without the need for modifications.
 
 It focuses of distributed applications which need to communicate by exchanging messages or sharing data, but it also works as the core for many extensions whose purpose is to extend the C++ language with new and modern functionality.<br />
@@ -44,7 +44,32 @@ Some tests on earlier versions were successfully run on:
     - Android 10 using *clang version 10.0.1 on Termux*
 
 # Gicame-crypto
-**Coming soon...**
+Gicame-crypto is a C++17 **cross-platform** Gicame's extension that is a front-end library for OpenSSL.<br />
+It is designed to offer OpenSSL functionalities while maintaining the same ideas as Gicame, such as ease of use.<br />
+In the future, Gicame may adopt other cryptographic methods, but for now all of the functions are wrappers for OpenSSL.<br />
+### Example: digital signature
+This will require only 2 lines of code! Just load your PEM private key ad use it to sign your content!
+```
+const EvpKey privKey = EvpKey::fromPrivateKeyPemFile("../../../examples/KeyPairExample/privKey.pem");
+const std::vector<byte_t> digitalSign = Signer::sign(privKey, fileContent.data(), fileContent.size());
+```
+### Example: AES-128 encryption
+Select your EncryptionAlgorithm, read the file, choose your SymmetricKey and your iv. Encryption requires few lines of code.
+```
+const EncryptionAlgorithm ea = EncryptionAlgorithm::AES_128_CBC;
+const SymmetricKey key = SymmetricKey::createSymmetricKey(keyBuffer, sizeof(keyBuffer), ea);
+const std::vector<byte_t> fileContent = Gicame::IO::readFileContent(filePath);
+const std::vector<byte_t> encrypted = Encryptor::encrypt(key, ea, iv, fileContent.data(), fileContent.size());
+```
+### Example: HMAC of a very large file
+When you cannot load the entire file in memory (or you may not have the whole data content at all), it is still possible to compute HMACs (or HASHes, or chipthertexts, etc...) chunk by chunk.
+```
+HmacCalculator hmacCalc(SymmetricKey::createSymmetricKey(...), HashAlgorithm::SHA256);
+hmacCalc.update(chunk0, size0);
+/* ... */
+hmacCalc.update(chunkN, sizeN);
+std::vector<byte_t> hmac = hmacCalc.finalize();
+```
 
 # License
 See the *LICENSE* file. Basically everything is licensed under LGPL v2.1.
