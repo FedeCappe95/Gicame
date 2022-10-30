@@ -23,10 +23,10 @@ namespace Gicame {
 #endif
 
 	public:
-		SharedMemory(const std::string& name, const size_t size);
-		void create();
-		void open();
-		void close();
+		GICAME_API SharedMemory(const std::string& name, const size_t size);
+		GICAME_API void create();
+		GICAME_API void open();
+		GICAME_API void close();
 		inline void* get() { return ptr; }
 		inline size_t getSize() { return size; }
 		template<class T>
