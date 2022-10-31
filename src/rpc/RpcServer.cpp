@@ -50,7 +50,7 @@ bool RpcServer::oneShot() {
     std::vector<std::vector<byte_t>> params(exeRequest.paramCount);
     size_t totalParametersSize = 0;
     for (size_t paramIndex = 0; paramIndex < exeRequest.paramCount; ++paramIndex)
-        totalParametersSize += exeRequest.params[paramIndex].size;
+        totalParametersSize += (size_t)exeRequest.params[paramIndex].size;
     if (totalParametersSize > 0) {
         const std::vector<byte_t> allParametersBuffer = dataExchanger->receive((uint32_t)totalParametersSize);
         if (allParametersBuffer.size() != totalParametersSize) {
@@ -58,7 +58,7 @@ bool RpcServer::oneShot() {
         }
         const byte_t* ptr = allParametersBuffer.data();
         for (size_t paramIndex = 0; paramIndex < exeRequest.paramCount; ++paramIndex) {
-            params[paramIndex] = std::vector<byte_t>(exeRequest.params[paramIndex].size);
+            params[paramIndex] = std::vector<byte_t>((size_t)exeRequest.params[paramIndex].size);
             for (size_t i = 0; i < exeRequest.params[paramIndex].size; ++i) {
                 params[paramIndex][i] = *ptr;
                 ++ptr;
