@@ -48,6 +48,7 @@ namespace Gicame::Crypto {
             const size_t cts = rem ? plaintextSize + (bs - rem) : plaintextSize;
             if (unlikely(plaintextSize > cts))
                 throw RUNTIME_ERROR("Overflow: plaintextSize too large");
+            return cts;
         }
 
 #ifdef GICAME_CRYPTO_EXPORTS
