@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-DigitalSign", "Exam
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-SharedMemory", "Example-SharedMemory\Example-SharedMemory.vcxproj", "{58220C18-1BD5-4FDA-B246-9B7C70FA574C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-ThreadSyncWithSemaphore", "Example-ThreadSyncWithSemaphore\Example-ThreadSyncWithSemaphore.vcxproj", "{236BCE9E-92D3-402A-901D-79926B9C2C03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{58220C18-1BD5-4FDA-B246-9B7C70FA574C}.Release|x64.Build.0 = Release|x64
 		{58220C18-1BD5-4FDA-B246-9B7C70FA574C}.Release|x86.ActiveCfg = Release|Win32
 		{58220C18-1BD5-4FDA-B246-9B7C70FA574C}.Release|x86.Build.0 = Release|Win32
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Debug|x64.ActiveCfg = Debug|x64
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Debug|x64.Build.0 = Debug|x64
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Debug|x86.ActiveCfg = Debug|Win32
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Debug|x86.Build.0 = Debug|Win32
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Release|x64.ActiveCfg = Release|x64
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Release|x64.Build.0 = Release|x64
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Release|x86.ActiveCfg = Release|Win32
+		{236BCE9E-92D3-402A-901D-79926B9C2C03}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -135,6 +135,9 @@
     <ClInclude Include="..\..\..\headers\io\Io.h">
       <Filter>File di intestazione\io</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\sm\Semaphore.h">
+      <Filter>File di intestazione\sm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -169,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\common.cpp">
       <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sm\Semaphore.cpp">
+      <Filter>File di origine\sm</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
