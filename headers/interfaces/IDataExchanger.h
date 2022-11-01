@@ -1,5 +1,5 @@
-#ifndef __IDATAEXCHANGER_H__
-#define __IDATAEXCHANGER_H__
+#ifndef __GICAME__IDATAEXCHANGER_H__
+#define __GICAME__IDATAEXCHANGER_H__
 
 
 #include "../common.h"

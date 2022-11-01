@@ -1,5 +1,5 @@
-#ifndef __ENCRYPTIONALGORITHM_H__
-#define __ENCRYPTIONALGORITHM_H__
+#ifndef __GICAME__ENCRYPTIONALGORITHM_H__
+#define __GICAME__ENCRYPTIONALGORITHM_H__
 
 
 #include "common.h"

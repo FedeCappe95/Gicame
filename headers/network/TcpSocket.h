@@ -1,5 +1,5 @@
-#ifndef __TCPSOCKET_H__
-#define __TCPSOCKET_H__
+#ifndef __GICAME__TCPSOCKET_H__
+#define __GICAME__TCPSOCKET_H__
 
 
 #include <string>

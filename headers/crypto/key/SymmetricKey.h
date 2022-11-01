@@ -1,5 +1,5 @@
-#ifndef __SYMMETRICKEY_H__
-#define __SYMMETRICKEY_H__
+#ifndef __GICAME__SYMMETRICKEY_H__
+#define __GICAME__SYMMETRICKEY_H__
 
 
 #include <memory>

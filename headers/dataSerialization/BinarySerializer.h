@@ -1,5 +1,5 @@
-#ifndef __BINARYSERIALIZER_H__
-#define __BINARYSERIALIZER_H__
+#ifndef __GICAME__BINARYSERIALIZER_H__
+#define __GICAME__BINARYSERIALIZER_H__
 
 
 #include "../common.h"

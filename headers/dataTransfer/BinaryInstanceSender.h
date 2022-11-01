@@ -1,5 +1,5 @@
-#ifndef __BINARYINSTANCESENDER_H__
-#define __BINARYINSTANCESENDER_H__
+#ifndef __GICAME__BINARYINSTANCESENDER_H__
+#define __GICAME__BINARYINSTANCESENDER_H__
 
 
 #include "../common.h"

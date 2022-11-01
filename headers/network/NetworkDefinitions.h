@@ -1,5 +1,5 @@
-#ifndef __NETWORK_DEFINITIONS_H__
-#define __NETWORK_DEFINITIONS_H__
+#ifndef __GICAME__NETWORK_DEFINITIONS_H__
+#define __GICAME__NETWORK_DEFINITIONS_H__
 
 
 #include "../common.h"

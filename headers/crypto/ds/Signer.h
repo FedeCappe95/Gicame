@@ -1,5 +1,5 @@
-#ifndef __SIGNER_H__
-#define __SIGNER_H__
+#ifndef __GICAME__SIGNER_H__
+#define __GICAME__SIGNER_H__
 
 
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef __HMACCALCULATOR_H__
-#define __HMACCALCULATOR_H__
+#ifndef __GICAME__HMACCALCULATOR_H__
+#define __GICAME__HMACCALCULATOR_H__
 
 
 #include <vector>

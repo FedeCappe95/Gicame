@@ -1,5 +1,5 @@
-#ifndef __ERRORHANDLING_H__
-#define __ERRORHANDLING_H__
+#ifndef __GICAME__ERRORHANDLING_H__
+#define __GICAME__ERRORHANDLING_H__
 
 
 #include <string>

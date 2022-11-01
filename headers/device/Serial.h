@@ -1,5 +1,5 @@
-#ifndef __SERIAL_H__
-#define __SERIAL_H__
+#ifndef __GICAME__SERIAL_H__
+#define __GICAME__SERIAL_H__
 
 
 #include <stdint.h>

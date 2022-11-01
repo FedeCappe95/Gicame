@@ -1,5 +1,5 @@
-#ifndef __IALGORITHMDESCRIPTO_H_
-#define __IALGORITHMDESCRIPTO_H_
+#ifndef __GICAME__IALGORITHMDESCRIPTO_H_
+#define __GICAME__IALGORITHMDESCRIPTO_H_
 
 
 #include "common.h"

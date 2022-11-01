@@ -1,5 +1,5 @@
-#ifndef __SEMAPHORE_H__
-#define __SEMAPHORE_H__
+#ifndef __GICAME__SEMAPHORE_H__
+#define __GICAME__SEMAPHORE_H__
 
 
 #include <string>

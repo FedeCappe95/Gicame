@@ -1,5 +1,5 @@
-#ifndef __NETWORK_UTILITY_H__
-#define __NETWORK_UTILITY_H__
+#ifndef __GICAME__NETWORK_UTILITY_H__
+#define __GICAME__NETWORK_UTILITY_H__
 
 
 /*#ifdef WINDOWS

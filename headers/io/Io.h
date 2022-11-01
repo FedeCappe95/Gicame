@@ -1,5 +1,5 @@
-#ifndef __IO_H__
-#define __IO_H__
+#ifndef __GICAME__IO_H__
+#define __GICAME__IO_H__
 
 
 #include <string>

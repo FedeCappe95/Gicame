@@ -1,5 +1,5 @@
-#ifndef __EVPKEY_H__
-#define __EVPKEY_H__
+#ifndef __GICAME__EVPKEY_H__
+#define __GICAME__EVPKEY_H__
 
 
 #include <memory>

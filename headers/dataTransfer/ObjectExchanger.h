@@ -1,5 +1,5 @@
-#ifndef __OBJECTEXCHANGER_H__
-#define __OBJECTEXCHANGER_H__
+#ifndef __GICAME__OBJECTEXCHANGER_H__
+#define __GICAME__OBJECTEXCHANGER_H__
 
 
 #include "../common.h"

@@ -1,5 +1,5 @@
-#ifndef __ENCRYPTOR_H__
-#define __ENCRYPTOR_H__
+#ifndef __GICAME__ENCRYPTOR_H__
+#define __GICAME__ENCRYPTOR_H__
 
 
 #include <vector>

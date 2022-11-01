@@ -1,5 +1,5 @@
-#ifndef __ISERIALIZABLE_H__
-#define __ISERIALIZABLE_H__
+#ifndef __GICAME__ISERIALIZABLE_H__
+#define __GICAME__ISERIALIZABLE_H__
 
 
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef __RPCCLIENT_H__
-#define __RPCCLIENT_H__
+#ifndef __GICAME__RPCCLIENT_H__
+#define __GICAME__RPCCLIENT_H__
 
 
 #include "../common.h"

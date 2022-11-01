@@ -1,5 +1,5 @@
-#ifndef __TCPLISTENINGSOCKET_H__
-#define __TCPLISTENINGSOCKET_H__
+#ifndef __GICAME__TCPLISTENINGSOCKET_H__
+#define __GICAME__TCPLISTENINGSOCKET_H__
 
 
 #include <string>

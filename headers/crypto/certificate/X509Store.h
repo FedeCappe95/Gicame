@@ -1,5 +1,5 @@
-#ifndef __X509STORE_H__
-#define __X509STORE_H__
+#ifndef __GICAME__X509STORE_H__
+#define __GICAME__X509STORE_H__
 
 
 #include <string>

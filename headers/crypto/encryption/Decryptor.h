@@ -1,5 +1,5 @@
-#ifndef __DECRYPTOR_H__
-#define __DECRYPTOR_H__
+#ifndef __GICAME__DECRYPTOR_H__
+#define __GICAME__DECRYPTOR_H__
 
 
 #include <vector>

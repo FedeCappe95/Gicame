@@ -1,5 +1,5 @@
-#ifndef __RPCCOMMON_H__
-#define __RPCCOMMON_H__
+#ifndef __GICAME__RPCCOMMON_H__
+#define __GICAME__RPCCOMMON_H__
 
 
 #include <vector>

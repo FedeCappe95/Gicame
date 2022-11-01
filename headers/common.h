@@ -1,5 +1,5 @@
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __GICAME__COMMON_H__
+#define __GICAME__COMMON_H__
 
 
 /*

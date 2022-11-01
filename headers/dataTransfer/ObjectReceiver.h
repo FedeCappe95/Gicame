@@ -1,5 +1,5 @@
-#ifndef __OBJECTRECEIVER_H__
-#define __OBJECTRECEIVER_H__
+#ifndef __GICAME__OBJECTRECEIVER_H__
+#define __GICAME__OBJECTRECEIVER_H__
 
 
 #include "../common.h"

@@ -1,5 +1,5 @@
-#ifndef __RERBUILDING_H__
-#define __RERBUILDING_H__
+#ifndef __GICAME__RERBUILDING_H__
+#define __GICAME__RERBUILDING_H__
 
 
 #include <tuple>

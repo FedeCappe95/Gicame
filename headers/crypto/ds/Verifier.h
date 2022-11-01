@@ -1,6 +1,6 @@
 
-#ifndef __VERIFIER_H__
-#define __VERIFIER_H__
+#ifndef __GICAME__VERIFIER_H__
+#define __GICAME__VERIFIER_H__
 
 
 #include <vector>

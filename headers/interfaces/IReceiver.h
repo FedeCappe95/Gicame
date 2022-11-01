@@ -1,5 +1,5 @@
-#ifndef __IRECEIVER_H__
-#define __IRECEIVER_H__
+#ifndef __GICAME__IRECEIVER_H__
+#define __GICAME__IRECEIVER_H__
 
 
 #include <vector>

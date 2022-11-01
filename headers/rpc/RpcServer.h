@@ -1,5 +1,5 @@
-#ifndef __RPCSERVER_H__
-#define __RPCSERVER_H__
+#ifndef __GICAME__RPCSERVER_H__
+#define __GICAME__RPCSERVER_H__
 
 
 #include <unordered_map>

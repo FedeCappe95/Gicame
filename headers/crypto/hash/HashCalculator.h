@@ -1,5 +1,5 @@
-#ifndef __HASHCALCULATOR_H__
-#define __HASHCALCULATOR_H__
+#ifndef __GICAME__HASHCALCULATOR_H__
+#define __GICAME__HASHCALCULATOR_H__
 
 
 #include <vector>

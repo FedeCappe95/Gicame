@@ -1,5 +1,5 @@
-#ifndef __OBJECTSENDER_H__
-#define __OBJECTSENDER_H__
+#ifndef __GICAME__OBJECTSENDER_H__
+#define __GICAME__OBJECTSENDER_H__
 
 
 #include "../common.h"

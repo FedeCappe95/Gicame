@@ -1,5 +1,5 @@
-#ifndef __RANDOM_H__
-#define __RANDOM_H__
+#ifndef __GICAME__RANDOM_H__
+#define __GICAME__RANDOM_H__
 
 
 #include "common.h"

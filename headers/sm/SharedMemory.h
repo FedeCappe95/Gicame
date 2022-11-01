@@ -1,5 +1,5 @@
-#ifndef __SHAREDMEMORY_H__
-#define __SHAREDMEMORY_H__
+#ifndef __GICAME__SHAREDMEMORY_H__
+#define __GICAME__SHAREDMEMORY_H__
 
 
 #include <string>

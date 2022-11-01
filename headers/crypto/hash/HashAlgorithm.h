@@ -1,5 +1,5 @@
-#ifndef __HASHALGORITHM_H__
-#define __HASHALGORITHM_H__
+#ifndef __GICAME__HASHALGORITHM_H__
+#define __GICAME__HASHALGORITHM_H__
 
 
 #include "common.h"

@@ -1,5 +1,5 @@
-#ifndef __X509CERTIFICATE_H__
-#define __X509CERTIFICATE_H__
+#ifndef __GICAME__X509CERTIFICATE_H__
+#define __GICAME__X509CERTIFICATE_H__
 
 
 #include <memory>

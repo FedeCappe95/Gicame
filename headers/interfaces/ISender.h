@@ -1,5 +1,5 @@
-#ifndef __IWRITER_H__
-#define __IWRITER_H__
+#ifndef __GICAME__IWRITER_H__
+#define __GICAME__IWRITER_H__
 
 
 #include <vector>
