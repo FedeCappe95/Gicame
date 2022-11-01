@@ -185,6 +185,7 @@
     <ClInclude Include="..\..\..\headers\crypto\certificate\X509Certificate.h" />
     <ClInclude Include="..\..\..\headers\crypto\certificate\X509Store.h" />
     <ClInclude Include="..\..\..\headers\crypto\common\IAlgorithmDescriptor.h" />
+    <ClInclude Include="..\..\..\headers\crypto\dh\DiffieHellman.h" />
     <ClInclude Include="..\..\..\headers\crypto\ds\Signer.h" />
     <ClInclude Include="..\..\..\headers\crypto\ds\Verifier.h" />
     <ClInclude Include="..\..\..\headers\crypto\encryption\Decryptor.h" />
@@ -203,6 +204,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\crypto\certificate\X509Certificate.cpp" />
     <ClCompile Include="..\..\..\src\crypto\certificate\X509Store.cpp" />
+    <ClCompile Include="..\..\..\src\crypto\dh\DiffieHellman.cpp" />
     <ClCompile Include="..\..\..\src\crypto\ds\Signer.cpp" />
     <ClCompile Include="..\..\..\src\crypto\ds\Verifier.cpp" />
     <ClCompile Include="..\..\..\src\crypto\encryption\Decryptor.cpp" />

@@ -58,6 +58,12 @@
     <Filter Include="File di intestazione\opensslInterface">
       <UniqueIdentifier>{532701fb-e051-4d45-9fa7-4ac75ae072d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\dh">
+      <UniqueIdentifier>{9f50f500-f94b-4ddf-914a-afaeb97887d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\dh">
+      <UniqueIdentifier>{a4dfdebf-3ff9-4c58-ab0f-252e6d05332a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -114,6 +120,9 @@
     <ClInclude Include="..\..\..\headers\crypto\opensslInterface\OpenSslInterface.h">
       <Filter>File di intestazione\opensslInterface</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\crypto\dh\DiffieHellman.h">
+      <Filter>File di intestazione\dh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -151,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\crypto\random\Random.cpp">
       <Filter>File di origine\random</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\crypto\dh\DiffieHellman.cpp">
+      <Filter>File di origine\dh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
