@@ -19,21 +19,31 @@ static void printMyData(const MyData& myData) {
 	std::cout << "\n  message: " << myData.message << std::endl;
 }
 
+static void myStrCpy(char* dst, const size_t len, const char* src) {
+#ifdef MSVC
+	strcpy_s(dst, len, src);
+#else
+	UNUSED(len);
+  strcpy(dst, src);
+#endif
+}
 
-void peer0() {
+
+static void peer0() {
 	SharedMemory sm("MyMemory", sizeof(MyData));
 	sm.create();
 	MyData* myData = sm.getAs<MyData>();
 	myData->a = 5;
 	myData->b = 12.0;
-	strcpy_s(myData->message, sizeof(MyData::message), "Hello ShareMemory!");
+	myStrCpy(myData->message, sizeof(MyData::message), "Hello ShareMemory!");
 	std::cout << "Waiting the other peer..." << std::endl;
 	char c;
 	std::cin >> c;
 	sm.close();
+	sm.destroy();
 }
 
-void peer1() {
+static void peer1() {
 	SharedMemory sm("MyMemory", sizeof(MyData));
 	sm.open();
 	MyData* myData = sm.getAs<MyData>();

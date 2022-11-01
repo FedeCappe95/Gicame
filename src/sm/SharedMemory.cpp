@@ -4,8 +4,10 @@
 #ifdef WINDOWS
 #include <windows.h>
 #else
-#include <unistd.h>
 #include <sys/mman.h>
+#include <sys/stat.h>        // For mode constants
+#include <fcntl.h>           // For O_* constants
+#include <unistd.h>
 #endif
 
 
@@ -21,18 +23,25 @@ using namespace Gicame;
 SharedMemory::SharedMemory(const std::string& name, const size_t size) :
 #ifdef WINDOWS
 	name(std::string("Local\\") + name),
-	fileHandle(NULL),
+	size(size),
+	ptr(NULL),
+	fileHandle(NULL)
 #else
 	name(std::string("/") + name),
-	fd(-1),
-#endif
 	size(size),
-	ptr(NULL)
+	ptr(NULL),
+	fd(-1)
+#endif
 {}
+
+SharedMemory::~SharedMemory() {
+	if (ptr)
+		close();
+}
 
 void SharedMemory::create() {
 	if (ptr)
-		throw std::runtime_error(__FUNCTION__ ": SharedMemory already created or opened");
+		throw RUNTIME_ERROR("SharedMemory already created or opened");
 
 #ifdef WINDOWS
 	const DWORD sizeAsDword = Gicame::Utilities::safeNumericCast<DWORD>(size);
@@ -44,7 +53,6 @@ void SharedMemory::create() {
 		sizeAsDword,             // maximum object size (low-order DWORD)
 		name.c_str()             // name of mapping object
 	);
-
 	if (!fileHandle)
 		throw RUNTIME_ERROR("Could not create file mapping");
 
@@ -59,7 +67,7 @@ void SharedMemory::create() {
 		throw RUNTIME_ERROR("Could not map view of file");
 	}
 #else
-#error "NYI"
+	open();
 #endif
 }
 
@@ -88,7 +96,21 @@ void SharedMemory::open() {
 		throw RUNTIME_ERROR("Could not map view of file");
 	}
 #else
-#error "NYI"
+	fd = shm_open(name.c_str(), O_CREAT | O_RDWR, 0666);
+	if (unlikely(fd < 0)) {
+		throw RUNTIME_ERROR("shm_open(...) failed");
+	}
+
+	if (unlikely(ftruncate(fd, size) < 0)) {
+		shm_unlink(name.c_str());
+		throw RUNTIME_ERROR("ftruncate(...) failed");
+	}
+
+	ptr = mmap(0, size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+	if (unlikely(!ptr)) {
+		shm_unlink(name.c_str());
+		throw RUNTIME_ERROR("mmap(...) failed");
+	}
 #endif
 }
 
@@ -98,8 +120,20 @@ void SharedMemory::close() {
 
 #ifdef WINDOWS
 	UnmapViewOfFile(ptr);
+#else
+	munmap(ptr, size);
+#endif
+
+	ptr = NULL;
+}
+
+void SharedMemory::destroy() {
+	if (ptr)
+		close();
+
+#ifdef WINDOWS
 	CloseHandle(fileHandle);
 #else
-#error "NYI"
+	shm_unlink(name.c_str());
 #endif
 }

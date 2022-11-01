@@ -1,17 +1,17 @@
 CC           = g++
 FLAGS        = -std=c++17 -DGICAME_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build
 FLAGS_CRYPTO = -std=c++17 -DGICAME_CRYPTO_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build -I/usr/lib/openssl-1.0/include -L/usr/lib/openssl-1.0/lib -lssl -lcrypto
-CFLAGS       = -fPIC -Wall -Wextra
+CFLAGS       = -fPIC -Wall -Wextra -lrt
 RELEASEFLAGS = -O2
 
 HEADERS = $(echo headers/*.h)
-GICAME_OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o build/RpcClient.o build/RpcServer.o build/NetworkDefinitions.o build/ErrorHandling.o
+GICAME_OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o build/RpcClient.o build/RpcServer.o build/NetworkDefinitions.o build/ErrorHandling.o build/SharedMemory.o
 GICAME_CRYPTO_OBJ_FILES = build/X509Store.o build/X509Certificate.o build/Signer.o build/Verifier.o build/Decryptor.o build/Encryptor.o build/HashCalculator.o build/HashCalculator.o build/EvpKey.o build/SymmetricKey.o build/Random.o
 
 
 ### Build all ###
 
-all: build/libgicame.so build/libgicamecrypto.so build/RpcClientOverTcp build/RpcServerOverTcp
+all: build/libgicame.so build/libgicamecrypto.so build/Example-RpcClientOverTcp build/Example-RpcServerOverTcp
 	echo "Building Gicame and Gicame-crypto"
 
 
@@ -37,7 +37,10 @@ build/RpcServer.o: src/rpc/RpcServer.cpp headers/rpc/RpcServer.h $(HEADERS)
 
 build/ErrorHandling.o: src/os/ErrorHandling.cpp headers/os/ErrorHandling.h $(HEADERS)
 	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
-	
+
+build/SharedMemory.o: src/sm/SharedMemory.cpp headers/sm/SharedMemory.h $(HEADERS)
+	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+
 
 ### Gicame-crypto OBJ files ###
 
@@ -105,10 +108,13 @@ build/libgicamecrypto.a: $(GICAME_CRYPTO_OBJ_FILES)
 
 ### Some examples ###
 
-build/RpcClientOverTcp: examples/RpcClientOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
+build/Example-RpcClientOverTcp: examples/RpcClientOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
 	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
 
-build/RpcServerOverTcp: examples/RpcServerOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
+build/Example-RpcServerOverTcp: examples/RpcServerOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
+	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
+
+build/Example-SharedMemory: examples/SharedMemory/main.cpp
 	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
 
 
