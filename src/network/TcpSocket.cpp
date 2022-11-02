@@ -24,9 +24,18 @@
 using namespace Gicame;
 
 
+TcpSocket::TcpSocket(
+	const SocketDescriptor sockfd, const SocketStatus socketStatus, const short sin_family
+) : 
+	sockfd(sockfd), socketStatus(socketStatus), sin_family(sin_family), flagReceptionBlocking(false)
+{
+	// Nothing to do
+}
+
 TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
 	sockfd(0),
-	socketStatus(SocketStatus::CLOSED)
+	socketStatus(SocketStatus::CLOSED),
+	flagReceptionBlocking(false)
 {
 	#ifdef WINDOWS
 	Gicame::startWsaIfNeeded();
@@ -152,10 +161,9 @@ uint32_t TcpSocket::receive(void* buffer, const uint32_t size) {
 	}
 
 	#ifdef WINDOWS
-	int actuallyReceived = recv(sockfd, (char*)buffer, size, 0);
+	int actuallyReceived = recv(sockfd, (char*)buffer, size, flagReceptionBlocking ? MSG_WAITALL : 0);
 	#else
-	//int actuallyReceived = recv(sockfd, buffer, howManyBytes, MSG_WAITALL);
-	int actuallyReceived = recv(sockfd, buffer, size, 0);
+	int actuallyReceived = recv(sockfd, buffer, size, flagReceptionBlocking ? MSG_WAITALL : 0);
 	#endif
 
 	if (actuallyReceived < 0) {
@@ -217,6 +225,10 @@ IPv4 TcpSocket::getPeerIPv4() const {
         return IPv4(0u); //ipv6AddressToString(&addr.sin6_addr);  TODO
 
     }
+}
+
+void TcpSocket::setReceptionBlocking(const bool rb) {
+	flagReceptionBlocking = rb;
 }
 
 bool TcpSocket::getSockOptions(const int level, const int optname, void* outValue, const uint32_t outValueSize) const {

@@ -21,11 +21,13 @@ namespace Gicame {
 		SocketDescriptor sockfd;
 		SocketStatus socketStatus;
 		short sin_family; // IPv4 (AF_INET) or IPv6 (AF_INET6)
+		bool flagReceptionBlocking;
 
 	private:
-		inline TcpSocket(
-			const SocketDescriptor sockfd, const SocketStatus socketStatus, const short sin_family
-		) : sockfd(sockfd), socketStatus(socketStatus), sin_family(sin_family) {}
+		TcpSocket(
+			const SocketDescriptor sockfd, const SocketStatus socketStatus,
+			const short sin_family
+		);
 
 	public:
 		TcpSocket(const InternetProtocolVersion ipv = InternetProtocolVersion::IPv4);
@@ -71,6 +73,12 @@ namespace Gicame {
 		 * Get the IPv4 of the remote peer
 		 */
 		IPv4 getPeerIPv4() const;
+
+		/**
+		 * Set the receptionBlocking flag: when receiving, try to receive the exact amount of bytes
+		 * specified
+		 */
+		void setReceptionBlocking(const bool rb);
 
 		/**
 		 * Old-style socket options (getters)
