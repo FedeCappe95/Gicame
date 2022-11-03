@@ -43,6 +43,8 @@ namespace Gicame::Crypto {
 		GICAME_CRYPTO_API static X509Certificate newEmptyX509Certificate();
 		GICAME_CRYPTO_API static X509Certificate fromDer(const std::vector<byte_t>& der);
 		GICAME_CRYPTO_API static X509Certificate fromPem(const std::vector<byte_t>& pem);
+		GICAME_CRYPTO_API static X509Certificate fromPem(const std::string& pem);
+		GICAME_CRYPTO_API static X509Certificate fromPem(const byte_t* pem, const size_t size);
 		GICAME_CRYPTO_API static X509Certificate fromDerFile(const std::string& filePath);
 		GICAME_CRYPTO_API static X509Certificate fromPemFile(const std::string& filePath);
 

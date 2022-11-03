@@ -102,12 +102,12 @@ EvpKey EvpKey::newEmptyEvpKey() {
     return EvpKey::fromOpenSslEvpKey(EVP_PKEY_new());
 }
 
-EvpKey EvpKey::fromPublicKeyPem(const std::vector<byte_t>& data) {
-	if (unlikely(data.size() > (size_t)INT_MAX)) {
-		throw RUNTIME_ERROR("serialized too big");
+EvpKey EvpKey::fromPublicKeyPem(const byte_t* data, const size_t size) {
+	if (unlikely(size > (size_t)INT_MAX || size == 0u)) {
+		throw RUNTIME_ERROR("invalid size");
 	}
 
-    BIO* bio = BIO_new_mem_buf(data.data(), (int)data.size());
+    BIO* bio = BIO_new_mem_buf(data, (int)size);
     if (unlikely(!bio)) {
         throw RUNTIME_ERROR("unable to allocate bio");
     }
@@ -120,12 +120,20 @@ EvpKey EvpKey::fromPublicKeyPem(const std::vector<byte_t>& data) {
     return EvpKey::fromOpenSslEvpKey(evp);
 }
 
-EvpKey EvpKey::fromPrivateKeyPem(const std::vector<byte_t>& data) {
-	if (unlikely(data.size() > (size_t)INT_MAX)) {
-		throw RUNTIME_ERROR("serialized too big");
+EvpKey EvpKey::fromPublicKeyPem(const std::string& data) {
+    return EvpKey::fromPublicKeyPem((byte_t*)data.data(), data.length() + 1u);
+}
+
+EvpKey EvpKey::fromPublicKeyPem(const std::vector<byte_t>& data) {
+    return EvpKey::fromPublicKeyPem(data.data(), data.size());
+}
+
+EvpKey EvpKey::fromPrivateKeyPem(const byte_t* data, const size_t size) {
+	if (unlikely(size > (size_t)INT_MAX || size == 0u)) {
+		throw RUNTIME_ERROR("invalid size");
 	}
 
-    BIO* bio = BIO_new_mem_buf(data.data(), (int)data.size());
+    BIO* bio = BIO_new_mem_buf(data, (int)size);
     if (unlikely(!bio)) {
         throw RUNTIME_ERROR("unable to allocate bio");
     }
@@ -136,6 +144,14 @@ EvpKey EvpKey::fromPrivateKeyPem(const std::vector<byte_t>& data) {
     }
 
     return EvpKey::fromOpenSslEvpKey(evp);
+}
+
+EvpKey EvpKey::fromPrivateKeyPem(const std::string& data) {
+    return EvpKey::fromPrivateKeyPem((byte_t*)data.data(), data.length() + 1u);
+}
+
+EvpKey EvpKey::fromPrivateKeyPem(const std::vector<byte_t>& data) {
+    return EvpKey::fromPrivateKeyPem(data.data(), data.size());
 }
 
 EvpKey EvpKey::fromPublicKeyPemFile(const std::string& path) {

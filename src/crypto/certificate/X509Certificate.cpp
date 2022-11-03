@@ -192,13 +192,12 @@ X509Certificate X509Certificate::fromDer(const std::vector<byte_t>& der) {
     return X509Certificate(cert);
 }
 
-X509Certificate X509Certificate::fromPem(const std::vector<byte_t>& pem) {
-    const size_t pemSize = pem.size();
-    if (unlikely(pemSize > (size_t)INT_MAX)) {
-        throw RUNTIME_ERROR("pemSize too big");
+X509Certificate X509Certificate::fromPem(const byte_t* pem, const size_t size) {
+    if (unlikely(size > (size_t)INT_MAX || size == 0u)) {
+        throw RUNTIME_ERROR("invaldi size");
     }
 
-    BIO* bio = BIO_new_mem_buf(pem.data(), (int)pem.size());
+    BIO* bio = BIO_new_mem_buf(pem, (int)size);
 
     if (unlikely(!bio)) {
         throw RUNTIME_ERROR("unable to allocate bio");
@@ -211,6 +210,14 @@ X509Certificate X509Certificate::fromPem(const std::vector<byte_t>& pem) {
     }
 
     return X509Certificate(cert);
+}
+
+X509Certificate X509Certificate::fromPem(const std::vector<byte_t>& pem) {
+    return X509Certificate::fromPem(pem.data(), pem.size());
+}
+
+X509Certificate X509Certificate::fromPem(const std::string& pem) {
+    return X509Certificate::fromPem((byte_t*)pem.data(), pem.length() + 1u);
 }
 
 
