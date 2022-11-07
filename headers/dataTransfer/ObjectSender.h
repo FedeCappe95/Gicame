@@ -19,8 +19,8 @@ namespace Gicame {
 
 	public:
 		ObjectSender(ISender* sender);
-		virtual uint32_t send(const void* buffer, const uint32_t size) override;
-		virtual uint32_t send(const std::vector<byte_t>& buffer) override;
+		virtual size_t send(const void* buffer, const size_t size) override;
+		virtual size_t send(const std::vector<byte_t>& buffer) override;
 		virtual bool isSenderConnected() const override;
 
 	};
@@ -32,12 +32,9 @@ namespace Gicame {
 
 	 inline ObjectSender::ObjectSender(ISender* sender) : sender(sender) {}
 
-	 inline uint32_t ObjectSender::send(const void* buffer, const uint32_t size) {
-		 if (unlikely(size > ISender::SENDER_MAX_SIZE)) {
-             throw RUNTIME_ERROR("Sending too much");
-         }
-
-		 uint32_t sentBytes = sender->send(&size, sizeof(size));
+	 inline size_t ObjectSender::send(const void* buffer, const size_t size) {
+		 const uint64_t sizeToSend = (uint64_t)size;
+		 size_t sentBytes = sender->send(&sizeToSend, sizeof(sizeToSend));
 		 if (unlikely(sentBytes != sizeof(size))) {
 			 throw RUNTIME_ERROR("Error sending outgoing object size");
 		 }
@@ -50,11 +47,8 @@ namespace Gicame {
 		 return sentBytes;
 	 }
 
-	 inline uint32_t ObjectSender::send(const std::vector<byte_t>& buffer) {
-		 if (unlikely(buffer.size() > ISender::SENDER_MAX_SIZE)) {
-			 throw RUNTIME_ERROR("Sending too much");
-		 }
-         return send(buffer.data(), (uint32_t)buffer.size());
+	 inline size_t ObjectSender::send(const std::vector<byte_t>& buffer) {
+		 return send(buffer.data(), (uint32_t)buffer.size());
 	 }
 
 	 inline bool ObjectSender::isSenderConnected() const {

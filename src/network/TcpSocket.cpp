@@ -132,14 +132,14 @@ bool TcpSocket::connectTo(const IPv6& ip, const uint16_t port) {
 	return isConnected();
 }
 
-uint32_t TcpSocket::send(const void* buffer, const uint32_t size) {
-	if (size > (uint32_t)INT_MAX)
+size_t TcpSocket::send(const void* buffer, const size_t size) {
+	if (size > (size_t)INT_MAX)
 		throw RUNTIME_ERROR("Size too big");
 	if (!isConnected())
 		throw RUNTIME_ERROR("It is impossible to send something using a non connected socket");
 
 	#ifdef WINDOWS
-	int actuallySent = ::send(sockfd, (const char*)buffer, size, 0);
+	int actuallySent = ::send(sockfd, (const char*)buffer, (int)size, 0);
 	#else
 	int actuallySent = ::send(sockfd, buffer, size, 0);
 	#endif
@@ -152,8 +152,8 @@ uint32_t TcpSocket::send(const void* buffer, const uint32_t size) {
 	return (uint32_t)actuallySent;
 }
 
-uint32_t TcpSocket::receive(void* buffer, const uint32_t size) {
-	if (size > (uint32_t)INT_MAX) {
+size_t TcpSocket::receive(void* buffer, const size_t size) {
+	if (size > (size_t)INT_MAX) {
 		throw RUNTIME_ERROR("Receiving too much");
 	}
 	if(!isConnected()) {
@@ -161,7 +161,7 @@ uint32_t TcpSocket::receive(void* buffer, const uint32_t size) {
 	}
 
 	#ifdef WINDOWS
-	int actuallyReceived = recv(sockfd, (char*)buffer, size, flagReceptionBlocking ? MSG_WAITALL : 0);
+	int actuallyReceived = recv(sockfd, (char*)buffer, (int)size, flagReceptionBlocking ? MSG_WAITALL : 0);
 	#else
 	int actuallyReceived = recv(sockfd, buffer, size, flagReceptionBlocking ? MSG_WAITALL : 0);
 	#endif

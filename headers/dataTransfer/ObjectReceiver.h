@@ -19,8 +19,8 @@ namespace Gicame {
 
 	public:
 		ObjectReceiver(IReceiver* receiver);
-		virtual uint32_t receive(void* buffer, const uint32_t size) override;
-        virtual std::vector<byte_t> receive(const uint32_t maxSize) override;
+		virtual size_t receive(void* buffer, const size_t size) override;
+        virtual std::vector<byte_t> receive(const size_t maxSize) override;
 		virtual bool isReceiverConnected() const override;
 
 	};
@@ -32,17 +32,13 @@ namespace Gicame {
 
 	 inline ObjectReceiver::ObjectReceiver(IReceiver* receiver) : receiver(receiver) {}
 
-	 inline uint32_t ObjectReceiver::receive(void* buffer, const uint32_t size) {
-		 uint32_t incomingObjectSize;
-		 uint32_t receivedBytes = receiver->receive(&incomingObjectSize, sizeof(incomingObjectSize));
+	 inline size_t ObjectReceiver::receive(void* buffer, const size_t size) {
+		 uint64_t incomingObjectSize;
+		 size_t receivedBytes = receiver->receive(&incomingObjectSize, sizeof(incomingObjectSize));
 
 		 if (unlikely(receivedBytes != sizeof(incomingObjectSize))) {
 			 throw RUNTIME_ERROR("Error receiving the incoming object size");
 		 }
-
-		 if (unlikely(incomingObjectSize > IReceiver::RECEIVER_MAX_SIZE)) {
-             throw RUNTIME_ERROR("Receiving too much");
-         }
 
 		 if (unlikely(incomingObjectSize > size)) {
 			 throw RUNTIME_ERROR("Incoming object size greater then buffer size");
@@ -50,15 +46,15 @@ namespace Gicame {
 
 		 receivedBytes = 0;
 		 do {
-			 receivedBytes += receiver->receive((byte_t*)buffer + receivedBytes, incomingObjectSize - receivedBytes);
+			 receivedBytes += receiver->receive((byte_t*)buffer + receivedBytes, (size_t)incomingObjectSize - receivedBytes);
 		 } while (receivedBytes < incomingObjectSize);
 
 		 return receivedBytes;
 	 }
 
-	 inline std::vector<byte_t> ObjectReceiver::receive(const uint32_t maxSize) {
+	 inline std::vector<byte_t> ObjectReceiver::receive(const size_t maxSize) {
          std::vector<byte_t> ret(maxSize, 0u);
-         uint32_t receivedBytes = receive(ret.data(), maxSize);
+		 const size_t receivedBytes = receive(ret.data(), maxSize);
          ret.resize(receivedBytes);
          return ret;
 	 }

@@ -33,7 +33,7 @@ namespace Gicame {
 
 	 template<class DataType>
 	 inline void BinaryInstanceSender::send(const DataType* data) {
-		 const uint32_t sent = objectSender.send(data, sizeof(DataType));
+		 const size_t sent = objectSender.send(data, sizeof(DataType));
 		 if (sent != sizeof(DataType)) {
 			 throw RUNTIME_ERROR("Error sending data");
 		 }

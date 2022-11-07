@@ -49,8 +49,8 @@ namespace Gicame {
 		 */
 		bool connectTo(const IPv6& ip, const uint16_t port);
 
-		virtual uint32_t send(const void* buffer, const uint32_t size) override;
-		virtual uint32_t receive(void* buffer, const uint32_t size) override;
+		virtual size_t send(const void* buffer, const size_t size) override;
+		virtual size_t receive(void* buffer, const size_t size) override;
 
 		/**
 		 * Close the socket

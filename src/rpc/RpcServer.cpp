@@ -31,7 +31,7 @@ void RpcServer::registerRpcFunction(RpcFunction rpcFunction, const FunctionId fu
 bool RpcServer::oneShot() {
     // Receive the RpcExecutionRequest
     const size_t exeRequestSerSize = RpcExecutionRequest().serialize().size();  // Worst method possible, must be changed, but it works for now...
-    const std::vector<byte_t> serExeRequest = dataExchanger->receive((uint32_t)exeRequestSerSize);
+    const std::vector<byte_t> serExeRequest = dataExchanger->receive(exeRequestSerSize);
     if (serExeRequest.empty())
         return false;
     RpcExecutionRequest exeRequest = RpcExecutionRequest::deserialize(serExeRequest);
@@ -52,7 +52,7 @@ bool RpcServer::oneShot() {
     for (size_t paramIndex = 0; paramIndex < exeRequest.paramCount; ++paramIndex)
         totalParametersSize += (size_t)exeRequest.params[paramIndex].size;
     if (totalParametersSize > 0) {
-        const std::vector<byte_t> allParametersBuffer = dataExchanger->receive((uint32_t)totalParametersSize);
+        const std::vector<byte_t> allParametersBuffer = dataExchanger->receive(totalParametersSize);
         if (allParametersBuffer.size() != totalParametersSize) {
             return invalidRequestEventHandler(exeRequest, InvalidRequestReason::BAD_PARAMETERS);
         }
