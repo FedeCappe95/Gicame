@@ -73,3 +73,7 @@ std::vector<byte_t> hmac = hmacCalc.finalize();
 
 # License
 See the *LICENSE* file. Basically everything is licensed under LGPL v2.1.
+## Gicame-crypto and OpenSSL integration
+Gicame-crypto makes use of OpenSSL licensed under the double OpenSSL/SSLeay license.<br/>
+*This product includes cryptographic software written by Eric Young (eay@cryptsoft.com).*<br/>
+*This product includes software written by Tim Hudson (tjh@cryptsoft.com).*
