@@ -165,12 +165,4 @@
       <Filter>File di origine\dh</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="C:\Program Files\OpenSSL-Win64\lib\libssl.lib">
-      <Filter>Libs</Filter>
-    </Library>
-    <Library Include="C:\Program Files\OpenSSL-Win64\lib\libcrypto.lib">
-      <Filter>Libs</Filter>
-    </Library>
-  </ItemGroup>
 </Project>
