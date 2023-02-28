@@ -2,8 +2,8 @@
 #define __GICAME__HASHALGORITHM_H__
 
 
-#include "common.h"
-#include "crypto/common/IAlgorithmDescriptor.h"
+#include "../../common.h"
+#include "../common/IAlgorithmDescriptor.h"
 
 #ifdef GICAME_CRYPTO_EXPORTS
 #include <openssl/evp.h>

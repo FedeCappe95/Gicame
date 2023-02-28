@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string.h>
-#include "common.h"
+#include "../../common.h"
 #include "HashAlgorithm.h"
 
 

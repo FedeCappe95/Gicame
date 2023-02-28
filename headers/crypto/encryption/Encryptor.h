@@ -3,7 +3,7 @@
 
 
 #include <vector>
-#include "common.h"
+#include "../../common.h"
 #include "EncryptionAlgorithm.h"
 #include "../key/SymmetricKey.h"
 

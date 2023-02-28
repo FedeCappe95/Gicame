@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <vector>
-#include "common.h"
+#include "../../common.h"
 
 
 struct evp_pkey_st;

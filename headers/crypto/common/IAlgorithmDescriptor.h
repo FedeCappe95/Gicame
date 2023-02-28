@@ -2,7 +2,7 @@
 #define __GICAME__IALGORITHMDESCRIPTO_H_
 
 
-#include "common.h"
+#include "../../common.h"
 #include <stdint.h>
 
 

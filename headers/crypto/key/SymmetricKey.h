@@ -4,8 +4,8 @@
 
 #include <memory>
 #include <vector>
-#include "common.h"
-#include "crypto/common/IAlgorithmDescriptor.h"
+#include "../../common.h"
+#include "../common/IAlgorithmDescriptor.h"
 
 
 namespace Gicame::Crypto {
