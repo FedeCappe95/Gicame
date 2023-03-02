@@ -1,0 +1,17 @@
+﻿  common.cpp
+  Serial.cpp
+  NetworkDefinitions.cpp
+  NetworkUtility.cpp
+  TcpListeningSocket.cpp
+  TcpSocket.cpp
+  ErrorHandling.cpp
+  RpcClient.cpp
+  RpcServer.cpp
+  Semaphore.cpp
+  SharedMemory.cpp
+  dllmain.cpp
+     Creazione della libreria D:\Archivio2\GitHub\Gicame\vs\Gicame\Release-MSVCv141-Win32\Gicame.lib e dell'oggetto D:\Archivio2\GitHub\Gicame\vs\Gicame\Release-MSVCv141-Win32\Gicame.exp
+  Generazione codice in corso...
+  All 860 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Generazione codice terminata
+  Gicame.vcxproj -> D:\Archivio2\GitHub\Gicame\vs\Gicame\Release-MSVCv141-Win32\Gicame.dll
