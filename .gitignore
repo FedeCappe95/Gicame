@@ -44,7 +44,15 @@ vs/Gicame/Gicame/Release-Win32/*
 vs/Gicame/Gicame/Debug-Win32/*
 vs/Gicame/Gicame/Release-x64/*
 vs/Gicame/Gicame/Debug-x64/*
+vs/Gicame/Release-MSVCv141-Win32/*
+vs/Gicame/Debug-MSVCv141-Win32/*
+vs/Gicame/Release-MSVCv141-x64/*
+vs/Gicame/Debug-MSVCv141-x64/*
 Release-Win32/
 Release-x64/
 Debug-Win32/
 Debug-x64/
+Release-MSVCv141-Win32/
+Release-MSVCv141-x64/
+Debug-MSVCv141-Win32/
+Debug-MSVCv141-x64/
