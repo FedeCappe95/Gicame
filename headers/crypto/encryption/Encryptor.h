@@ -4,7 +4,7 @@
 
 #include <vector>
 #include "../../common.h"
-#include "EncryptionAlgorithm.h"
+#include "../encryption/EncryptionAlgorithm.h"
 #include "../key/SymmetricKey.h"
 
 
