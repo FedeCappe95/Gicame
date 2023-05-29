@@ -79,28 +79,38 @@ namespace Gicame::Utilities {
 	#define unlikely(A) __builtin_expect(bool(A), 0)
 #endif
 
-#if defined(_MSC_VER) && defined(GICAME_EXPORTS)
-#define GICAME_API __declspec(dllexport)
-#elif defined(_MSC_VER) && !defined(GICAME_EXPORTS)
-#define GICAME_API __declspec(dllimport)
-#else
-#define GICAME_API
-#endif
+#ifndef GICAME_BUILD_STATIC
 
-#if defined(_MSC_VER) && defined(GICAME_CRYPTO_EXPORTS)
-#define GICAME_CRYPTO_API __declspec(dllexport)
-#elif defined(_MSC_VER) && !defined(GICAME_CRYPTO_EXPORTS)
-#define GICAME_CRYPTO_API __declspec(dllimport)
-#else
-#define GICAME_CRYPTO_API
-#endif
+    #if defined(_MSC_VER) && defined(GICAME_EXPORTS)
+    #define GICAME_API __declspec(dllexport)
+    #elif defined(_MSC_VER) && !defined(GICAME_EXPORTS)
+    #define GICAME_API __declspec(dllimport)
+    #else
+    #define GICAME_API
+    #endif
 
-#if defined(_MSC_VER) && defined(GICAME_COMMON_EXPORTS)
-#define GICAME_COMMON_API __declspec(dllexport)
-#elif defined(_MSC_VER) && !defined(GICAME_COMMON_EXPORTS)
-#define GICAME_COMMON_API __declspec(dllimport)
+    #if defined(_MSC_VER) && defined(GICAME_CRYPTO_EXPORTS)
+    #define GICAME_CRYPTO_API __declspec(dllexport)
+    #elif defined(_MSC_VER) && !defined(GICAME_CRYPTO_EXPORTS)
+    #define GICAME_CRYPTO_API __declspec(dllimport)
+    #else
+    #define GICAME_CRYPTO_API
+    #endif
+
+    #if defined(_MSC_VER) && defined(GICAME_COMMON_EXPORTS)
+    #define GICAME_COMMON_API __declspec(dllexport)
+    #elif defined(_MSC_VER) && !defined(GICAME_COMMON_EXPORTS)
+    #define GICAME_COMMON_API __declspec(dllimport)
+    #else
+    #define GICAME_COMMON_API
+    #endif
+
 #else
-#define GICAME_COMMON_API
+
+    #define GICAME_COMMON_API
+    #define GICAME_CRYPTO_API
+    #define GICAME_API
+
 #endif
 
 #ifdef _MSC_VER
