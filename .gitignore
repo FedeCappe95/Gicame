@@ -56,3 +56,5 @@ Release-MSVCv141-Win32/
 Release-MSVCv141-x64/
 Debug-MSVCv141-Win32/
 Debug-MSVCv141-x64/
+vs/Gicame/Binaries/*
+vs/Gicame/Intermediate/*

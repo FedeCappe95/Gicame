@@ -129,50 +129,50 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <ReferencePath>$(VC_ReferencesPath_x86);</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Realease-static|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-MSVCv141|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Realease-static|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-MSVCv141|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <OutDir>$(SolutionDir)$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate-$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(ProjectName)\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
