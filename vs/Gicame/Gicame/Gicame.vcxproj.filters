@@ -55,6 +55,12 @@
     <Filter Include="File di intestazione\io">
       <UniqueIdentifier>{1034f172-8728-4c2d-aa05-8e4d50e1d3a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\reflection">
+      <UniqueIdentifier>{856b08cf-5c29-4517-9784-d01189440260}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\serialization">
+      <UniqueIdentifier>{4be48462-5c08-4c7f-8ac0-c34bbb675b00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -137,6 +143,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\headers\sm\Semaphore.h">
       <Filter>File di intestazione\sm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\reflection\Comparable.h">
+      <Filter>File di intestazione\reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\reflection\Property.h">
+      <Filter>File di intestazione\reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\serialization\Tree.h">
+      <Filter>File di intestazione\serialization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
