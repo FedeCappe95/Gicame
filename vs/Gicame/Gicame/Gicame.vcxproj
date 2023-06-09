@@ -374,9 +374,12 @@
     <ClInclude Include="..\..\..\headers\rpc\RpcClient.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcCommon.h" />
     <ClInclude Include="..\..\..\headers\rpc\RpcServer.h" />
+    <ClInclude Include="..\..\..\headers\serialization\Binary.h" />
+    <ClInclude Include="..\..\..\headers\serialization\Serialization.h" />
     <ClInclude Include="..\..\..\headers\serialization\Tree.h" />
     <ClInclude Include="..\..\..\headers\sm\Semaphore.h" />
     <ClInclude Include="..\..\..\headers\sm\SharedMemory.h" />
+    <ClInclude Include="..\..\..\headers\stream\MemoryStream.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

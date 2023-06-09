@@ -13,12 +13,6 @@
 
 namespace Gicame::Serialization {
 
-	class SerializationError : public std::runtime_error {
-	public:
-		inline SerializationError(const std::string& msg) : std::runtime_error(msg) {}
-		inline SerializationError(const char* msg) : std::runtime_error(msg) {}
-	};
-
 	struct ThreeNodeField {
 		std::any data;
 		int type;  // TODO

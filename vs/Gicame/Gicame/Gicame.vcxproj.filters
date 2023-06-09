@@ -61,6 +61,9 @@
     <Filter Include="File di intestazione\serialization">
       <UniqueIdentifier>{4be48462-5c08-4c7f-8ac0-c34bbb675b00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\stream">
+      <UniqueIdentifier>{434525df-b6e8-4419-84e4-ce19a3b54547}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -152,6 +155,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\headers\serialization\Tree.h">
       <Filter>File di intestazione\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\serialization\Serialization.h">
+      <Filter>File di intestazione\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\serialization\Binary.h">
+      <Filter>File di intestazione\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\stream\MemoryStream.h">
+      <Filter>File di intestazione\stream</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,13 +3,20 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <sstream>
+#include <fstream>
 #include "../../headers/reflection/Property.h"
 #include "../../headers/serialization/Tree.h"
+#include "../../headers/serialization/Binary.h"
 
 
 using namespace Gicame::Reflection;
 using namespace Gicame::Serialization;
 
+
+struct WitoutProp {
+	int a;
+};
 
 struct Dog {
 
@@ -42,14 +49,67 @@ struct Family {
 };
 
 
+struct Pack1 {
+
+	double b;
+	int a;
+	unsigned c;
+
+	static constexpr auto properties = std::make_tuple(
+		makeProperty(&Pack1::a, "a"),
+		makeProperty(&Pack1::b, "b"),
+		makeProperty(&Pack1::c, "c")
+	);
+
+};
+
+struct Pack2 {
+
+	Pack1 pack1;
+	double a;
+
+	static constexpr auto properties = std::make_tuple(
+		makeProperty(&Pack2::pack1, "pack1"),
+		makeProperty(&Pack2::a, "a")
+	);
+
+};
+
+
 int main() {
 	std::cout << "Gicame example: Serialization" << std::endl;
 
+	// Tree
 	Dog dog;
 	dog.barkType = "loud";
 	dog.color = "brown";
 	Family family{ "test", dog };
 	const auto tree = Gicame::Serialization::buildTree(family);
+
+	// Some buffer
+	uint8_t buff[1024];
+	memset(buff, 0xFF, sizeof(buff));
+
+	// Binary serialization (1)
+	Pack2 pack2{ Pack1{1.0,0,3}, 4.0 };
+	Gicame::Serialization::binarySerialize(pack2, &buff[0], sizeof(buff));
+	
+	// Binary serialization (2)
+	std::ofstream outFile;
+	outFile.open("out.bin", std::ios::out | std::ios::binary);
+	Gicame::Serialization::binarySerialize(pack2, outFile);
+	outFile.close();
+
+	// Binary deserialization (1)
+	Pack2 result1;
+	Gicame::Serialization::binaryDeserialize(result1, &buff[0], sizeof(buff));
+
+	// Binary deserialization (2)
+	std::ifstream inFile;
+	inFile.open("out.bin", std::ios::in | std::ios::binary);
+	Pack2 result2;
+	Gicame::Serialization::binaryDeserialize(result2, inFile);
+	inFile.close();
 
 	return 0;
 }
