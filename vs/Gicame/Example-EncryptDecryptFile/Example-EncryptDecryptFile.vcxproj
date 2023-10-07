@@ -47,7 +47,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{78109B7E-FE8B-49BD-BD52-6F0C9143A7A8}</ProjectGuid>
     <RootNamespace>ExampleEncryptDecryptFile</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
