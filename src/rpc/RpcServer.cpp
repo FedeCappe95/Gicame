@@ -5,11 +5,12 @@
 using namespace Gicame;
 
 
-RpcServer::RpcServer(IDataExchanger* dataExchanger) :
-    dataExchanger(dataExchanger)
+RpcServer::RpcServer(IDataExchanger* dataExchanger, const BinarySerializer& serializer) :
+    dataExchanger(dataExchanger),
+    serializer(serializer)
 {
     // Default InvalidRequestEventHandler
-    invalidRequestEventHandler = [&]([[maybe_unused]] const RpcExecutionRequest& rer, const InvalidRequestReason reason) {
+    invalidRequestEventHandler = [&](const RpcExecutionRequest&, const InvalidRequestReason reason) {
         switch (reason) {
         case InvalidRequestReason::INVALID_FUNCTION_ID:
             throw RUNTIME_ERROR("Invalid request: invalid functionId");
@@ -26,6 +27,25 @@ RpcServer::RpcServer(IDataExchanger* dataExchanger) :
 
 void RpcServer::registerRpcFunction(RpcFunction rpcFunction, const FunctionId functionId) {
     funStore.insert_or_assign(functionId, RpcFunctionDescriptor(rpcFunction, functionId));
+}
+
+void RpcServer::registerFunction(std::function<void()> function, const FunctionId functionId) {
+    registerRpcFunction(
+        [=](RpcExecutionRequest*, const std::vector<byte_t>&) {
+            function();
+            return 0;
+        },
+        functionId
+    );
+}
+
+void RpcServer::registerFunction(std::function<uint64_t()> function, const FunctionId functionId) {
+    registerRpcFunction(
+        [=](RpcExecutionRequest*, const std::vector<byte_t>&) {
+            return function();
+        },
+        functionId
+    );
 }
 
 bool RpcServer::oneShot() {
@@ -47,27 +67,19 @@ bool RpcServer::oneShot() {
     RpcFunctionDescriptor& fd = funStoreIter->second;
 
     // Receive parameters
-    std::vector<std::vector<byte_t>> params(exeRequest.paramCount);
+    std::vector<byte_t> allParametersBuffer;
     size_t totalParametersSize = 0;
     for (size_t paramIndex = 0; paramIndex < exeRequest.paramCount; ++paramIndex)
         totalParametersSize += (size_t)exeRequest.params[paramIndex].size;
     if (totalParametersSize > 0) {
-        const std::vector<byte_t> allParametersBuffer = dataExchanger->receive(totalParametersSize);
+        allParametersBuffer = dataExchanger->receive(totalParametersSize);
         if (allParametersBuffer.size() != totalParametersSize) {
             return invalidRequestEventHandler(exeRequest, InvalidRequestReason::BAD_PARAMETERS);
-        }
-        const byte_t* ptr = allParametersBuffer.data();
-        for (size_t paramIndex = 0; paramIndex < exeRequest.paramCount; ++paramIndex) {
-            params[paramIndex] = std::vector<byte_t>((size_t)exeRequest.params[paramIndex].size);
-            for (size_t i = 0; i < exeRequest.params[paramIndex].size; ++i) {
-                params[paramIndex][i] = *ptr;
-                ++ptr;
-            }
         }
     }
 
     // Invoke function
-    const uint64_t result = fd.rpcFunction(&exeRequest, params);
+    const uint64_t result = fd.rpcFunction(&exeRequest, allParametersBuffer);
 
     // Send result
     dataExchanger->send(&result, sizeof(uint64_t));

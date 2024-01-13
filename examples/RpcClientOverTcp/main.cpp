@@ -22,7 +22,7 @@ int main() {
 	// Create the RpcClient and retrieve handles for the remote procedures
 	RpcClient rpcClient(&socket);
 	auto sayHello = rpcClient.get<uint64_t>(RPC_ID_SAY_HELLO);
-	auto sum = rpcClient.get<uint32_t, uint32_t, uint32_t>(RPC_ID_SUM);
+	auto sum = rpcClient.get<uint64_t, uint32_t, uint32_t>(RPC_ID_SUM);
 
 	// Invoke the remote procedures
 	sayHello();

@@ -14,7 +14,7 @@ static void sayHello() {
 }
 
 
-static uint32_t sum(const uint32_t a, const uint32_t b) {
+static uint64_t sum(const uint32_t a, const uint32_t b) {
 	std::cout << "function sum(...) invoked. a = " << a << ", b = " << b << std::endl;
 	return a + b;
 }
@@ -28,20 +28,9 @@ int main() {
 	TcpSocket socket = serverSocket.acceptRequest();
 
 	RpcServer rpcServer(&socket);
-	rpcServer.registerRpcFunction(
-		[&]([[maybe_unused]] RpcExecutionRequest* rer, [[maybe_unused]] const std::vector<std::vector<byte_t>>& params) {
-			sayHello();
-			return 0;
-		},
-		RPC_ID_SAY_HELLO
-	);
-	rpcServer.registerRpcFunction(
-		[&]([[maybe_unused]] RpcExecutionRequest* rer, [[maybe_unused]] const std::vector<std::vector<byte_t>>& params) {
-			const uint64_t result = sum(3, 5);
-			return result;
-		},
-		RPC_ID_SUM
-	);
+	rpcServer.registerFunction(sayHello, RPC_ID_SAY_HELLO);
+	std::function<uint64_t(uint32_t, uint32_t)> s = sum;
+	rpcServer.registerFunction(s, RPC_ID_SUM);
 	rpcServer.run();
 
 

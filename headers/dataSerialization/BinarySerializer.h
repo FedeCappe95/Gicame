@@ -5,26 +5,7 @@
 #include "../common.h"
 #include "../interfaces/ISerializable.h"
 #include <vector>
-
-
-// Macros
-#define STD_SERILIZES_FOR_PRIMITIVE_TYPE(Type) \
-template <> \
-inline std::vector<byte_t> BinarySerializer::serialize(const Type& data) const { \
-	std::vector<byte_t> result(sizeof(Type)); \
-	*((Type*)result.data()) = data; \
-	return result; \
-} \
-template <> \
-inline void BinarySerializer::serialize(const Type& data, void* outBuffer) const { \
-	*((Type*)outBuffer) = data; \
-} \
-template <> \
-inline size_t BinarySerializer::serializedSize(const Type& data) const { \
-	return sizeof(data); \
-}
-
-#define BLIND_SERIALIZER(Type) STD_SERILIZES_FOR_PRIMITIVE_TYPE(Type)
+#include <type_traits>
 
 
 namespace Gicame {
@@ -36,12 +17,18 @@ namespace Gicame {
 
 	public:
 		constexpr BinarySerializer() {};
+
 		template <class Type>
 		std::vector<byte_t> serialize(const Type& data) const;    // Method A
+
 		template <class Type>
-		void serialize(const Type& data, void* outBuffer) const;  // Method B
+		void serialize(const Type& data, void* outBuffer) const;  // Method B, TODO add outBufferSize
+
 		template <class Type>
 		size_t serializedSize(const Type& data) const;
+
+		template <class Type>
+		Type deserialize(const void* inBuffer, const size_t inBufferSize) const;
 
 	};
 
@@ -74,19 +61,62 @@ namespace Gicame {
 		return data.serialize().size();  // Worst method possible, a better method is to be implemented
 	}
 
-	/*
-	 * Serialization for primitive data types
-	 */
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(int8_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(int16_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(int32_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(int64_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(uint8_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(uint16_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(uint32_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(uint64_t)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(float)
-	STD_SERILIZES_FOR_PRIMITIVE_TYPE(double)
+	template <class Type>
+	inline std::vector<byte_t> BinarySerializer::serialize(const Type& data) const {
+		if constexpr (std::is_fundamental<Type>::value) {
+			std::vector<byte_t> dataBytes(sizeof(Type));
+			*((Type*)(dataBytes.data())) = data;
+			return dataBytes;
+		}
+		else if constexpr (/*prop*/false) {
+			return std::vector<byte_t>();  // TODO
+		}
+		else {
+			RUNTIME_ERROR("Unsupported data type");
+		}
+	}
+
+	template <class Type>
+	inline void BinarySerializer::serialize(const Type& data, void* outBuffer) const {
+		if constexpr (std::is_fundamental<Type>::value) {
+			*((Type*)(outBuffer)) = data;
+		}
+		else if constexpr (/*prop*/false) {
+			return std::vector<byte_t>();  // TODO
+		}
+		else {
+			RUNTIME_ERROR("Unsupported data type");
+		}
+	}
+
+	template <class Type>
+	inline size_t BinarySerializer::serializedSize(const Type& data) const {
+		if constexpr (std::is_fundamental<Type>::value) {
+			return sizeof(Type);
+		}
+		else if constexpr (/*prop*/false) {
+			return 0;  // TODO
+		}
+		else {
+			RUNTIME_ERROR("Unsupported data type");
+		}
+	}
+
+	template <class Type>
+	inline Type BinarySerializer::deserialize(const void* inBuffer, const size_t inBufferSize) const {
+		if constexpr (std::is_fundamental<Type>::value) {
+			if (unlikely(inBufferSize < sizeof(Type)))
+				RUNTIME_ERROR("Invalid inBufferSize");
+			const Type result = *((Type*)inBuffer);
+			return result;
+		}
+		else if constexpr (/*prop*/false) {
+			return Type{};  // TODO
+		}
+		else {
+			RUNTIME_ERROR("Unsupported data type");
+		}
+	}
 
 };
 
