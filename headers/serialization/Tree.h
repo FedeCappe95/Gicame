@@ -3,40 +3,45 @@
 
 
 #include "../common.h"
-#include <unordered_map>
+#include <vector>
+#include <variant>
 #include <string>
 #include <any>
-#include <stdexcept>
 #include <type_traits>
 #include "../reflection/Property.h"
 
 
-namespace Gicame::Serialization {
+namespace Gicame::Serialization::Tree {
 
-	struct ThreeNodeField {
-		std::any data;
-		int type;  // TODO
+	struct Leaf {
+		std::string_view name;
+		std::any value;
 
 		template<typename Type>
-		constexpr ThreeNodeField(Type&& o) : data{ o }, type{ 0 } {}
+		constexpr Leaf(std::string_view&& name, Type&& o) : name{ name }, value { o } {}
+		template<typename Type>
+		constexpr Leaf(const std::string_view& name, Type&& o) : name{ name }, value{ o } {}
 	};
 
-	struct TreeNode {
-		std::unordered_map<std::string, ThreeNodeField> fields;
-		std::unordered_map<std::string, TreeNode> children;
+	struct Node {
+		std::string_view name;
+		std::vector<std::variant<Leaf, Node>> children;
+
+		inline Node(const std::string_view& name) : name{ name } {}
+		inline Node(std::string_view&& name) : name{ name } {}
 	};
 
 	struct Tree {
-		TreeNode root;
+		Node root;
 	};
 
 	template<typename OType>
-	static inline TreeNode buildTreeNode(const OType& object) {
+	static inline Node buildTreeNode(const std::string_view& name, const OType& object) {
 		// Check for properties
 		static_assert(Gicame::Reflection::HasProperies<OType>::has(), "Trying to build a tree from an object without properties");
 
 		// JSON root
-		TreeNode node;
+		Node node(name);
 
 		// We first get the number of properties
 		constexpr auto propertyCount = std::tuple_size<decltype(OType::properties)>::value;
@@ -48,11 +53,14 @@ namespace Gicame::Serialization {
 			using PropType = decltype(prop);
 			using PropMemberType = PropType::template MemberType;
 
+			const std::string_view childNodeName(prop.name);
+
 			if constexpr (Gicame::Reflection::HasProperies<PropMemberType>::has()) {
-				node.children.emplace(prop.name, buildTreeNode(object.*(prop.member)));
+				node.children.emplace_back(buildTreeNode(childNodeName, object.*(prop.member)));
 			}
 			else {
-				node.fields.emplace(prop.name, ThreeNodeField(object.*(prop.member)));
+				Leaf leaf(childNodeName, object.*(prop.member));
+				node.children.emplace_back(std::move(leaf));
 			}
 		});
 
@@ -60,8 +68,8 @@ namespace Gicame::Serialization {
 	}
 
 	template<typename Type>
-	static inline Tree buildTree(const Type& o) {
-		return Tree{ buildTreeNode(o) };
+	static inline Tree buildTree(const std::string_view& name, const Type& o) {
+		return Tree{ buildTreeNode(name, o) };
 	}
 
 };

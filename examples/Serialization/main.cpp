@@ -76,6 +76,33 @@ struct Pack2 {
 };
 
 
+static std::string buildSpacer(const size_t spaceCount) {
+	std::stringstream ss;
+	for (size_t i = 0; i < spaceCount; ++i)
+		ss << " ";
+	return ss.str();
+}
+
+static void printTreeLeaf(const Gicame::Serialization::Tree::Leaf& leaf, const size_t spaceCount = 0) {
+	const std::string spacer = buildSpacer(spaceCount);
+	std::cout << spacer << leaf.name << " = " << "??" << "\n";
+}
+
+static void printTreeNode(const Gicame::Serialization::Tree::Node& node, const size_t spaceCount = 0) {
+	const std::string spacer = buildSpacer(spaceCount);
+	std::cout << spacer << "Name: " << node.name << "\n";
+	std::cout << spacer << "Children (" << node.children.size() << "):\n";
+	for (const auto& child : node.children) {
+		if (std::holds_alternative<Gicame::Serialization::Tree::Node>(child)) {
+			printTreeNode(std::get<Gicame::Serialization::Tree::Node>(child), spaceCount + 2u);
+		}
+		else if (std::holds_alternative<Gicame::Serialization::Tree::Leaf>(child)) {
+			printTreeLeaf(std::get<Gicame::Serialization::Tree::Leaf>(child), spaceCount + 2u);
+		}
+	}
+}
+
+
 int main() {
 	std::cout << "Gicame example: Serialization" << std::endl;
 
@@ -84,7 +111,8 @@ int main() {
 	dog.barkType = "loud";
 	dog.color = "brown";
 	Family family{ "test", dog };
-	const auto tree = Gicame::Serialization::buildTree(family);
+	const auto tree = Gicame::Serialization::Tree::buildTree("Family", family);
+	printTreeNode(tree.root);
 
 	// Some buffer
 	uint8_t buff[1024];
