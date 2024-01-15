@@ -8,6 +8,7 @@
 #include <ostream>
 #include "../reflection/Property.h"
 #include "../stream/MemoryStream.h"
+#include "../stream/ByteStream.h"
 
 
 namespace Gicame::Serialization {
@@ -20,7 +21,7 @@ namespace Gicame::Serialization {
 		 * Override for objects without properties
 		 */
 		template<typename OType>
-		static inline void toBinary(const OType& object, std::ostream& out);
+		static inline void toBinary(const OType& object, Stream::ByteOStream& out);
 
 		/*
 		 * @brief Serialize an object to a binary form
@@ -28,8 +29,8 @@ namespace Gicame::Serialization {
 		 * It works only for fundamental (primitive) types
 		 */
 		template<typename OType, class = std::enable_if<std::is_fundamental<OType>::value>>
-		static inline void fundamentalToBinary(const OType& object, std::ostream& out) {
-			out.write((const char*)(&object), sizeof(object));
+		static inline void fundamentalToBinary(const OType& object, Stream::ByteOStream& out) {
+			out.write((const byte_t*)(&object), sizeof(object));
 		}
 
 		/*
@@ -38,7 +39,7 @@ namespace Gicame::Serialization {
 		 * Override for objects without properties
 		 */
 		template<typename OType>
-		static inline void fromBinary(OType& object, std::istream& in);
+		static inline void fromBinary(OType& object, Stream::ByteIStream& in);
 
 		/*
 		 * @brief Deserialize an object from binary form
@@ -46,8 +47,8 @@ namespace Gicame::Serialization {
 		 * It works only for fundamental (primitive) types
 		 */
 		template<typename OType, class = std::enable_if<std::is_fundamental<OType>::value>>
-		static inline void binaryToFundamental(OType& object, std::istream& in) {
-			in.read((char*)(&object), sizeof(object));
+		static inline void binaryToFundamental(OType& object, Stream::ByteIStream& in) {
+			in.read((byte_t*)(&object), sizeof(object));
 		}
 
 	}
@@ -56,7 +57,7 @@ namespace Gicame::Serialization {
 	 * @brief Recursively serialize an object to a binary form. The object needs properties.
 	 */
 	template<typename OType>
-	static inline void binarySerialize(const OType& object, std::ostream& out) {
+	static inline void binarySerialize(const OType& object, Stream::ByteOStream& out) {
 		// Check for properties
 		static_assert(Gicame::Reflection::HasProperies<OType>::has(), "Trying to serialize an object without properties");
 
@@ -88,7 +89,7 @@ namespace Gicame::Serialization {
 	template<typename OType>
 	static inline size_t binarySerialize(const OType& object, void* buffer, const size_t bufferSize) {
 		// TODO: check bufferSize
-		Gicame::Stream::MemoryOStream memoryStream((uint8_t*)buffer, std::streampos(bufferSize));
+		Gicame::Stream::MemoryOStream<byte_t> memoryStream((uint8_t*)buffer, std::streampos(bufferSize));
 		binarySerialize(object, memoryStream);
 		return size_t(memoryStream.tellp());
 	}
@@ -97,7 +98,7 @@ namespace Gicame::Serialization {
 	 * @brief Recursively deserialize an object from binary form. The object needs properties.
 	 */
 	template<typename OType>
-	static inline void binaryDeserialize(OType& object, std::istream& in) {
+	static inline void binaryDeserialize(OType& object, Stream::ByteIStream& in) {
 		// Check for properties
 		static_assert(Gicame::Reflection::HasProperies<OType>::has(), "Trying to deserialize an object without properties");
 
@@ -129,7 +130,7 @@ namespace Gicame::Serialization {
 	template<typename OType>
 	static inline size_t binaryDeserialize(OType& object, void* buffer, const size_t bufferSize) {
 		// TODO: check bufferSize
-		Gicame::Stream::MemoryIStream memoryStream((uint8_t*)buffer, std::streampos(bufferSize));
+		Gicame::Stream::MemoryIStream<byte_t> memoryStream((uint8_t*)buffer, std::streampos(bufferSize));
 		binaryDeserialize(object, memoryStream);
 		return size_t(memoryStream.tellg());
 	}

@@ -29,8 +29,7 @@ int main() {
 
 	RpcServer rpcServer(&socket);
 	rpcServer.registerFunction(sayHello, RPC_ID_SAY_HELLO);
-	std::function<uint64_t(uint32_t, uint32_t)> s = sum;
-	rpcServer.registerFunction(s, RPC_ID_SUM);
+	rpcServer.registerFunction(sum, RPC_ID_SUM);
 	rpcServer.run();
 
 

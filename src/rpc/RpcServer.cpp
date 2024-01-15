@@ -29,25 +29,6 @@ void RpcServer::registerRpcFunction(RpcFunction rpcFunction, const FunctionId fu
     funStore.insert_or_assign(functionId, RpcFunctionDescriptor(rpcFunction, functionId));
 }
 
-void RpcServer::registerFunction(std::function<void()> function, const FunctionId functionId) {
-    registerRpcFunction(
-        [=](RpcExecutionRequest*, const std::vector<byte_t>&) {
-            function();
-            return 0;
-        },
-        functionId
-    );
-}
-
-void RpcServer::registerFunction(std::function<uint64_t()> function, const FunctionId functionId) {
-    registerRpcFunction(
-        [=](RpcExecutionRequest*, const std::vector<byte_t>&) {
-            return function();
-        },
-        functionId
-    );
-}
-
 bool RpcServer::oneShot() {
     // Receive the RpcExecutionRequest
     const size_t exeRequestSerSize = RpcExecutionRequest().serialize().size();  // Worst method possible, must be changed, but it works for now...

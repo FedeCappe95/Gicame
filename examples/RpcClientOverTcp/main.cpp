@@ -26,7 +26,7 @@ int main() {
 
 	// Invoke the remote procedures
 	sayHello();
-	sum(4, 5);
+	sum(4, 50);
 
 	// Close
 	socket.close();

@@ -165,6 +165,9 @@
     <ClInclude Include="..\..\..\headers\stream\MemoryStream.h">
       <Filter>File di intestazione\stream</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\stream\ByteStream.h">
+      <Filter>File di intestazione\stream</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

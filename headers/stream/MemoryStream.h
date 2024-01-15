@@ -9,6 +9,15 @@
 #include <string>  // std::char_traits
 
 
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
+
+
 namespace Gicame::Stream {
 
 	template<typename ElemType>
@@ -30,14 +39,14 @@ namespace Gicame::Stream {
 
 	protected:
 		virtual std::streamsize xsputn(const ElemType* ptr, std::streamsize count) override final {
-			const std::streamsize toWrite = std::min(count, bufferSize - pos - 1);
+			const std::streamsize toWrite = std::min(count, bufferSize - pos);
 			for (std::streamsize i = 0; i < toWrite; ++i)
 				buffer[pos++] = ptr[i];
 			return toWrite;
 		}
 
 		virtual std::streamsize xsgetn(ElemType* ptr, std::streamsize count) override final {
-			const std::streamsize toRead = std::min(count, bufferSize - pos - 1);
+			const std::streamsize toRead = std::min(count, bufferSize - pos);
 			for (std::streamsize i = 0; i < toRead; ++i)
 				ptr[i] = buffer[pos++];
 			return toRead;
@@ -77,26 +86,30 @@ namespace Gicame::Stream {
 
 	};
 
-	class MemoryOStream : public std::ostream
-	{
+	template<typename ElemType>
+	class MemoryOStream : public std::basic_ostream<ElemType, std::char_traits<ElemType>> {
 
 	private:
-		MemoryStreamBuf<uint8_t> memBuff;
+		MemoryStreamBuf<ElemType> memBuff;
 
 	public:
-		inline MemoryOStream(uint8_t* buffer, const std::streamsize bufferSize) : memBuff(buffer, bufferSize), std::ostream((std::streambuf*)(&memBuff)) {}
+		inline MemoryOStream(ElemType* buffer, const std::streamsize bufferSize) :
+			memBuff(buffer, bufferSize),
+			std::basic_ostream<ElemType, std::char_traits<ElemType>>((std::basic_streambuf<ElemType, std::char_traits<ElemType>>*)(&memBuff)) {}
 		virtual ~MemoryOStream() {}
 
 	};
 
-	class MemoryIStream : public std::istream
-	{
+	template<typename ElemType>
+	class MemoryIStream : public std::basic_istream<ElemType, std::char_traits<ElemType>> {
 
 	private:
-		MemoryStreamBuf<uint8_t> memBuff;
+		MemoryStreamBuf<ElemType> memBuff;
 
 	public:
-		inline MemoryIStream(uint8_t* buffer, const std::streamsize bufferSize) : memBuff(buffer, bufferSize), std::istream((std::streambuf*)(&memBuff)) {}
+		inline MemoryIStream(const ElemType* buffer, const std::streamsize bufferSize) :
+			memBuff((ElemType*)buffer, bufferSize),
+			std::basic_istream<ElemType, std::char_traits<ElemType>>((std::basic_streambuf<ElemType, std::char_traits<ElemType>>*)(&memBuff)) {}
 		virtual ~MemoryIStream() {}
 
 	};

@@ -10,6 +10,8 @@
 #include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"
 #include "../dataSerialization/BinarySerializer.h"
+#include "../stream/ByteStream.h"
+#include "../stream/MemoryStream.h"
 
 
 namespace Gicame {
@@ -59,24 +61,26 @@ namespace Gicame {
         /**
          * Add or replace a function to the RpcServer
          */
-        void registerFunction(std::function<void()> function, const FunctionId functionId);
+        template <class Result>
+        void registerFunction(Result function(void), const FunctionId functionId);
 
         /**
          * Add or replace a function to the RpcServer
          */
-        void registerFunction(std::function<uint64_t()> function, const FunctionId functionId);
+        template <class Result>
+        void registerFunction(std::function<Result(void)> function, const FunctionId functionId);
 
         /**
          * Add or replace a function to the RpcServer
          */
-        template<class... Args>
-        void registerFunction(std::function<uint64_t(Args...)> function, const FunctionId functionId);
+        template <class Result, class... Args>
+        void registerFunction(Result function(Args...), const FunctionId functionId);
 
         /**
          * Add or replace a function to the RpcServer
          */
-        template<class... Args>
-        void registerFunction(std::function<void(Args...)> function, const FunctionId functionId);
+        template <class Result, class... Args>
+        void registerFunction(std::function<Result(Args...)> function, const FunctionId functionId);
 
         /**
          * Process a single execution request
@@ -100,22 +104,67 @@ namespace Gicame {
      * Inline implementation
      */
 
-    template <class... Args>
-    inline void RpcServer::registerFunction(std::function<uint64_t(Args...)> function, const FunctionId functionId) {
+    template <class Result>
+    inline void RpcServer::registerFunction(Result function(void), const FunctionId functionId) {
         registerRpcFunction(
             [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
-                return function(serializer.deserialize<Args>(params.data(), params.size())...);  // FIX using iterators
+                if constexpr (std::is_same<Result, void>::value) {
+                    function();
+                    return 0;
+                }
+                else {
+                    return function();
+                }
             },
             functionId
         );
     }
 
-    template <class... Args>
-    inline void RpcServer::registerFunction(std::function<void(Args...)> function, const FunctionId functionId) {
+    template <class Result>
+    inline void RpcServer::registerFunction(std::function<Result(void)> function, const FunctionId functionId) {
         registerRpcFunction(
             [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
-                function(serializer.deserialize<Args>(params.data(), params.size())...);  // FIX using iterators
-                return 0;
+                if constexpr (std::is_same<Result, void>::value) {
+                    function();
+                    return 0;
+                }
+                else {
+                    return function();
+                }
+            },
+            functionId
+        );
+    }
+
+    template <class Result, class... Args>
+    inline void RpcServer::registerFunction(Result function(Args...), const FunctionId functionId) {
+        registerRpcFunction(
+            [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
+                Stream::MemoryIStream<byte_t> memoryIStream(params.data(), (std::streamsize)params.size());
+                if constexpr (std::is_same<Result, void>::value) {
+                    function(serializer.deserialize<Args>(memoryIStream)...);
+                    return 0;
+                }
+                else {
+                    return function(serializer.deserialize<Args>(memoryIStream)...);
+                }
+            },
+            functionId
+        );
+    }
+
+    template <class Result, class... Args>
+    inline void RpcServer::registerFunction(std::function<Result(Args...)> function, const FunctionId functionId) {
+        registerRpcFunction(
+            [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
+                Stream::MemoryIStream<byte_t> memoryIStream(params.data(), (std::streamsize)params.size());
+                if constexpr (std::is_same<Result, void>::value) {
+                    function(serializer.deserialize<Args>(memoryIStream)...);
+                    return 0;
+                }
+                else {
+                    return function(serializer.deserialize<Args>(memoryIStream)...);
+                }
             },
             functionId
         );

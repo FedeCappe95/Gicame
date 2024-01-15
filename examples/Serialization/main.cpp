@@ -123,7 +123,7 @@ int main() {
 	Gicame::Serialization::binarySerialize(pack2, &buff[0], sizeof(buff));
 	
 	// Binary serialization (2)
-	std::ofstream outFile;
+	std::basic_ofstream<byte_t, std::char_traits<byte_t>> outFile;
 	outFile.open("out.bin", std::ios::out | std::ios::binary);
 	Gicame::Serialization::binarySerialize(pack2, outFile);
 	outFile.close();
@@ -133,7 +133,7 @@ int main() {
 	Gicame::Serialization::binaryDeserialize(result1, &buff[0], sizeof(buff));
 
 	// Binary deserialization (2)
-	std::ifstream inFile;
+	std::basic_ifstream<byte_t, std::char_traits<byte_t>> inFile;
 	inFile.open("out.bin", std::ios::in | std::ios::binary);
 	Pack2 result2;
 	Gicame::Serialization::binaryDeserialize(result2, inFile);

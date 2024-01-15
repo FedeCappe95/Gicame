@@ -4,6 +4,7 @@
 
 #include "../common.h"
 #include "../interfaces/ISerializable.h"
+#include "../stream/ByteStream.h"
 #include <vector>
 #include <type_traits>
 
@@ -22,13 +23,19 @@ namespace Gicame {
 		std::vector<byte_t> serialize(const Type& data) const;    // Method A
 
 		template <class Type>
-		void serialize(const Type& data, void* outBuffer) const;  // Method B, TODO add outBufferSize
+		void serialize(const Type& data, void* outBuffer, const size_t outBufferSize) const;  // Method B
+
+		template <class Type>
+		void serialize(const Type& data, Stream::ByteOStream& out) const;  // Method C
 
 		template <class Type>
 		size_t serializedSize(const Type& data) const;
 
 		template <class Type>
 		Type deserialize(const void* inBuffer, const size_t inBufferSize) const;
+
+		template <class Type>
+		Type deserialize(Stream::ByteIStream& in) const;
 
 	};
 
@@ -49,11 +56,19 @@ namespace Gicame {
 	 * Serialization for ISerializable interface (Method B)
 	 */
 	template <>
-	inline void BinarySerializer::serialize(const ISerializable& data, void* outBuffer) const {
+	inline void BinarySerializer::serialize(const ISerializable& data, void* outBuffer, const size_t outBufferSize) const {
 		const std::vector<byte_t> dataBytes = data.serialize();
 		const size_t dataSize = dataBytes.size();
+		if (unlikely(dataSize > outBufferSize))
+			throw RUNTIME_ERROR("outBuffer too short");
 		for (size_t i = 0; i < dataSize; ++i)
 			((byte_t*)outBuffer)[i] = dataBytes[i];
+	}
+
+	template <>
+	inline void BinarySerializer::serialize(const ISerializable& data, Stream::ByteOStream& out) const {
+		const std::vector<byte_t> dataBytes = data.serialize();
+		out.write(dataBytes.data(), dataBytes.size());
 	}
 
 	template <>
@@ -72,20 +87,35 @@ namespace Gicame {
 			return std::vector<byte_t>();  // TODO
 		}
 		else {
-			RUNTIME_ERROR("Unsupported data type");
+			throw RUNTIME_ERROR("Unsupported data type");
 		}
 	}
 
 	template <class Type>
-	inline void BinarySerializer::serialize(const Type& data, void* outBuffer) const {
+	inline void BinarySerializer::serialize(const Type& data, void* outBuffer, const size_t outBufferSize) const {
 		if constexpr (std::is_fundamental<Type>::value) {
+			if (unlikely(outBufferSize < sizeof(Type)))
+				throw RUNTIME_ERROR("outBuffer too short");
 			*((Type*)(outBuffer)) = data;
 		}
 		else if constexpr (/*prop*/false) {
 			return std::vector<byte_t>();  // TODO
 		}
 		else {
-			RUNTIME_ERROR("Unsupported data type");
+			throw RUNTIME_ERROR("Unsupported data type");
+		}
+	}
+
+	template <class Type>
+	inline void BinarySerializer::serialize(const Type& data, Stream::ByteOStream& out) const {
+		if constexpr (std::is_fundamental<Type>::value) {
+			out.write((byte_t*)(&data), sizeof(Type));
+		}
+		else if constexpr (/*prop*/false) {
+			return std::vector<byte_t>();  // TODO
+		}
+		else {
+			throw RUNTIME_ERROR("Unsupported data type");
 		}
 	}
 
@@ -98,7 +128,7 @@ namespace Gicame {
 			return 0;  // TODO
 		}
 		else {
-			RUNTIME_ERROR("Unsupported data type");
+			throw RUNTIME_ERROR("Unsupported data type");
 		}
 	}
 
@@ -106,7 +136,7 @@ namespace Gicame {
 	inline Type BinarySerializer::deserialize(const void* inBuffer, const size_t inBufferSize) const {
 		if constexpr (std::is_fundamental<Type>::value) {
 			if (unlikely(inBufferSize < sizeof(Type)))
-				RUNTIME_ERROR("Invalid inBufferSize");
+				throw RUNTIME_ERROR("Invalid inBufferSize");
 			const Type result = *((Type*)inBuffer);
 			return result;
 		}
@@ -114,7 +144,24 @@ namespace Gicame {
 			return Type{};  // TODO
 		}
 		else {
-			RUNTIME_ERROR("Unsupported data type");
+			throw RUNTIME_ERROR("Unsupported data type");
+		}
+	}
+
+	template <class Type>
+	inline Type BinarySerializer::deserialize(Stream::ByteIStream& in) const {
+		if constexpr (std::is_fundamental<Type>::value) {
+			Type result;
+			in.read((byte_t*)&result, sizeof(Type));
+			if (unlikely(!in))
+				throw RUNTIME_ERROR("Invalid inStream in");
+			return result;
+		}
+		else if constexpr (/*prop*/false) {
+			return Type{};  // TODO
+		}
+		else {
+			throw RUNTIME_ERROR("Unsupported data type");
 		}
 	}
 

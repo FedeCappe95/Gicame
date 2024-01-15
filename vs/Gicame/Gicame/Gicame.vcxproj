@@ -379,6 +379,7 @@
     <ClInclude Include="..\..\..\headers\serialization\Tree.h" />
     <ClInclude Include="..\..\..\headers\sm\Semaphore.h" />
     <ClInclude Include="..\..\..\headers\sm\SharedMemory.h" />
+    <ClInclude Include="..\..\..\headers\stream\ByteStream.h" />
     <ClInclude Include="..\..\..\headers\stream\MemoryStream.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
