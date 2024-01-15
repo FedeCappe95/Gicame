@@ -31,11 +31,11 @@ void RpcServer::registerRpcFunction(RpcFunction rpcFunction, const FunctionId fu
 
 bool RpcServer::oneShot() {
     // Receive the RpcExecutionRequest
-    const size_t exeRequestSerSize = RpcExecutionRequest().serialize().size();  // Worst method possible, must be changed, but it works for now...
-    const std::vector<byte_t> serExeRequest = dataExchanger->receive(exeRequestSerSize);
-    if (serExeRequest.empty())
+    const std::vector<byte_t> serExeRequest = dataExchanger->receive(sizeof(RpcExecutionRequest));
+    if (serExeRequest.size() != sizeof(RpcExecutionRequest))
         return false;
-    RpcExecutionRequest exeRequest = RpcExecutionRequest::deserialize(serExeRequest);
+    RpcExecutionRequest exeRequest;
+    exeRequest.deserialize(serExeRequest.data());
     if (unlikely(!exeRequest.checkIntegrity())) {
         return invalidRequestEventHandler(exeRequest, InvalidRequestReason::RER_INTEGRITY_CHECK_FAILED);
     }

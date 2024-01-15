@@ -42,11 +42,12 @@ namespace Gicame {
 
     };
 
+    GICAME_PACK_BEGIN;
     /**
      * The RpcClient send an execution request to the RpcServer. The request is represented by an
      * instance of RpcExecutionRequest.
      */
-    class GICAME_API RpcExecutionRequest : public ISerializable {
+    class GICAME_API RpcExecutionRequest {
 
     public:
         static constexpr uint32_t MAGIC = 0xDEADBEEFu;
@@ -63,12 +64,11 @@ namespace Gicame {
         RpcExecutionRequest();
         RpcExecutionRequest(const FunctionId functionId, const uint8_t paramCount);
         bool checkIntegrity();
-        std::vector<byte_t> serialize() const;
+        void serialize(void* outBuffer) const;
+        void deserialize(const void* inBuffer);
 
-    public:
-        static RpcExecutionRequest deserialize(const std::vector<byte_t>& serialized);
-
-    };
+    }
+    GICAME_PACK_END;
 
 
     /*
@@ -98,40 +98,13 @@ namespace Gicame {
         return magic == MAGIC && paramCount < MAX_PARAM_COUNT;
     }
 
-    inline std::vector<byte_t> RpcExecutionRequest::serialize() const {
-        std::vector<byte_t> serialized;
-        serialized.reserve(sizeof(magic) + sizeof(functionId) + sizeof(params) + sizeof(paramCount));
-        for (byte_t* ptr = (byte_t*)&magic; ptr < (byte_t*)&magic + sizeof(magic); ++ptr)
-            serialized.emplace_back(*ptr);
-        for (byte_t* ptr = (byte_t*)&functionId; ptr < (byte_t*)&functionId + sizeof(functionId); ++ptr)
-            serialized.emplace_back(*ptr);
-        for (uint32_t paramIndex = 0; paramIndex < MAX_PARAM_COUNT; ++paramIndex)
-            for (byte_t* ptr = (byte_t*)&params[paramIndex]; ptr < (byte_t*)&params[paramIndex] + sizeof(params[paramIndex]); ++ptr)
-                serialized.emplace_back(*ptr);
-        for (byte_t* ptr = (byte_t*)&paramCount; ptr < (byte_t*)&paramCount + sizeof(paramCount); ++ptr)
-            serialized.emplace_back(*ptr);
-        return serialized;
+    inline void RpcExecutionRequest::serialize(void* outBuffer) const {
+        const byte_t* t = (byte_t*)this;
+        std::copy(t, t + sizeof(*this), (byte_t*)outBuffer);
     }
 
-    inline RpcExecutionRequest RpcExecutionRequest::deserialize(const std::vector<byte_t>& serialized) {
-        if (serialized.size() != sizeof(magic) + sizeof(functionId) + sizeof(params) + sizeof(paramCount))
-            throw RUNTIME_ERROR("Invalid deserialization source: wrong size");
-
-        RpcExecutionRequest rer;
-
-        const byte_t* serPtr = serialized.data();
-
-        for (byte_t* ptr = (byte_t*)&rer.magic; ptr < (byte_t*)&rer.magic + sizeof(magic); ++ptr, ++serPtr)
-            *ptr = *serPtr;
-        for (byte_t* ptr = (byte_t*)&rer.functionId; ptr < (byte_t*)&rer.functionId + sizeof(functionId); ++ptr, ++serPtr)
-            *ptr = *serPtr;
-        for (uint32_t paramIndex = 0; paramIndex < MAX_PARAM_COUNT; ++paramIndex)
-            for (byte_t* ptr = (byte_t*)&rer.params[paramIndex]; ptr < (byte_t*)&rer.params[paramIndex] + sizeof(params[paramIndex]); ++ptr, ++serPtr)
-                *ptr = *serPtr;
-        for (byte_t* ptr = (byte_t*)&rer.paramCount; ptr < (byte_t*)&rer.paramCount + sizeof(paramCount); ++ptr, ++serPtr)
-            *ptr = *serPtr;
-
-        return rer;
+    inline void RpcExecutionRequest::deserialize(const void* inBuffer) {
+        std::copy((byte_t*)inBuffer, (byte_t*)inBuffer + sizeof(*this), (byte_t*)this);
     }
 
 };

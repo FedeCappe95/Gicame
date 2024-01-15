@@ -113,10 +113,12 @@ namespace Gicame::Utilities {
 
 #endif
 
-#ifdef _MSC_VER
-#define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
+#ifdef MSVC
+#define GICAME_PACK_BEGIN __pragma( pack(push, 1) )
+#define GICAME_PACK_END ; __pragma( pack(pop) )
 #else
-#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#define GICAME_PACK_BEGIN
+#define GICAME_PACK_END __attribute__((__packed__))
 #endif
 
 #define UNUSED(X) ((void)X)

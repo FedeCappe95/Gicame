@@ -13,9 +13,10 @@ RpcClient::RpcClient(IDataExchanger* dataExchanger, const BinarySerializer& seri
 
 uint64_t RpcClient::sendExeRequest(const RpcExecutionRequest& rer, const std::vector<byte_t> paramsDump) {
     // Data exchange
-    dataExchanger->send(rer.serialize());
-    if (!paramsDump.empty())
-        dataExchanger->send(paramsDump);
+    std::vector<byte_t> buffer(sizeof(rer) + paramsDump.size());
+    rer.serialize(buffer.data());
+    std::copy(paramsDump.data(), paramsDump.data() + paramsDump.size(), buffer.data() + sizeof(rer));
+    dataExchanger->send(buffer);
 
     // Receive result
     const std::vector<byte_t> reply = dataExchanger->receive(sizeof(uint64_t));

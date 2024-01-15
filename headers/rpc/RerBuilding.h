@@ -2,28 +2,13 @@
 #define __GICAME__RERBUILDING_H__
 
 
-#include <tuple>
 #include "./RpcCommon.h"
 #include "../dataSerialization/BinarySerializer.h"
+#include "../stream/MemoryStream.h"
+#include <tuple>
 
 
-/**
- * Black magic that builds a RpcExecutionRequest
- */
 namespace Gicame::RerBuilding {
-
-    template<class Arg, class... OtherArgs>
-    inline void paramSerialization(const BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg) {
-        const std::vector<byte_t> serializedParam = serializer.serialize(arg);
-        dump.insert(dump.end(), serializedParam.begin(), serializedParam.end());
-    }
-
-    template<class Arg, class... OtherArgs>
-    inline void paramSerialization(const BinarySerializer& serializer, std::vector<byte_t>& dump, Arg arg, OtherArgs... args) {
-        const std::vector<byte_t> serializedParam = serializer.serialize(arg);
-        dump.insert(dump.end(), serializedParam.begin(), serializedParam.end());
-        paramSerialization(serializer, dump, args...);
-    }
 
     /**
     * Build a RpcExecutionRequest for the following functionId and the following parameters (args).
@@ -32,34 +17,30 @@ namespace Gicame::RerBuilding {
     template <class... Args>
     inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build(const BinarySerializer& serializer, const FunctionId functionId, Args... args) {
         constexpr size_t paramCount = sizeof...(args);
-        const size_t paramSizes[] = { serializer.serializedSize(args)... };
-
-        if (paramCount > RpcExecutionRequest::MAX_PARAM_COUNT)
-            throw RUNTIME_ERROR("Too many parameters");
+        static_assert(paramCount <= RpcExecutionRequest::MAX_PARAM_COUNT, "Too many parameters");
 
         RpcExecutionRequest rer(functionId, paramCount);
-        size_t totalSize = 0;
-        for (size_t paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
-            rer.params[paramIndex].size = paramSizes[paramIndex];
-            totalSize += paramSizes[paramIndex];
+
+        if constexpr (paramCount == 0) {
+            return std::make_tuple(rer, std::vector<byte_t>());
         }
+        else {
+            const size_t serBufferSizes[] = { serializer.serializedSize(args)... };
+            size_t totalSize = 0;
+            for (size_t paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
+                rer.params[paramIndex].size = serBufferSizes[paramIndex];
+                totalSize += serBufferSizes[paramIndex];
+            }
 
-        std::vector<byte_t> paramsDump;
-        paramsDump.reserve(totalSize);
-        paramSerialization(serializer, paramsDump, args...);
+            std::vector<byte_t> paramsDump(totalSize);
+            Stream::MemoryOStream<byte_t> memoryOStream(paramsDump.data(), paramsDump.size());
+            using unpack_t = int[];
+            (void)unpack_t {
+                (static_cast<void>(serializer.serialize(args, memoryOStream)), 0)..., 0
+            };
 
-        return std::make_tuple(rer, paramsDump);
-    }
-
-    /**
-    * Build a RpcExecutionRequest for the following functionId and the following parameters (args).
-    * It uses innerBuild.
-    */
-    template <class... Args>
-    inline std::tuple<RpcExecutionRequest, std::vector<byte_t>> build([[maybe_unused]] const BinarySerializer& serializer, const FunctionId functionId) {
-        RpcExecutionRequest rer(functionId, 0);
-        std::vector<byte_t> paramsDump;
-        return std::make_tuple(rer, paramsDump);
+            return std::make_tuple(rer, paramsDump);
+        }
     }
 
 };
