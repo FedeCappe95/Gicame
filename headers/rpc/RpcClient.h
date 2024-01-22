@@ -8,6 +8,7 @@
 #include "./RpcCommon.h"
 #include "./RerBuilding.h"
 #include "../dataSerialization/BinarySerializer.h"
+#include <vector>
 
 
 namespace Gicame {
@@ -24,7 +25,7 @@ namespace Gicame {
         /**
          * Send an RpcExecutionRequest and its serialized parameters
          */
-        uint64_t sendExeRequest(const RpcExecutionRequest& rer, const std::vector<byte_t> paramsDump);
+        std::vector<byte_t> sendExeRequest(const RpcExecutionRequest& rer, const std::vector<byte_t> paramsDump, const size_t replySize);
 
     public:
         RpcClient(IDataExchanger* dataExchanger, const BinarySerializer& serializer = BinarySerializer());
@@ -45,10 +46,14 @@ namespace Gicame {
     template <class RetType, class... Args>
     inline auto RpcClient::get(const FunctionId functionId) {
         RpcClient* thisRpcClient = this;
+        const size_t replySize = std::is_same<RetType, void>::value ? 1u : serializer.serializedSize<RetType>();
         return [=](const Args... args) {
             auto [rer, paramsDump] = Gicame::RerBuilding::build(serializer, functionId, args...);
-            const uint64_t result = thisRpcClient->sendExeRequest(rer, paramsDump);
-            return (RetType)result;
+            const std::vector<byte_t> serializedeReply = thisRpcClient->sendExeRequest(rer, paramsDump, replySize);
+            if constexpr (std::is_same<RetType, void>::value)
+                return;
+            else
+                return serializer.deserialize<RetType>(serializedeReply.data(), serializedeReply.size());
         };
     }
 

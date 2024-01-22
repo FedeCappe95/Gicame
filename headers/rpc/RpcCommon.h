@@ -24,7 +24,7 @@ namespace Gicame {
     /**
      * Type of RPC callbacks
      */
-    using RpcFunction = std::function<uint64_t(RpcExecutionRequest*, const std::vector<byte_t>&)>;
+    using RpcFunction = std::function<std::vector<byte_t>(RpcExecutionRequest*, const std::vector<byte_t>&)>;
 
     /**
      * Describe a paramenter of a RpcExecutionRequest

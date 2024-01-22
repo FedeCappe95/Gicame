@@ -60,10 +60,10 @@ bool RpcServer::oneShot() {
     }
 
     // Invoke function
-    const uint64_t result = fd.rpcFunction(&exeRequest, allParametersBuffer);
+    const std::vector<byte_t> result = fd.rpcFunction(&exeRequest, allParametersBuffer);
 
     // Send result
-    dataExchanger->send(&result, sizeof(uint64_t));
+    dataExchanger->send(result);
 
     return true;
 }

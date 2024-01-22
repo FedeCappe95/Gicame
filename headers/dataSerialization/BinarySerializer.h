@@ -32,6 +32,9 @@ namespace Gicame {
 		size_t serializedSize(const Type& data) const;
 
 		template <class Type>
+		size_t serializedSize() const;
+
+		template <class Type>
 		Type deserialize(const void* inBuffer, const size_t inBufferSize) const;
 
 		template <class Type>
@@ -78,7 +81,10 @@ namespace Gicame {
 
 	template <class Type>
 	inline std::vector<byte_t> BinarySerializer::serialize(const Type& data) const {
-		if constexpr (std::is_fundamental<Type>::value) {
+		if constexpr (std::is_same<Type, void>::value) {
+			return std::vector<byte_t>();;
+		}
+		else if constexpr (std::is_fundamental<Type>::value) {
 			std::vector<byte_t> dataBytes(sizeof(Type));
 			*((Type*)(dataBytes.data())) = data;
 			return dataBytes;
@@ -93,13 +99,16 @@ namespace Gicame {
 
 	template <class Type>
 	inline void BinarySerializer::serialize(const Type& data, void* outBuffer, const size_t outBufferSize) const {
-		if constexpr (std::is_fundamental<Type>::value) {
+		if constexpr (std::is_same<Type, void>::value) {
+			return;
+		}
+		else if constexpr (std::is_fundamental<Type>::value) {
 			if (unlikely(outBufferSize < sizeof(Type)))
 				throw RUNTIME_ERROR("outBuffer too short");
 			*((Type*)(outBuffer)) = data;
 		}
 		else if constexpr (/*prop*/false) {
-			return std::vector<byte_t>();  // TODO
+			return;  // TODO
 		}
 		else {
 			throw RUNTIME_ERROR("Unsupported data type");
@@ -108,11 +117,14 @@ namespace Gicame {
 
 	template <class Type>
 	inline void BinarySerializer::serialize(const Type& data, Stream::ByteOStream& out) const {
-		if constexpr (std::is_fundamental<Type>::value) {
+		if constexpr (std::is_same<Type, void>::value) {
+			return;
+		}
+		else if constexpr (std::is_fundamental<Type>::value) {
 			out.write((byte_t*)(&data), sizeof(Type));
 		}
 		else if constexpr (/*prop*/false) {
-			return std::vector<byte_t>();  // TODO
+			return;  // TODO
 		}
 		else {
 			throw RUNTIME_ERROR("Unsupported data type");
@@ -120,8 +132,16 @@ namespace Gicame {
 	}
 
 	template <class Type>
-	inline size_t BinarySerializer::serializedSize(const Type& data) const {
-		if constexpr (std::is_fundamental<Type>::value) {
+	inline size_t BinarySerializer::serializedSize(const Type&) const {
+		return serializedSize<Type>();
+	}
+
+	template <class Type>
+	inline size_t BinarySerializer::serializedSize() const {
+		if constexpr (std::is_same<Type, void>::value) {
+			return 0;
+		}
+		else if constexpr (std::is_fundamental<Type>::value) {
 			return sizeof(Type);
 		}
 		else if constexpr (/*prop*/false) {
@@ -134,7 +154,10 @@ namespace Gicame {
 
 	template <class Type>
 	inline Type BinarySerializer::deserialize(const void* inBuffer, const size_t inBufferSize) const {
-		if constexpr (std::is_fundamental<Type>::value) {
+		if constexpr (std::is_same<Type, void>::value) {
+			return;
+		}
+		else if constexpr (std::is_fundamental<Type>::value) {
 			if (unlikely(inBufferSize < sizeof(Type)))
 				throw RUNTIME_ERROR("Invalid inBufferSize");
 			const Type result = *((Type*)inBuffer);
@@ -150,7 +173,10 @@ namespace Gicame {
 
 	template <class Type>
 	inline Type BinarySerializer::deserialize(Stream::ByteIStream& in) const {
-		if constexpr (std::is_fundamental<Type>::value) {
+		if constexpr (std::is_same<Type, void>::value) {
+			return;
+		}
+		else if constexpr (std::is_fundamental<Type>::value) {
 			Type result;
 			in.read((byte_t*)&result, sizeof(Type));
 			if (unlikely(!in))

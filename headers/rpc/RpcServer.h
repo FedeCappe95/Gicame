@@ -50,6 +50,10 @@ namespace Gicame {
 #pragma warning(pop)
 #endif
 
+    private:  // Private methods
+        template <class Function, class Result, class... Args>
+        void registerFunctionInternal(Function function, const FunctionId functionId);
+
     public:  // Public methods
         RpcServer(IDataExchanger* dataExchanger, const BinarySerializer& serializer = BinarySerializer());
 
@@ -57,18 +61,6 @@ namespace Gicame {
          * Add or replace an RpcFunction to the RpcServer
          */
         void registerRpcFunction(RpcFunction rpcFunction, const FunctionId functionId);
-
-        /**
-         * Add or replace a function to the RpcServer
-         */
-        template <class Result>
-        void registerFunction(Result function(void), const FunctionId functionId);
-
-        /**
-         * Add or replace a function to the RpcServer
-         */
-        template <class Result>
-        void registerFunction(std::function<Result(void)> function, const FunctionId functionId);
 
         /**
          * Add or replace a function to the RpcServer
@@ -104,32 +96,18 @@ namespace Gicame {
      * Inline implementation
      */
 
-    template <class Result>
-    inline void RpcServer::registerFunction(Result function(void), const FunctionId functionId) {
+    template <class Function, class Result, class... Args>
+    inline void RpcServer::registerFunctionInternal(Function function, const FunctionId functionId) {
         registerRpcFunction(
             [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
+                Stream::MemoryIStream<byte_t> memoryIStream(params.data(), (std::streamsize)params.size());
                 if constexpr (std::is_same<Result, void>::value) {
-                    function();
-                    return 0;
+                    function(serializer.deserialize<Args>(memoryIStream)...);
+                    return std::vector<byte_t>(1, 0x00);
                 }
                 else {
-                    return function();
-                }
-            },
-            functionId
-        );
-    }
-
-    template <class Result>
-    inline void RpcServer::registerFunction(std::function<Result(void)> function, const FunctionId functionId) {
-        registerRpcFunction(
-            [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
-                if constexpr (std::is_same<Result, void>::value) {
-                    function();
-                    return 0;
-                }
-                else {
-                    return function();
+                    const Result result = function(serializer.deserialize<Args>(memoryIStream)...);
+                    return serializer.serialize(result);
                 }
             },
             functionId
@@ -138,36 +116,12 @@ namespace Gicame {
 
     template <class Result, class... Args>
     inline void RpcServer::registerFunction(Result function(Args...), const FunctionId functionId) {
-        registerRpcFunction(
-            [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
-                Stream::MemoryIStream<byte_t> memoryIStream(params.data(), (std::streamsize)params.size());
-                if constexpr (std::is_same<Result, void>::value) {
-                    function(serializer.deserialize<Args>(memoryIStream)...);
-                    return 0;
-                }
-                else {
-                    return function(serializer.deserialize<Args>(memoryIStream)...);
-                }
-            },
-            functionId
-        );
+        registerFunctionInternal<decltype(function), Result, Args...>(function, functionId);
     }
 
     template <class Result, class... Args>
     inline void RpcServer::registerFunction(std::function<Result(Args...)> function, const FunctionId functionId) {
-        registerRpcFunction(
-            [=](RpcExecutionRequest*, const std::vector<byte_t>& params) {
-                Stream::MemoryIStream<byte_t> memoryIStream(params.data(), (std::streamsize)params.size());
-                if constexpr (std::is_same<Result, void>::value) {
-                    function(serializer.deserialize<Args>(memoryIStream)...);
-                    return 0;
-                }
-                else {
-                    return function(serializer.deserialize<Args>(memoryIStream)...);
-                }
-            },
-            functionId
-        );
+        registerFunctionInternal<decltype(function), Result, Args...>(function, functionId);
     }
 
 };
