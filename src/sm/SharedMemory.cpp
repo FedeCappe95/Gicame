@@ -1,6 +1,13 @@
 #include "sm/SharedMemory.h"
 
 
+#ifdef __CYGWIN__
+#ifdef __POSIX_VISIBLE
+#undef __POSIX_VISIBLE
+#endif
+#define __POSIX_VISIBLE 200112
+#endif
+
 #ifdef WINDOWS
 #include <windows.h>
 #else
