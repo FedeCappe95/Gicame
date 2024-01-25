@@ -26,6 +26,7 @@ namespace Gicame {
      */
     using RpcFunction = std::function<std::vector<byte_t>(RpcExecutionRequest*, const std::vector<byte_t>&)>;
 
+    GICAME_PACK_BEGIN;
     /**
      * Describe a paramenter of a RpcExecutionRequest
      */
@@ -40,7 +41,8 @@ namespace Gicame {
         constexpr RpcParamDescriptor(const RpcParamDescriptor& other) : size(other.size) {}
         constexpr void operator=(const RpcParamDescriptor& other) { size = other.size; }
 
-    };
+    }
+    GICAME_PACK_END;
 
     GICAME_PACK_BEGIN;
     /**

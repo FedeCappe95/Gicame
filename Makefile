@@ -4,122 +4,154 @@ FLAGS_CRYPTO = -std=c++17 -DGICAME_CRYPTO_EXPORTS -I./headers -lstdc++ -L/usr/li
 CFLAGS       = -fPIC -Wall -Wextra -lrt
 RELEASEFLAGS = -O2
 
+OS           = $(subst /,-,$(shell uname -o))
+BUILD_DIR    = build-$(OS)
+
+SUB_DIRS         = $(sort $(dir $(wildcard ./src/*/)))
+SUB_DIRS_CRYPTO  = $(sort $(dir $(wildcard ./src/crypto/*/)))
+
 HEADERS = $(echo headers/*.h)
-GICAME_OBJ_FILES = build/TcpSocket.o build/TcpListeningSocket.o build/Serial.o build/RpcClient.o build/RpcServer.o build/NetworkDefinitions.o build/ErrorHandling.o build/SharedMemory.o
-GICAME_CRYPTO_OBJ_FILES = build/X509Store.o build/X509Certificate.o build/Signer.o build/Verifier.o build/Decryptor.o build/Encryptor.o build/HashCalculator.o build/HashCalculator.o build/EvpKey.o build/SymmetricKey.o build/Random.o
+GICAME_OBJ_FILES = $(BUILD_DIR)/common.o $(BUILD_DIR)/device/Serial.o $(BUILD_DIR)/network/NetworkDefinitions.o $(BUILD_DIR)/network/NetworkUtility.o $(BUILD_DIR)/network/TcpListeningSocket.o $(BUILD_DIR)/network/TcpSocket.o $(BUILD_DIR)/os/ErrorHandling.o $(BUILD_DIR)/rpc/RpcClient.o $(BUILD_DIR)/rpc/RpcServer.o $(BUILD_DIR)/sm/SharedMemory.o
+GICAME_CRYPTO_OBJ_FILES = $(BUILD_DIR)/crypto/certificate/X509Certificate.o $(BUILD_DIR)/crypto/certificate/X509Store.o $(BUILD_DIR)/crypto/dh/DiffieHellman.o $(BUILD_DIR)/crypto/ds/Signer.o $(BUILD_DIR)/crypto/ds/Verifier.o $(BUILD_DIR)/crypto/encryption/Decryptor.o $(BUILD_DIR)/crypto/encryption/Encryptor.o $(BUILD_DIR)/crypto/hash/HashCalculator.o $(BUILD_DIR)/crypto/hash/HmacCalculator.o $(BUILD_DIR)/crypto/key/EvpKey.o $(BUILD_DIR)/crypto/key/SymmetricKey.o $(BUILD_DIR)/crypto/random/Random.o
+
+# Missing for Linux
+# $(BUILD_DIR)/sm/Semaphore.o
 
 
 ### Build all ###
 
-all: build/libgicame.so build/libgicamecrypto.so build/Example-RpcClientOverTcp build/Example-RpcServerOverTcp
-	echo "Building Gicame and Gicame-crypto"
+all: before bin/libgicame.so bin/libgicamecrypto.so
+	@echo "Done"
+
+before:
+	@-mkdir $(BUILD_DIR)/
+	@-mkdir $(BUILD_DIR)/device/
+	@-mkdir $(BUILD_DIR)/network/
+	@-mkdir $(BUILD_DIR)/os/
+	@-mkdir $(BUILD_DIR)/rpc/
+	@-mkdir $(BUILD_DIR)/sm/
+	@-mkdir $(BUILD_DIR)/crypto/
+	@-mkdir $(BUILD_DIR)/crypto/certificate/
+	@-mkdir $(BUILD_DIR)/crypto/dh/
+	@-mkdir $(BUILD_DIR)/crypto/ds/
+	@-mkdir $(BUILD_DIR)/crypto/encryption/
+	@-mkdir $(BUILD_DIR)/crypto/hash/
+	@-mkdir $(BUILD_DIR)/crypto/key/
+	@-mkdir $(BUILD_DIR)/crypto/random/
+	@-mkdir bin/
 
 
 ### Gicame OBJ files ###
 
-build/TcpSocket.o: src/network/TcpSocket.cpp headers/network/TcpSocket.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/%.o: src/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/TcpListeningSocket.o: src/network/TcpListeningSocket.cpp headers/network/TcpListeningSocket.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/device/%.o: src/device/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/NetworkDefinitions.o: src/network/NetworkDefinitions.cpp headers/network/NetworkDefinitions.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/network/%.o: src/network/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Serial.o: src/device/Serial.cpp headers/device/Serial.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/os/%.o: src/os/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/RpcClient.o: src/rpc/RpcClient.cpp headers/rpc/RpcClient.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/rpc/%.o: src/rpc/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/RpcServer.o: src/rpc/RpcServer.cpp headers/rpc/RpcServer.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
-
-build/ErrorHandling.o: src/os/ErrorHandling.cpp headers/os/ErrorHandling.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
-
-build/SharedMemory.o: src/sm/SharedMemory.cpp headers/sm/SharedMemory.h $(HEADERS)
-	$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/sm/%.o: src/sm/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
 
 ### Gicame-crypto OBJ files ###
 
-build/X509Store.o: src/crypto/certificate/X509Store.cpp headers/crypto/certificate/X509Store.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/%.o: src/crypto/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/X509Certificate.o: src/crypto/certificate/X509Certificate.cpp headers/crypto/certificate/X509Certificate.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/certificate/%.o: src/crypto/certificate/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Signer.o: src/crypto/ds/Signer.cpp headers/crypto/ds/Signer.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/dh/%.o: src/crypto/dh/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Verifier.o: src/crypto/ds/Verifier.cpp headers/crypto/ds/Verifier.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/ds/%.o: src/crypto/ds/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Decryptor.o: src/crypto/encryption/Decryptor.cpp headers/crypto/encryption/Decryptor.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/encryption/%.o: src/crypto/encryption/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/Encryptor.o: src/crypto/encryption/Encryptor.cpp headers/crypto/encryption/Encryptor.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/hash/%.o: src/crypto/hash/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/HashCalculator.o: src/crypto/hash/HashCalculator.cpp headers/crypto/hash/HashCalculator.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/key/%.o: src/crypto/key/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
-build/HmacCalculator.o: src/crypto/hash/HmacCalculator.cpp headers/crypto/hash/HmacCalculator.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
-
-build/EvpKey.o: src/crypto/key/EvpKey.cpp headers/crypto/key/EvpKey.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
-
-build/SymmetricKey.o: src/crypto/key/SymmetricKey.cpp headers/crypto/key/SymmetricKey.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
-
-build/Random.o: src/crypto/random/Random.cpp headers/crypto/random/Random.h $(HEADERS)
-	$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
+$(BUILD_DIR)/crypto/random/%.o: src/crypto/random/%.cpp $(HEADERS)
+	@echo Compiling $@
+	@$(CC) $(FLAGS_CRYPTO) $< $(CFLAGS) $(RELEASEFLAGS) -c -o $@
 
 
 ### Gicame library ###
 
-build/libgicame.so: $(GICAME_OBJ_FILES)
-	# Building the shared library
-	$(CC) $(FLAGS) $^ $(CFLAGS) $(RELEASEFLAGS) -shared -o $@
+bin/libgicame.so: $(GICAME_OBJ_FILES)
+	@echo Building the shared library
+	@$(CC) $(FLAGS) $^ $(CFLAGS) $(RELEASEFLAGS) -shared -o $@
 
-build/libgicame.a: $(GICAME_OBJ_FILES)
-	# This command creates the static library.
-	# "r" means to insert with replacement,
-	# "c" means to create a new archive, and
-	# "s" means to write an index.
-	ar rcs $^
+bin/libgicame.a: $(GICAME_OBJ_FILES)
+	@ar rcs $^
 
 
 ### Gicame-crypto library ###
 
-build/libgicamecrypto.so: $(GICAME_CRYPTO_OBJ_FILES)
-	# Building the shared library
-	$(CC) $(FLAGS_CRYPTO) $^ $(CFLAGS) $(RELEASEFLAGS) -shared -o $@
+bin/libgicamecrypto.so: $(GICAME_CRYPTO_OBJ_FILES)
+	@echo Building the shared library
+	@$(CC) $(FLAGS_CRYPTO) $^ $(CFLAGS) $(RELEASEFLAGS) -shared -o $@
 
-build/libgicamecrypto.a: $(GICAME_CRYPTO_OBJ_FILES)
-	# This command creates the static library.
-	# "r" means to insert with replacement,
-	# "c" means to create a new archive, and
-	# "s" means to write an index.
-	ar rcs $^
+bin/libgicamecrypto.a: $(GICAME_CRYPTO_OBJ_FILES)
+	@ar rcs $^
 
 
 ### Some examples ###
-
-build/Example-RpcClientOverTcp: examples/RpcClientOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
-	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
-
-build/Example-RpcServerOverTcp: examples/RpcServerOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
-	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
-
-build/Example-SharedMemory: examples/SharedMemory/main.cpp
-	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
+##
+## build/Example-RpcClientOverTcp: examples/RpcClientOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
+## 	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
+## 
+## build/Example-RpcServerOverTcp: examples/RpcServerOverTcp/main.cpp examples/RpcServerOverTcp/RemoteFunctions.h
+## 	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
+## 
+## build/Example-SharedMemory: examples/SharedMemory/main.cpp
+## 	$(CC) $(FLAGS) $< build/libgicame.so $(CFLAGS) $(RELEASEFLAGS) -o $@
 
 
 ### Clean ###
 
 clean:
-	-rm build/*
-	-touch build/.gitkeep
+	@-rm -f -r $(BUILD_DIR)/*
+	@-rm -f -r bin/*
+	@-mkdir $(BUILD_DIR)/
+	@-mkdir $(BUILD_DIR)/device/
+	@-mkdir $(BUILD_DIR)/network/
+	@-mkdir $(BUILD_DIR)/os/
+	@-mkdir $(BUILD_DIR)/rpc/
+	@-mkdir $(BUILD_DIR)/sm/
+	@-mkdir $(BUILD_DIR)/crypto/
+	@-mkdir $(BUILD_DIR)/crypto/certificate/
+	@-mkdir $(BUILD_DIR)/crypto/dh/
+	@-mkdir $(BUILD_DIR)/crypto/ds/
+	@-mkdir $(BUILD_DIR)/crypto/encryption/
+	@-mkdir $(BUILD_DIR)/crypto/hash/
+	@-mkdir $(BUILD_DIR)/crypto/key/
+	@-mkdir $(BUILD_DIR)/crypto/random/
+	@-mkdir bin/
