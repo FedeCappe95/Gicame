@@ -19,6 +19,7 @@ namespace Gicame {
 
 	public:
 		ObjectReceiver(IReceiver* receiver);
+		virtual ~ObjectReceiver() = default;
 		virtual size_t receive(void* buffer, const size_t size) override;
         virtual std::vector<byte_t> receive(const size_t maxSize) override;
 		virtual bool isReceiverConnected() const override;

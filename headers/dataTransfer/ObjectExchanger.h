@@ -25,6 +25,7 @@ namespace Gicame {
 
 	public:
 		ObjectExchanger(IDataExchanger* dataExchanger);
+		virtual ~ObjectExchanger() = default;
 		virtual bool isConnected() const override;
 
 	};

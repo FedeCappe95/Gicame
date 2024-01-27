@@ -19,6 +19,7 @@ namespace Gicame {
 
 	public:
 		ObjectSender(ISender* sender);
+		virtual ~ObjectSender() = default;
 		virtual size_t send(const void* buffer, const size_t size) override;
 		virtual size_t send(const std::vector<byte_t>& buffer) override;
 		virtual bool isSenderConnected() const override;
