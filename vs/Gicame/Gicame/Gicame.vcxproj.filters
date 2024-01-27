@@ -168,6 +168,9 @@
     <ClInclude Include="..\..\..\headers\stream\ByteStream.h">
       <Filter>File di intestazione\stream</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\os\NamedPipe.h">
+      <Filter>File di intestazione\os</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -205,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\sm\Semaphore.cpp">
       <Filter>File di origine\sm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\os\NamedPipe.cpp">
+      <Filter>File di origine\os</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -170,6 +170,9 @@ namespace Gicame::Utilities {
 
     template<typename Target, typename Original>
     static inline Target safeNumericCast(const Original original) {
+        if constexpr (std::is_same<Target, Original>::value)
+            return original;
+
         // Both unsigned
         if (!isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
             throw RUNTIME_ERROR("original too big");
