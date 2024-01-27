@@ -11,6 +11,7 @@ namespace Gicame {
     class GICAME_API IReceiver {
 
     public:
+        virtual ~IReceiver() = default;
         virtual size_t receive(void* buffer, const size_t size) = 0;
         virtual std::vector<byte_t> receive(const size_t size);
         virtual bool isReceiverConnected() const = 0;

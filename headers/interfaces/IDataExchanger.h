@@ -12,6 +12,7 @@ namespace Gicame {
     class GICAME_API IDataExchanger : public IReceiver, public ISender {
     
     public:
+        virtual ~IDataExchanger() = default;
         virtual bool isConnected() const { return isReceiverConnected() && isSenderConnected(); }
 
     };

@@ -11,6 +11,7 @@ namespace Gicame {
     class GICAME_API ISerializable {
 
     public:
+        virtual ~ISerializable() = default;
         virtual std::vector<byte_t> serialize() const = 0;
 
     };
