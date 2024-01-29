@@ -14,11 +14,13 @@ namespace Gicame::Os {
 		MOVABLE_BUT_NOT_COPYABLE;
 
 	private:
-		enum class State { DISCONNECTED, SERVER, CONNECTED };
+		enum class State { DISCONNECTED, CREATED, CONNECTED };
 
 	private:
 #ifdef WINDOWS
 		void* handle;
+#else
+		int fd;
 #endif
 		const std::string fullName;
 		State state;

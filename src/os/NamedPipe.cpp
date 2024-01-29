@@ -1,6 +1,19 @@
+#ifdef __CYGWIN__
+#ifdef __POSIX_VISIBLE
+#undef __POSIX_VISIBLE
+#endif
+#define __POSIX_VISIBLE 200112
+#endif
+
+
 #include "os/NamedPipe.h"
 #ifdef WINDOWS
 #include <Windows.h>
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 
 
@@ -12,9 +25,9 @@ using namespace Gicame::Os;
  */
 static inline std::string getFullName(const std::string& name) {
 #ifdef WINDOWS
-    return std::string("\\\\.\\pipe\\") + name;
+    return std::string("\\\\.\\pipe\\GicamePipe-") + name;
 #else
-#error "NYI"
+    return std::string("/tmp/GicamePipe-") + name;
 #endif
 }
 
@@ -22,6 +35,8 @@ static inline std::string getFullName(const std::string& name) {
 NamedPipe::NamedPipe(const std::string& name) :
 #ifdef WINDOWS
     handle(INVALID_HANDLE_VALUE),
+#else
+    fd(-1),
 #endif
     fullName(getFullName(name)),
     state(State::DISCONNECTED)
@@ -59,24 +74,32 @@ bool NamedPipe::create(const size_t bufferSize) {
         return false;
     }
 
-    state = State::SERVER;
+    state = State::CREATED;
 
     return true;
 
 #else
 
-#error "NYI"
+    UNUSED(bufferSize);
+
+    const auto retCode = mkfifo(fullName.c_str(), 0666);
+    if (retCode != 0) {
+        close();
+        return false;
+    }
+    state = State::CREATED;
+    return true;
 
 #endif
 }
 
 bool NamedPipe::open() {
+    if (state == State::CONNECTED)
+        return true;
+
 #ifdef WINDOWS
 
-    if (state == State::CONNECTED) {
-        return true;
-    }
-    else if (state == State::DISCONNECTED) {
+    if (state == State::DISCONNECTED) {
         handle = CreateFileA(
             fullName.c_str(),
             GENERIC_READ | GENERIC_WRITE,
@@ -97,7 +120,7 @@ bool NamedPipe::open() {
             return false;
         }
     }
-    else if (state == State::SERVER) {
+    else if (state == State::CREATED) {
         const bool success = (bool)ConnectNamedPipe(handle, NULL);
         if (!success) {
             close();
@@ -113,7 +136,13 @@ bool NamedPipe::open() {
 
 #else
 
-#error "NYI"
+    fd = ::open(fullName.c_str(), O_RDWR);
+    if (fd < 0) {
+        close();
+        return false;
+    }
+    state = State::CONNECTED;
+    return true;
 
 #endif
 }
@@ -133,7 +162,12 @@ size_t NamedPipe::send(const void* buffer, const size_t size) {
 
 #else
 
-#error "NYI"
+    const auto writtenByteCount = write(fd, buffer, size);
+    if (writtenByteCount < 0) {
+        close();
+        return ~size_t(0);
+    }
+    return Gicame::Utilities::safeNumericCast<size_t>(writtenByteCount);
 
 #endif
 }
@@ -157,7 +191,12 @@ size_t NamedPipe::receive(void* buffer, const size_t size) {
 
 #else
 
-#error "NYI"
+    const auto readByteCount = read(fd, buffer, size);
+    if (readByteCount < 0) {
+        close();
+        return ~size_t(0);
+    }
+    return Gicame::Utilities::safeNumericCast<size_t>(readByteCount);
 
 #endif
 }
@@ -169,7 +208,6 @@ bool NamedPipe::isReceiverConnected() const {
 void NamedPipe::close() {
 #ifdef WINDOWS
 
-    state = State::DISCONNECTED;
     if (handle == INVALID_HANDLE_VALUE)
         return;
     CloseHandle(handle);
@@ -177,7 +215,11 @@ void NamedPipe::close() {
 
 #else
 
-#error "NYI"
+    if (fd >= 0)
+        ::close(fd);
+    fd = -1;
 
 #endif
+
+    state = State::DISCONNECTED;
 }
