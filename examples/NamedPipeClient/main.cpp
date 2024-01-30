@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
 
 	uint32_t c = 0;
 	pipe.receive(&c, sizeof(c));
+	pipe.close();
 
 	std::cout << "Reply c = " << c << std::endl;
 

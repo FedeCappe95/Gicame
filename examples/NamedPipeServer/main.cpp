@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
+#include <thread>
+#include <chrono>
 #include "../../headers/os/NamedPipe.h"
 
 
@@ -23,8 +25,13 @@ int main(int argc, char* argv[]) {
 
 	uint32_t c = a + b;
 	pipe.send(&c, sizeof(c));
+	pipe.close();
 
 	std::cout << "Reply c = " << c << std::endl;
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	pipe.unlink();
 
 	return 0;
 }

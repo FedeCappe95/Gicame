@@ -35,6 +35,7 @@ namespace Gicame::Os {
 		GICAME_API virtual size_t receive(void* buffer, const size_t size) override final;
 		GICAME_API virtual bool isReceiverConnected() const override final;
 		GICAME_API void close();
+		GICAME_API void unlink();
 
 	};
 

@@ -223,3 +223,21 @@ void NamedPipe::close() {
 
     state = State::DISCONNECTED;
 }
+
+void NamedPipe::unlink() {
+    if (state == State::CONNECTED)
+        throw RUNTIME_ERROR("NamedPipe cannot be unlinked if connected");
+
+    if (state != State::DISCONNECTED)
+        close();
+
+#ifdef WINDOWS
+
+    DeleteFileA(fullName.c_str());
+
+#else
+
+    ::unlink(fullName.c_str());
+
+#endif
+}
