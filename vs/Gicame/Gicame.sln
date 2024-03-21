@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-NamedPipeServer", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-NamedPipeClient", "Example-NamedPipeClient\Example-NamedPipeClient.vcxproj", "{C4D15F5A-28C9-47C3-B8A1-28C8FFC9508B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example-SPSCQueue", "Example-SPSCQueue\Example-SPSCQueue.vcxproj", "{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -213,6 +215,22 @@ Global
 		{C4D15F5A-28C9-47C3-B8A1-28C8FFC9508B}.Release-MSVCv141|x64.Build.0 = Release-MSVCv141|x64
 		{C4D15F5A-28C9-47C3-B8A1-28C8FFC9508B}.Release-MSVCv141|x86.ActiveCfg = Release-MSVCv141|Win32
 		{C4D15F5A-28C9-47C3-B8A1-28C8FFC9508B}.Release-MSVCv141|x86.Build.0 = Release-MSVCv141|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Debug|x64.ActiveCfg = Debug|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Debug|x64.Build.0 = Debug|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Debug|x86.ActiveCfg = Debug|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Debug|x86.Build.0 = Debug|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Realease-static|x64.ActiveCfg = Realease-static|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Realease-static|x64.Build.0 = Realease-static|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Realease-static|x86.ActiveCfg = Realease-static|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Realease-static|x86.Build.0 = Realease-static|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release|x64.ActiveCfg = Release|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release|x64.Build.0 = Release|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release|x86.ActiveCfg = Release|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release|x86.Build.0 = Release|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release-MSVCv141|x64.ActiveCfg = Release-MSVCv141|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release-MSVCv141|x64.Build.0 = Release-MSVCv141|x64
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release-MSVCv141|x86.ActiveCfg = Release-MSVCv141|Win32
+		{91312658-B48C-4A4E-9FA1-8CE7E8DB1D0F}.Release-MSVCv141|x86.Build.0 = Release-MSVCv141|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

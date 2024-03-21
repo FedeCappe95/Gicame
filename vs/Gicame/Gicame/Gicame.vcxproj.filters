@@ -64,6 +64,15 @@
     <Filter Include="File di intestazione\stream">
       <UniqueIdentifier>{434525df-b6e8-4419-84e4-ce19a3b54547}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\concurrency">
+      <UniqueIdentifier>{77ee4e5f-86fe-402c-b989-a4d16a4bf7b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\concurrency">
+      <UniqueIdentifier>{6d580d5a-57f6-4c85-822e-03ffdbe215a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\concurrency\implementation_details">
+      <UniqueIdentifier>{1330cc7c-4dcd-46ce-b17e-3e1ff55d68f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -171,6 +180,15 @@
     <ClInclude Include="..\..\..\headers\os\NamedPipe.h">
       <Filter>File di intestazione\os</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\implementation_details\SPSCQueueMeta.h">
+      <Filter>File di intestazione\concurrency\implementation_details</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -211,6 +229,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\os\NamedPipe.cpp">
       <Filter>File di origine\os</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\concurrency\SPSCQueue.cpp">
+      <Filter>File di origine\concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\concurrency\SLSPSCQueue.cpp">
+      <Filter>File di origine\concurrency</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
