@@ -73,6 +73,9 @@
     <Filter Include="File di intestazione\concurrency\implementation_details">
       <UniqueIdentifier>{1330cc7c-4dcd-46ce-b17e-3e1ff55d68f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\utils">
+      <UniqueIdentifier>{1c067772-d8f8-41f2-ae41-085d4bfe2e38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -188,6 +191,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\SPSCQueueMeta.h">
       <Filter>File di intestazione\concurrency\implementation_details</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\utils\MovableButNotCopyable.h">
+      <Filter>File di intestazione\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\utils\Numbers.h">
+      <Filter>File di intestazione\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\utils\Memory.h">
+      <Filter>File di intestazione\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

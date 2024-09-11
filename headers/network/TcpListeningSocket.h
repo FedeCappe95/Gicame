@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "../common.h"
+#include "../utils/MovableButNotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include "./NetworkUtility.h"
 #include "./NetworkDefinitions.h"

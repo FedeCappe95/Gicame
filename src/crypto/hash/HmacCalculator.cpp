@@ -1,4 +1,5 @@
 #include "crypto/hash/HmacCalculator.h"
+#include "utils/Numbers.h"
 #include <openssl/conf.h>
 #include <openssl/hmac.h>
 

@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "../../common.h"
+#include "../../utils/MovableButNotCopyable.h"
 #include "../key/EvpKey.h"
 
 

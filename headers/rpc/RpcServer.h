@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include "../common.h"
+#include "../utils/MovableButNotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"

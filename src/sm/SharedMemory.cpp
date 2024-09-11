@@ -1,4 +1,5 @@
 #include "sm/SharedMemory.h"
+#include "utils/Numbers.h"
 
 
 #ifdef __CYGWIN__

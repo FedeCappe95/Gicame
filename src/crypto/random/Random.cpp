@@ -1,4 +1,5 @@
 #include "crypto/random/Random.h"
+#include "utils/Numbers.h"
 #include <climits>
 #include <openssl/rand.h>
 

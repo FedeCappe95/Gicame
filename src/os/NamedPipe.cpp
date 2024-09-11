@@ -7,6 +7,7 @@
 
 
 #include "os/NamedPipe.h"
+#include "utils/Numbers.h"
 #ifdef WINDOWS
 #include <Windows.h>
 #else

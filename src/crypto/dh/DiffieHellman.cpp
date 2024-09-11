@@ -1,6 +1,7 @@
 #include <openssl/dh.h>
 #include "crypto/dh/DiffieHellman.h"
 #include "crypto/hash/HashCalculator.h"
+#include "utils/Numbers.h"
 
 
 using namespace Gicame::Crypto;

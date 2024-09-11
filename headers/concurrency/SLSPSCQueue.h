@@ -3,6 +3,7 @@
 
 
 #include "../common.h"
+#include "../utils/MovableButNotCopyable.h"
 #include "./SPSCQueue.h"
 
 

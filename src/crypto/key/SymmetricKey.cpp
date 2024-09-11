@@ -1,4 +1,5 @@
 #include "crypto/key/SymmetricKey.h"
+#include "utils/Memory.h"
 #include <string.h>
 
 

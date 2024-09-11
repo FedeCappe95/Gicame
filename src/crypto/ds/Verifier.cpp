@@ -2,6 +2,7 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include "crypto/ds/Verifier.h"
+#include "utils/Numbers.h"
 
 
 using namespace Gicame::Crypto;

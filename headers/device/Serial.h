@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdexcept>
 #include "../common.h"
+#include "../utils/MovableButNotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 
 

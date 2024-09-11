@@ -385,6 +385,9 @@
     <ClInclude Include="..\..\..\headers\sm\SharedMemory.h" />
     <ClInclude Include="..\..\..\headers\stream\ByteStream.h" />
     <ClInclude Include="..\..\..\headers\stream\MemoryStream.h" />
+    <ClInclude Include="..\..\..\headers\utils\Memory.h" />
+    <ClInclude Include="..\..\..\headers\utils\MovableButNotCopyable.h" />
+    <ClInclude Include="..\..\..\headers\utils\Numbers.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

@@ -36,22 +36,11 @@
 #include <stdexcept>
 #include <limits.h>
 #include <string>
-//#include <type_traits>
 
 
 // Type definitions
 typedef uint8_t byte_t;
 typedef void* ptr_t;
-
-
-// Error message composition
-namespace Gicame::Utilities {
-
-    static inline std::string composeErrorMessage(const std::string& senderName, const std::string& message) {
-        return senderName + std::string("(...): ") + message;
-    }
-
-}
 
 
 // Macros
@@ -66,10 +55,6 @@ namespace Gicame::Utilities {
 #ifdef __MINGW32__
     #define MINGW
 #endif
-
-#define RUNTIME_ERROR(MSG) std::runtime_error(Gicame::Utilities::composeErrorMessage(std::string(__FUNCTION__), (MSG)))
-
-#define MOVABLE_BUT_NOT_COPYABLE Gicame::MovableButNonCopyable movableButNonCopyable
 
 #if defined(_MSC_VER)
 	#define likely(A) (A)
@@ -121,101 +106,12 @@ namespace Gicame::Utilities {
 #define GICAME_PACK_END __attribute__((__packed__))
 #endif
 
+
+#define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + "(...): " + (MSG))
+
+#if defined(GICAME_EXPORTS) || defined(GICAME_CRYPTO_EXPORTS) || defined(GICAME_COMMON_EXPORTS)
 #define UNUSED(X) ((void)X)
-
-
-// Classes and structs
-namespace Gicame {
-
-    class GICAME_COMMON_API MovableButNonCopyable {
-
-    public:
-        constexpr MovableButNonCopyable() {}
-        MovableButNonCopyable(const MovableButNonCopyable&&) noexcept {};
-        MovableButNonCopyable& operator=(const MovableButNonCopyable&&) noexcept { return *this; };
-
-    private:
-        MovableButNonCopyable(const MovableButNonCopyable&) = delete;
-        MovableButNonCopyable& operator=(const MovableButNonCopyable&) = delete;
-
-    };
-
-};
-
-// Classes and structs (utilities)
-namespace Gicame::Utilities {
-
-    template<typename Type>
-    static constexpr bool isSigned() {
-        constexpr Type allOnes = ~((Type)0);                                  // 8bit: 0b11111111
-        constexpr Type maxIfSigned = ~((Type)1 << (sizeof(Type) * 8u - 1u));  // 8bit: 0b01111111
-        return maxIfSigned > allOnes;
-    }
-
-    template<typename Type, typename OutType = uint64_t>
-    static constexpr OutType maxOf() {
-        if (isSigned<Type>())
-            return OutType(~((Type)1 << (sizeof(Type) * 8u - 1u)));
-        else
-            return OutType(~((Type)0));
-    }
-
-    template<typename Type, typename OutType = uint64_t>
-    static constexpr OutType minOf() {
-        if (isSigned<Type>())
-            return OutType(((Type)1 << (sizeof(Type) * 8u - 1u)));   // 8bit: 0b10000000
-        else
-            return OutType(0);                                       // 8bit: 0b00000000
-    }
-
-    template<typename Target, typename Original>
-    static inline Target safeNumericCast(const Original original) {
-        if constexpr (std::is_same<Target, Original>::value)
-            return original;
-
-        // Both unsigned
-        if (!isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
-            throw RUNTIME_ERROR("original too big");
-
-        // Both signed
-        if (isSigned<Target>() && isSigned<Original>() && int64_t(original) > maxOf<Target, int64_t>())
-            throw RUNTIME_ERROR("original too big");
-
-        // Both signed
-        if (isSigned<Target>() && isSigned<Original>() && int64_t(original) < minOf<Target, int64_t>())
-            throw RUNTIME_ERROR("original too negative");
-
-        // From signed to unsigned (negative check)
-        if (!isSigned<Target>() && isSigned<Original>() && original < 0)
-            throw RUNTIME_ERROR("original is negative and Target is unsigned");
-
-        // From positive signed to unsigned
-        if (!isSigned<Target>() && isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
-            throw RUNTIME_ERROR("original too big");
-
-        // From unsigned to signed
-        if (isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
-            throw RUNTIME_ERROR("original too big");
-
-        return (Target)original;
-    }
-
-    static inline void eraseMemory(void* addr, size_t size) {
-#ifdef __STDC_LIB_EXT1__
-
-        memset_s(pointer, size, 0, size);
-
-#else
-
-        volatile byte_t* p = (volatile byte_t*)addr;
-        while (--size) {
-            *p++ = 0;
-        }
-
 #endif
-    }
-
-}
 
 
 #endif
