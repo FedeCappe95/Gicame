@@ -41,17 +41,19 @@ namespace Gicame::Device {
 		const uint32_t stopBitsMode;
 
 	public:
-		constexpr Serial(
-			const uint32_t comIndex, const uint32_t boud, const uint32_t byteSize, const uint32_t parity, const uint32_t stopBitsMode
-		) :
-			handle(NULL), comIndex(comIndex), boud(boud), byteSize(byteSize), parity(parity), stopBitsMode(stopBitsMode) {}
+		Serial(const uint32_t comIndex, const uint32_t boud, const uint32_t byteSize = 8, const uint32_t parity = 0, const uint32_t stopBitsMode = 0);
+
 		/**
 		 * Open a serial communication
 		 * @return true if the communication can be established
 		 */
 		bool open();
-		size_t send(const uint8_t* what, const size_t size);
-		uint8_t* receive(uint8_t* outBuffer, const size_t size);
+
+		virtual bool isReceiverConnected() const override final;
+		virtual bool isSenderConnected() const override final;
+		virtual size_t send(const void* buffer, const size_t size) override final;
+		virtual size_t receive(void* buffer, const size_t size) override final;
+
 		/**
 		 * Close the serial communication is previously open
 		 */

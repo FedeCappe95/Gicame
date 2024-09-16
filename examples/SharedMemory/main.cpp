@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "../../headers/sm/SharedMemory.h"
+#include "../../headers/device/Serial.h"
 
 
 using namespace Gicame;
@@ -72,6 +73,9 @@ int main(int argc, char* argv[]) {
 		std::cout << "Usage:\n  Example-SharedMemory -peer0\n  ExampleSharedMemory -peer1" << std::endl;
 		return 1;
 	}
+
+	Gicame::Device::Serial s(1, 9600, 8, 0, 0);
+
 
 	return 0;
 }

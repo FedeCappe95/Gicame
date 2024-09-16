@@ -1,4 +1,5 @@
 #include "device/Serial.h"
+#include "utils/Numbers.h"
 #include <string>
 
 #ifdef WINDOWS
@@ -10,6 +11,12 @@ using namespace Gicame::Device;
 
 
 #define nyi() throw std::runtime_error(std::string("Gicame::Device::Serial::") + __FUNCTION__ + "(...): not yet implemented");
+#define VP_DISPLACEMENT(PTR, OFF) ((void*)((uint8_t*)(PTR) + OFF))
+
+
+Serial::Serial(const uint32_t comIndex, const uint32_t boud, const uint32_t byteSize, const uint32_t parity, const uint32_t stopBitsMode) :
+    handle(NULL), comIndex(comIndex), boud(boud), byteSize(byteSize), parity(parity), stopBitsMode(stopBitsMode)
+{}
 
 
 bool Serial::open() {
@@ -39,10 +46,10 @@ bool Serial::open() {
     //  Build on the current configuration by first retrieving all current settings.
     if (unlikely(!GetCommState(handle, &dcb)))
         goto cleanup;
-    dcb.BaudRate = boud; //CBR_115200;     //  baud rate
-    dcb.ByteSize = byteSize; // 8;             //  data size, xmit and rcv
-    dcb.Parity = parity; // NOPARITY;      //  parity bit
-    dcb.StopBits = stopBitsMode; // ONESTOPBIT;    //  stop bit
+    dcb.BaudRate = Gicame::Utilities::safeNumericCast<DWORD>(boud);        // ex. CBR_115200  //  baud rate
+    dcb.ByteSize = Gicame::Utilities::safeNumericCast<BYTE>(byteSize);     // ex. 8           //  data size, xmit and rcv
+    dcb.Parity = Gicame::Utilities::safeNumericCast<BYTE>(parity);         // ex. NOPARITY    //  parity bit
+    dcb.StopBits = Gicame::Utilities::safeNumericCast<BYTE>(stopBitsMode); // ex. ONESTOPBIT  //  stop bit
 
     // Set configuration
     if (unlikely(!SetCommState(handle, &dcb)))
@@ -62,14 +69,21 @@ cleanup:
 #endif
 }
 
-size_t Serial::send(const uint8_t* what, const size_t size) {
+bool Serial::isReceiverConnected() const {
+    return handle != NULL;
+}
+
+bool Serial::isSenderConnected() const {
+    return handle != NULL;
+}
+
+size_t Serial::send(const void* buffer, const size_t size) {
 #ifdef WINDOWS
 
-    if (unlikely(size > UINT32_MAX))
-        throw RUNTIME_ERROR("size exceeded max value of 2^32-1");
+    const DWORD dwSize = Gicame::Utilities::safeNumericCast<DWORD>(size);
     DWORD dNoOfBytesWritten;
-    WriteFile(handle, what, (DWORD)size, &dNoOfBytesWritten, NULL);
-    return dNoOfBytesWritten;
+    WriteFile(handle, buffer, dwSize, &dNoOfBytesWritten, NULL);
+    return Gicame::Utilities::safeNumericCast<size_t>(dNoOfBytesWritten);
 
 #else
 
@@ -81,28 +95,25 @@ size_t Serial::send(const uint8_t* what, const size_t size) {
 #endif
 }
 
-uint8_t* Serial::receive(uint8_t* outBuffer, const size_t size) {
+size_t Serial::receive(void* buffer, const size_t size) {
 #ifdef WINDOWS
-
-    if (unlikely(size > UINT32_MAX))
-        throw RUNTIME_ERROR("size exceeded max value of 2^32-1");
 
     size_t count = 0;
     DWORD r;
     while (count < size) {
-        if (!ReadFile(handle, &outBuffer[count], 1, &r, NULL))
+        if (!ReadFile(handle, VP_DISPLACEMENT(buffer, count), 1, &r, NULL))
             continue;
         count += r;
     }
 
-    return outBuffer;
+    return count;
 
 #else
 
     UNUSED(outBuffer);
     UNUSED(size);
     nyi();
-    return NULL;
+    return 0;
 
 #endif
 }

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdexcept>
+#include <type_traits>
 
 
 #define NUMBERS_RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + "(...): " + (MSG))
@@ -13,27 +14,14 @@
 // Classes and structs (utilities)
 namespace Gicame::Utilities {
 
-    template<typename Type>
-    static constexpr bool isSigned() {
-        constexpr Type allOnes = ~((Type)0);                                  // 8bit: 0b11111111
-        constexpr Type maxIfSigned = ~((Type)1 << (sizeof(Type) * 8u - 1u));  // 8bit: 0b01111111
-        return maxIfSigned > allOnes;
-    }
-
-    template<typename Type, typename OutType = uint64_t>
+    template<typename Type, typename OutType>
     static constexpr OutType maxOf() {
-        if (isSigned<Type>())
-            return OutType(~((Type)1 << (sizeof(Type) * 8u - 1u)));
-        else
-            return OutType(~((Type)0));
+        return static_cast<OutType>(std::numeric_limits<Type>::max());
     }
 
-    template<typename Type, typename OutType = uint64_t>
+    template<typename Type, typename OutType>
     static constexpr OutType minOf() {
-        if (isSigned<Type>())
-            return OutType(((Type)1 << (sizeof(Type) * 8u - 1u)));   // 8bit: 0b10000000
-        else
-            return OutType(0);                                       // 8bit: 0b00000000
+        return static_cast<OutType>(std::numeric_limits<Type>::min());
     }
 
     template<typename Target, typename Original>
@@ -41,29 +29,37 @@ namespace Gicame::Utilities {
         if constexpr (std::is_same<Target, Original>::value)
             return original;
 
+        // Both unsigned or both signed, always safe
+        if constexpr (std::is_signed_v<Target> == std::is_signed_v<Original> && sizeof(Target) >= sizeof(Original)) {
+            return (Target)original;
+        }
+
         // Both unsigned
-        if (!isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
-            throw NUMBERS_RUNTIME_ERROR("original too big");
+        if constexpr (!std::is_signed_v<Target> && !std::is_signed_v<Original>) {
+            if (uint64_t(original) > maxOf<Target, uint64_t>())
+                throw NUMBERS_RUNTIME_ERROR("original too big");
+        }
 
         // Both signed
-        if (isSigned<Target>() && isSigned<Original>() && int64_t(original) > maxOf<Target, int64_t>())
-            throw NUMBERS_RUNTIME_ERROR("original too big");
+        if constexpr (std::is_signed_v<Target> && std::is_signed_v<Original>) {
+            if (int64_t(original) > maxOf<Target, int64_t>())
+                throw NUMBERS_RUNTIME_ERROR("original too positive");
+            if (int64_t(original) < minOf<Target, int64_t>())
+                throw NUMBERS_RUNTIME_ERROR("original too negative");
+        }
 
-        // Both signed
-        if (isSigned<Target>() && isSigned<Original>() && int64_t(original) < minOf<Target, int64_t>())
-            throw NUMBERS_RUNTIME_ERROR("original too negative");
-
-        // From signed to unsigned (negative check)
-        if (!isSigned<Target>() && isSigned<Original>() && original < 0)
-            throw NUMBERS_RUNTIME_ERROR("original is negative and Target is unsigned");
-
-        // From positive signed to unsigned
-        if (!isSigned<Target>() && isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
-            throw NUMBERS_RUNTIME_ERROR("original too big");
+        // From signed to unsigned
+        if constexpr (!std::is_signed_v<Target> && std::is_signed_v<Original>) {
+            if (original < 0)
+                throw NUMBERS_RUNTIME_ERROR("original is negative and Target is unsigned");
+            if (uint64_t(original) > maxOf<Target, uint64_t>())
+                throw NUMBERS_RUNTIME_ERROR("original too big");
+        }
 
         // From unsigned to signed
-        if (isSigned<Target>() && !isSigned<Original>() && uint64_t(original) > maxOf<Target, uint64_t>())
-            throw NUMBERS_RUNTIME_ERROR("original too big");
+        if constexpr (std::is_signed_v<Target> && !std::is_signed_v<Original>)
+            if (uint64_t(original) > maxOf<Target, uint64_t>())
+                throw NUMBERS_RUNTIME_ERROR("original too big");
 
         return (Target)original;
     }
