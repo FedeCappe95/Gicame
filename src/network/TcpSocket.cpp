@@ -52,7 +52,7 @@ TcpSocket::TcpSocket(TcpSocket&& other) noexcept :
 	socketStatus(other.socketStatus),
 	sin_family(other.sin_family)
 {
-	other.sockfd = -1;  // Prevent close() on destructor
+	other.sockfd = 0;  // Prevent close() on destructor
 }
 
 // Do not close the socket in the destructor unless the TcpSocket is "MOVABLE_BUT_NOT_COPYABLE"!!
