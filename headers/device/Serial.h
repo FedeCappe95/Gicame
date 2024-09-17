@@ -39,6 +39,7 @@ namespace Gicame::Device {
 		const uint32_t byteSize;
 		const uint32_t parity;
 		const uint32_t stopBitsMode;
+		bool blockingRecpt;
 
 	public:
 		Serial(const uint32_t comIndex, const uint32_t boud, const uint32_t byteSize = 8, const uint32_t parity = 0, const uint32_t stopBitsMode = 0);
@@ -53,11 +54,18 @@ namespace Gicame::Device {
 		virtual bool isSenderConnected() const override final;
 		virtual size_t send(const void* buffer, const size_t size) override final;
 		virtual size_t receive(void* buffer, const size_t size) override final;
+		void flush();
 
 		/**
 		 * Close the serial communication is previously open
 		 */
 		void close();
+
+		/**
+		 * Set the receptionBlocking flag: when receiving, try to receive the exact amount of bytes
+		 * specified
+		 */
+		void setReceptionBlocking(const bool rb);
 
 	public:
 		static std::vector<SerialPort> enumerateSerialPorts();

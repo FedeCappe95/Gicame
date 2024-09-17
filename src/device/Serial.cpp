@@ -15,7 +15,7 @@ using namespace Gicame::Device;
 
 
 Serial::Serial(const uint32_t comIndex, const uint32_t boud, const uint32_t byteSize, const uint32_t parity, const uint32_t stopBitsMode) :
-    handle(NULL), comIndex(comIndex), boud(boud), byteSize(byteSize), parity(parity), stopBitsMode(stopBitsMode)
+    handle(NULL), comIndex(comIndex), boud(boud), byteSize(byteSize), parity(parity), stopBitsMode(stopBitsMode), blockingRecpt(false)
 {}
 
 
@@ -98,15 +98,21 @@ size_t Serial::send(const void* buffer, const size_t size) {
 size_t Serial::receive(void* buffer, const size_t size) {
 #ifdef WINDOWS
 
-    size_t count = 0;
-    DWORD r;
-    while (count < size) {
-        if (!ReadFile(handle, VP_DISPLACEMENT(buffer, count), 1, &r, NULL))
-            continue;
-        count += r;
+    DWORD r = 0;
+    DWORD stillToRead = Gicame::Utilities::safeNumericCast<DWORD>(size);
+    void* ptr = buffer;
+    while (stillToRead) {
+        if (!ReadFile(handle, ptr, stillToRead, &r, NULL) || r == 0u) {
+            if (blockingRecpt)
+                continue;
+            else
+                break;
+        }
+        ptr = VP_DISPLACEMENT(ptr, r);
+        stillToRead -= r;
     }
 
-    return count;
+    return size - stillToRead;
 
 #else
 
@@ -114,6 +120,18 @@ size_t Serial::receive(void* buffer, const size_t size) {
     UNUSED(size);
     nyi();
     return 0;
+
+#endif
+}
+
+void Serial::flush() {
+#ifdef WINDOWS
+
+    FlushFileBuffers(handle);
+
+#else
+
+    nyi();
 
 #endif
 }
@@ -157,4 +175,8 @@ std::vector<Serial::SerialPort> Serial::enumerateSerialPorts() {
 #endif
 
     return result;
+}
+
+void Serial::setReceptionBlocking(const bool rb) {
+    blockingRecpt = rb;
 }
