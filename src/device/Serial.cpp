@@ -87,7 +87,7 @@ size_t Serial::send(const void* buffer, const size_t size) {
 
 #else
 
-    UNUSED(what);
+    UNUSED(buffer);
     UNUSED(size);
     nyi();
     return 0;
@@ -116,7 +116,7 @@ size_t Serial::receive(void* buffer, const size_t size) {
 
 #else
 
-    UNUSED(outBuffer);
+    UNUSED(buffer);
     UNUSED(size);
     nyi();
     return 0;

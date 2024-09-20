@@ -3,7 +3,7 @@
 
 
 #include <stdint.h>
-#include <limits.h>
+#include <limits>
 #include <stdexcept>
 #include <type_traits>
 
