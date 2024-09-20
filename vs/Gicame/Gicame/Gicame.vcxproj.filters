@@ -201,6 +201,9 @@
     <ClInclude Include="..\..\..\headers\utils\Memory.h">
       <Filter>File di intestazione\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\TaskExecutor.hpp">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -246,6 +249,9 @@
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\concurrency\SLSPSCQueue.cpp">
+      <Filter>File di origine\concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\concurrency\TaskExecutor.cpp">
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
   </ItemGroup>

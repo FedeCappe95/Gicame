@@ -11,7 +11,7 @@ SUB_DIRS         = $(sort $(dir $(wildcard ./src/*/)))
 SUB_DIRS_CRYPTO  = $(sort $(dir $(wildcard ./src/crypto/*/)))
 
 HEADERS = $(echo headers/*.h)
-GICAME_OBJ_FILES = $(BUILD_DIR)/common.o $(BUILD_DIR)/device/Serial.o $(BUILD_DIR)/network/NetworkDefinitions.o $(BUILD_DIR)/network/NetworkUtility.o $(BUILD_DIR)/network/TcpListeningSocket.o $(BUILD_DIR)/network/TcpSocket.o $(BUILD_DIR)/os/ErrorHandling.o $(BUILD_DIR)/os/NamedPipe.o $(BUILD_DIR)/rpc/RpcClient.o $(BUILD_DIR)/rpc/RpcServer.o $(BUILD_DIR)/sm/SharedMemory.o
+GICAME_OBJ_FILES = $(BUILD_DIR)/common.o $(BUILD_DIR)/device/Serial.o $(BUILD_DIR)/network/NetworkDefinitions.o $(BUILD_DIR)/network/NetworkUtility.o $(BUILD_DIR)/network/TcpListeningSocket.o $(BUILD_DIR)/network/TcpSocket.o $(BUILD_DIR)/os/ErrorHandling.o $(BUILD_DIR)/os/NamedPipe.o $(BUILD_DIR)/rpc/RpcClient.o $(BUILD_DIR)/rpc/RpcServer.o $(BUILD_DIR)/sm/SharedMemory.o $(BUILD_DIR)/concurrency/TaskExecutor.o
 GICAME_CRYPTO_OBJ_FILES = $(BUILD_DIR)/crypto/certificate/X509Certificate.o $(BUILD_DIR)/crypto/certificate/X509Store.o $(BUILD_DIR)/crypto/dh/DiffieHellman.o $(BUILD_DIR)/crypto/ds/Signer.o $(BUILD_DIR)/crypto/ds/Verifier.o $(BUILD_DIR)/crypto/encryption/Decryptor.o $(BUILD_DIR)/crypto/encryption/Encryptor.o $(BUILD_DIR)/crypto/hash/HashCalculator.o $(BUILD_DIR)/crypto/hash/HmacCalculator.o $(BUILD_DIR)/crypto/key/EvpKey.o $(BUILD_DIR)/crypto/key/SymmetricKey.o $(BUILD_DIR)/crypto/random/Random.o
 
 # Missing for Linux
@@ -25,6 +25,7 @@ all: before bin/libgicame.so bin/libgicamecrypto.so
 
 before:
 	@-mkdir $(BUILD_DIR)/
+	@-mkdir $(BUILD_DIR)/concurrency/
 	@-mkdir $(BUILD_DIR)/device/
 	@-mkdir $(BUILD_DIR)/network/
 	@-mkdir $(BUILD_DIR)/os/
@@ -141,6 +142,7 @@ clean:
 	@-rm -f -r $(BUILD_DIR)/*
 	@-rm -f -r bin/*
 	@-mkdir $(BUILD_DIR)/
+	@-mkdir $(BUILD_DIR)/concurrency/
 	@-mkdir $(BUILD_DIR)/device/
 	@-mkdir $(BUILD_DIR)/network/
 	@-mkdir $(BUILD_DIR)/os/
