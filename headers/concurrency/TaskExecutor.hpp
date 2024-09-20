@@ -1,4 +1,6 @@
 #pragma once
+#include "common.h"
+#include "../utils/MovableButNotCopyable.h"
 #include <thread>
 #include <mutex>
 #include <functional>
@@ -13,6 +15,8 @@ namespace Gicame::Concurrency {
 	 * @brief A thread waiting for tasks
 	 */
 	class TaskExecutor {
+
+		MOVABLE_BUT_NOT_COPYABLE;
 
 	private:  // Private data members
 		std::thread worker;
@@ -29,10 +33,10 @@ namespace Gicame::Concurrency {
 		void workerThreadBody();
 
 	public:
-		TaskExecutor();
-		~TaskExecutor();
-		void waitForTaskCompletion();
-		void submitVoidTask(const std::function<void()>&);
+		GICAME_API TaskExecutor();
+		GICAME_API ~TaskExecutor();
+		GICAME_API void waitForTaskCompletion();
+		GICAME_API void submitVoidTask(const std::function<void()>&);
 		
 		template <typename Res>
 		inline std::future<Res> submitTask(const std::function<Res()>& newTask) {
