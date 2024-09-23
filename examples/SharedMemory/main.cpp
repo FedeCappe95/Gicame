@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
+#include <thread>
+#include <chrono>
 #include "../../headers/sm/SharedMemory.h"
 
 
@@ -11,6 +13,7 @@ struct MyData {
 	uint32_t a;
 	float b;
 	char message[256];
+	std::atomic<bool> readDone;
 };
 
 
@@ -24,30 +27,35 @@ static void myStrCpy(char* dst, const size_t len, const char* src) {
 	strcpy_s(dst, len, src);
 #else
 	UNUSED(len);
-  strcpy(dst, src);
+	strcpy(dst, src);
 #endif
 }
 
 
 static void peer0() {
 	SharedMemory sm("MyMemory", sizeof(MyData));
-	sm.create();
+	sm.open(true);
 	MyData* myData = sm.getAs<MyData>();
 	myData->a = 5;
 	myData->b = 12.0;
-	myStrCpy(myData->message, sizeof(MyData::message), "Hello ShareMemory!");
-	std::cout << "Waiting the other peer..." << std::endl;
-	char c;
-	std::cin >> c;
+	myData->readDone = false;
+	myStrCpy(myData->message, sizeof(MyData::message), "Hello SharedMemory!");
+	std::cout << "Waiting the other peer" << std::endl;
+	while (!myData->readDone) {
+		std::cout << ".";
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	std::cout << "\nDone" << std::endl;
 	sm.close();
 	sm.destroy();
 }
 
 static void peer1() {
 	SharedMemory sm("MyMemory", sizeof(MyData));
-	sm.open();
+	sm.open(false);
 	MyData* myData = sm.getAs<MyData>();
 	printMyData(*myData);
+	myData->readDone = true;
 	sm.close();
 }
 

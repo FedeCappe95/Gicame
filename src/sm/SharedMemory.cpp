@@ -48,22 +48,35 @@ SharedMemory::~SharedMemory() {
 		close();
 }
 
-void SharedMemory::create() {
+bool SharedMemory::open(const bool createIfNotExisting) {
 	if (ptr)
-		throw RUNTIME_ERROR("SharedMemory already created or opened");
+		throw RUNTIME_ERROR("SharedMemory already open");
 
 #ifdef WINDOWS
-	const DWORD sizeAsDword = Gicame::Utilities::safeNumericCast<DWORD>(size);
-	fileHandle = CreateFileMappingA(
-		INVALID_HANDLE_VALUE,    // use paging file
-		NULL,                    // default security
-		PAGE_READWRITE,          // read/write access
-		0,                       // maximum object size (high-order DWORD)
-		sizeAsDword,             // maximum object size (low-order DWORD)
-		name.c_str()             // name of mapping object
-	);
-	if (!fileHandle)
-		throw RUNTIME_ERROR("Could not create file mapping");
+
+	if (createIfNotExisting) {
+		const DWORD sizeAsDword = Gicame::Utilities::safeNumericCast<DWORD>(size);
+		fileHandle = CreateFileMappingA(
+			INVALID_HANDLE_VALUE,    // use paging file
+			NULL,                    // default security
+			PAGE_READWRITE,          // read/write access
+			0,                       // maximum object size (high-order DWORD)
+			sizeAsDword,             // maximum object size (low-order DWORD)
+			name.c_str()             // name of mapping object
+		);
+		if (!fileHandle)
+			return false;
+	}
+	else {
+		fileHandle = OpenFileMappingA(
+			FILE_MAP_ALL_ACCESS,   // read/write access
+			FALSE,                 // do not inherit the name
+			name.c_str()           // name of mapping object
+		);
+
+		if (!fileHandle)
+			return false;
+	}
 
 	ptr = MapViewOfFile(
 		fileHandle,           // handle to map object
@@ -73,54 +86,30 @@ void SharedMemory::create() {
 
 	if (!ptr) {
 		CloseHandle(fileHandle);
-		throw RUNTIME_ERROR("Could not map view of file");
+		return false;
 	}
+
 #else
-	open();
-#endif
-}
 
-void SharedMemory::open() {
-	if (ptr)
-		throw RUNTIME_ERROR("SharedMemory already created or opened");
-
-#ifdef WINDOWS
-	fileHandle = OpenFileMappingA(
-		FILE_MAP_ALL_ACCESS,   // read/write access
-		FALSE,                 // do not inherit the name
-		name.c_str()           // name of mapping object
-	);
-
-	if (!fileHandle)
-		throw RUNTIME_ERROR("Could not open file mapping object");
-
-	ptr = MapViewOfFile(
-		fileHandle,           // handle to map object
-		FILE_MAP_ALL_ACCESS,  // read/write permission
-		0, 0, size
-	);
-
-	if (!ptr) {
-		CloseHandle(fileHandle);
-		throw RUNTIME_ERROR("Could not map view of file");
-	}
-#else
-	fd = shm_open(name.c_str(), O_CREAT | O_RDWR, 0666);
-	if (unlikely(fd < 0)) {
-		throw RUNTIME_ERROR("shm_open(...) failed");
-	}
+	const int flags = createIfNotExisting ? (O_CREAT | O_RDWR) : (O_RDWR);
+	fd = shm_open(name.c_str(), flags, 0666);
+	if (unlikely(fd < 0))
+		return false;
 
 	if (unlikely(ftruncate(fd, size) < 0)) {
 		shm_unlink(name.c_str());
-		throw RUNTIME_ERROR("ftruncate(...) failed");
+		return false;
 	}
 
 	ptr = mmap(0, size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
 	if (unlikely(!ptr)) {
 		shm_unlink(name.c_str());
-		throw RUNTIME_ERROR("mmap(...) failed");
+		return false;
 	}
+
 #endif
+
+	return true;
 }
 
 void SharedMemory::close() {
