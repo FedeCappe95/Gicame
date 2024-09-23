@@ -3,7 +3,7 @@
 
 
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"
@@ -16,7 +16,7 @@ namespace Gicame {
 
     class GICAME_API RpcClient {
 
-        MOVABLE_BUT_NOT_COPYABLE;
+        NOT_COPYABLE(RpcClient)
 
     private:
         IDataExchanger* dataExchanger;

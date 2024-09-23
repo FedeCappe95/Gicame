@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdexcept>
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 
 
@@ -13,7 +13,7 @@ namespace Gicame::Device {
 
 	class GICAME_API Serial : public Gicame::IDataExchanger {
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(Serial);
 
 	public:
 		static constexpr uint32_t P_NOPARITY = 0;

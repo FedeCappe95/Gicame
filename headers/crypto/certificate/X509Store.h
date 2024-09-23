@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 #include "../../common.h"
-#include "../../utils/MovableButNotCopyable.h"
+#include "../../utils/NotCopyable.h"
 #include "X509Certificate.h"
 
 
@@ -19,7 +19,7 @@ namespace Gicame::Crypto {
 
     class X509Store {
 
-        MOVABLE_BUT_NOT_COPYABLE;
+        NOT_COPYABLE(X509Store);
 
     private:
         x509_store_st* nativeStore;

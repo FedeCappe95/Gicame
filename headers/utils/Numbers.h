@@ -36,7 +36,7 @@ namespace Gicame::Utilities {
 
         // Both unsigned
         if constexpr (!std::is_signed_v<Target> && !std::is_signed_v<Original>) {
-            if (uint64_t(original) > maxOf<Target, uint64_t>())
+            if (original > std::numeric_limits<Target>::max())
                 throw NUMBERS_RUNTIME_ERROR("original too big");
         }
 

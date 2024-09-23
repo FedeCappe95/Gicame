@@ -3,7 +3,7 @@
 
 
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include <string>
 
@@ -12,7 +12,7 @@ namespace Gicame::Os {
 
 	class NamedPipe : public Gicame::IDataExchanger {
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(NamedPipe)
 
 	private:
 		enum class State { DISCONNECTED, CREATED, CONNECTED };

@@ -33,7 +33,7 @@ TcpListeningSocket::TcpListeningSocket(const InternetProtocolVersion ipv) :
 	sin_family = (ipv == InternetProtocolVersion::IPv4 ? AF_INET : AF_INET6);
 }
 
-// Do not close the socket in the destructor unless the class is "MOVABLE_BUT_NOT_COPYABLE"!!
+// Do not close the socket in the destructor unless the class is "NOT_COPYABLE"!!
 // If you close it here and your instance can be copied you will spend the entire day looking for
 // bugs... Just like I did...
 // When you copy an instance, the old one will have an invalid socketfd as a private data member!

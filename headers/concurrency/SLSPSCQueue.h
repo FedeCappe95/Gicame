@@ -3,7 +3,7 @@
 
 
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include "./SPSCQueue.h"
 
 
@@ -15,7 +15,7 @@ namespace Gicame::Concurrency {
 	 */
 	class SLSPSCQueue : public SPSCQueue {
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(SLSPSCQueue)
 
 	protected:
 		GICAME_API virtual void waitElemPresent(const size_t dataSize) override final;

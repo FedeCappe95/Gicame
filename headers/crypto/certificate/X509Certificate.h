@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 #include "../../common.h"
-#include "../../utils/MovableButNotCopyable.h"
+#include "../../utils/NotCopyable.h"
 #include "../key/EvpKey.h"
 
 
@@ -20,7 +20,7 @@ namespace Gicame::Crypto {
 
 		friend class X509Store;  // X509Store needs to access ptr
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(X509Certificate);
 
 	private:
 		std::shared_ptr<x509_st> ptr;

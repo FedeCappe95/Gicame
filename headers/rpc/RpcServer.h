@@ -6,7 +6,7 @@
 #include <functional>
 #include <vector>
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"
@@ -19,7 +19,7 @@ namespace Gicame {
 
     class GICAME_API RpcServer {
 
-        MOVABLE_BUT_NOT_COPYABLE;
+        NOT_COPYABLE(RpcServer)
 
     public:  // Public types
         enum class InvalidRequestReason {

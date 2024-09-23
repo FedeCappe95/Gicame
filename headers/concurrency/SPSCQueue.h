@@ -3,7 +3,7 @@
 
 
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 
 
 // Forward declarations
@@ -21,7 +21,7 @@ namespace Gicame::Concurrency {
 	 */
 	class SPSCQueue {
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(SPSCQueue)
 
 	public:    // Public types
 		enum class BufferWrappingStrategy {

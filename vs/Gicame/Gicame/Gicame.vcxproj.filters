@@ -192,7 +192,7 @@
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\SPSCQueueMeta.h">
       <Filter>File di intestazione\concurrency\implementation_details</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\headers\utils\MovableButNotCopyable.h">
+    <ClInclude Include="..\..\..\headers\utils\NotCopyable.h">
       <Filter>File di intestazione\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\headers\utils\Numbers.h">

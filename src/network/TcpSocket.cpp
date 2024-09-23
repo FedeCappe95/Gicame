@@ -50,16 +50,17 @@ TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
 TcpSocket::TcpSocket(TcpSocket&& other) noexcept :
 	sockfd(other.sockfd),
 	socketStatus(other.socketStatus),
-	sin_family(other.sin_family)
+	sin_family(other.sin_family),
+	flagReceptionBlocking(other.flagReceptionBlocking)
 {
 	other.sockfd = 0;  // Prevent close() on destructor
 }
 
-// Do not close the socket in the destructor unless the TcpSocket is "MOVABLE_BUT_NOT_COPYABLE"!!
+// Do not close the socket in the destructor unless the TcpSocket is "NOT_COPYABLE"!!
 // If you close it here and your TcpSocket can be copied you will spend the entire day looking for
 // bugs... Just like I did...
 // When you copy a TcpSocket, the old one will have an invalid socketfd as a private data member!
-// In this implementation, TcpSocket is "MOVABLE_BUT_NOT_COPYABLE", so it's safe (and required) to
+// In this implementation, TcpSocket is "NOT_COPYABLE", so it's safe (and required) to
 // close the socket here.
 TcpSocket::~TcpSocket() {
 	this->close();
@@ -215,14 +216,7 @@ IPv4 TcpSocket::getPeerIPv4() const {
 
     } else {
 
-		throw RUNTIME_ERROR("Not yet implemented!");
-        //IPv6 case
-        struct sockaddr_in6 addr;
-        socklen_t addr_size = sizeof(addr);
-        if(getpeername(sockfd, (struct sockaddr*)&addr, &addr_size) < 0) {
-            throw RUNTIME_ERROR("Error in getpeername(...)");
-        }
-        return IPv4(0u); //ipv6AddressToString(&addr.sin6_addr);  TODO
+		throw RUNTIME_ERROR("Socket is IPv6");
 
     }
 }

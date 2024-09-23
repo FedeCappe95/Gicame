@@ -1,6 +1,6 @@
 #pragma once
 #include "common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include <thread>
 #include <mutex>
 #include <functional>
@@ -16,7 +16,7 @@ namespace Gicame::Concurrency {
 	 */
 	class TaskExecutor {
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(TaskExecutor)
 
 	private:  // Private data members
 		std::thread worker;

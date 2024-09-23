@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "../common.h"
-#include "../utils/MovableButNotCopyable.h"
+#include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include "./NetworkUtility.h"
 #include "./NetworkDefinitions.h"
@@ -16,7 +16,7 @@ namespace Gicame {
 
 	class GICAME_API TcpSocket : public IDataExchanger {
 
-		MOVABLE_BUT_NOT_COPYABLE;
+		NOT_COPYABLE(TcpSocket)
 
 	private:
 		SocketDescriptor sockfd;
