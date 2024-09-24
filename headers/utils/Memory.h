@@ -17,8 +17,9 @@ namespace Gicame::Utilities {
 #else
 
         volatile byte_t* p = (volatile byte_t*)addr;
-        while (--size) {
+        while (size) {
             *p++ = 0;
+            --size;
         }
 
 #endif
