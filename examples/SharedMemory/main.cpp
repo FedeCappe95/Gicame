@@ -47,7 +47,6 @@ static void peer0() {
 	}
 	std::cout << "\nDone" << std::endl;
 	sm.close();
-	sm.destroy();
 }
 
 static void peer1() {

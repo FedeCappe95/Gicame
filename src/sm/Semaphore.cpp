@@ -1,18 +1,14 @@
-#include "sm/Semaphore.h"
+#include "common.h"
 #include "utils/Numbers.h"
-
-
 #ifdef WINDOWS
 #include <windows.h>
 #else
-#error "NYI"
+#include <semaphore.h>
+#include <fcntl.h>           // For O_CREAT and O_EXCL
+#include <sys/stat.h>        // For mode constants
+#include <errno.h>
 #endif
-
-
-//#ifdef MSVC
-//#pragma comment(lib, "user32.lib")
-//#endif
-
+#include "sm/Semaphore.h"
 
 // Constants
 #ifdef WINDOWS
@@ -24,12 +20,21 @@ using namespace Gicame;
 
 
 
-Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const size_t initialLockCount) {
+Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const size_t initialLockCount) :
+    handle(NULL),
+#ifndef WINDOWS
+    posixName(std::string("/") + name),
+#endif
+    unlinkOnDestruction(true)
+{
     if (unlikely(maxConcurrency == 0))
         throw RUNTIME_ERROR("maxConcurrency cannot be 0");
 
     if (unlikely(initialLockCount > maxConcurrency))
         throw RUNTIME_ERROR("initialLockCount cannot be greater than maxConcurrency");
+
+    if (unlikely(name.empty()))
+        throw RUNTIME_ERROR("name cannot be empty");
 
 #ifdef WINDOWS
 
@@ -59,7 +64,22 @@ Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const
 
 #else
 
-#error "NYI"
+    // Open a named semaphore (O_CREAT | O_EXCL ensures that if the semaphore already exists, we get an error)
+    handle = sem_open(posixName.c_str(), O_CREAT | O_EXCL, 0644, maxConcurrency - initialLockCount);
+
+    if (handle == SEM_FAILED) {
+        if (errno == EEXIST) {  // If the semaphore already exists, open the existing one
+            handle = sem_open(posixName.c_str(), 0);
+            if (unlikely(handle == SEM_FAILED))
+                throw RUNTIME_ERROR("sem_open(...) failed");
+        }
+        else if (unlikely(errno == EINVAL)) {
+            for (size_t i = 0; i < name.length(); ++i)
+                if (name[i] == '/')
+                    throw RUNTIME_ERROR("sem_open(...) failed, invalid semaphore name (cannot contain '/')");
+            throw RUNTIME_ERROR("sem_open(...) failed");
+        }
+    }
 
 #endif
 }
@@ -72,12 +92,16 @@ Semaphore::~Semaphore() {
 
 #else
 
-#error "NYI"
+    if (likely(handle != SEM_FAILED)) {
+        sem_close(handle);
+        if (unlinkOnDestruction)
+            sem_unlink(posixName.c_str());
+    }
 
 #endif
 }
 
-void Semaphore::acquire() {
+bool Semaphore::acquire() {
 #ifdef WINDOWS
 
     // WaitForSingleObject(...) either:
@@ -86,29 +110,44 @@ void Semaphore::acquire() {
     DWORD result;
     do {
         result = WaitForSingleObject(handle, ACQUISITION_TIMEOUT);
+        if (unlikely(result == WAIT_FAILED))
+            return false;
     } while (result != WAIT_OBJECT_0);
 
 #else
 
-#error "NYI"
+    // POSIX semaphore wait (blocks until the semaphore is greater than 0, then decrements it)
+    if (unlikely(sem_wait(handle) != 0))
+        return false;
 
 #endif
+
+    return true;
 }
 
-void Semaphore::release() {
+bool Semaphore::release() {
 #ifdef WINDOWS
 
     // ReleaseSemaphore(...) increments the current semaphore state
-    if (unlikely(!ReleaseSemaphore(
+    const BOOL success = ReleaseSemaphore(
         handle,       // handle to semaphore
         1,            // increase count by one
-        NULL)         // not interested in previous count
-    ))
-        throw RUNTIME_ERROR("ReleaseSemaphore(...) failed");
+        NULL          // not interested in previous count
+    );
+    if (unlikely(!success))
+        return false;
 
 #else
 
-#error "NYI"
+    // POSIX semaphore post (increments the semaphore)
+    if (unlikely(sem_post(handle) != 0))
+        return false;
 
 #endif
+
+    return true;
+}
+
+void Semaphore::setUnlinkOnDestruction(bool uod) {
+    unlinkOnDestruction = uod;
 }

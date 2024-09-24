@@ -21,13 +21,15 @@ namespace Gicame {
 #else
 		int fd;
 #endif
+		bool unlinkOnDestruction;
 
 	public:
 		GICAME_API SharedMemory(const std::string& name, const size_t size);
 		GICAME_API ~SharedMemory();
 		GICAME_API void close();
 		GICAME_API bool open(const bool createIfNotExisting);
-		GICAME_API void destroy();
+		GICAME_API void unlink();
+		GICAME_API void setUnlinkOnDestruction(bool uod);
 		inline void* get() { return ptr; }
 		inline size_t getSize() { return size; }
 		template<class T>

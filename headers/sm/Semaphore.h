@@ -13,15 +13,22 @@ namespace Gicame {
 	class Semaphore {
 
 	private:
-#ifdef WINDOWS
+#if defined(WINDOWS) || !defined(GICAME_EXPORTS)
 		void* handle;
+#else
+		sem_t* handle;
 #endif
+#ifndef WINDOWS
+		const std::string posixName;
+#endif
+		bool unlinkOnDestruction;
 
 	public:
 		GICAME_API Semaphore(const std::string& name, const size_t maxConcurrency, const size_t initialLockCount = 0u);
 		GICAME_API ~Semaphore();
-		GICAME_API void acquire();
-		GICAME_API void release();
+		GICAME_API bool acquire();
+		GICAME_API bool release();
+		GICAME_API void setUnlinkOnDestruction(bool uod);
 
 	};
 

@@ -34,18 +34,22 @@ SharedMemory::SharedMemory(const std::string& name, const size_t size) :
 	name(std::string("Local\\") + name),
 	size(size),
 	ptr(NULL),
-	fileHandle(NULL)
+	fileHandle(NULL),
 #else
 	name(std::string("/") + name),
 	size(size),
 	ptr(NULL),
-	fd(-1)
+	fd(-1),
 #endif
+	unlinkOnDestruction(true)
 {}
 
 SharedMemory::~SharedMemory() {
-	if (ptr)
+	if (ptr) {
 		close();
+		if (unlinkOnDestruction)
+			unlink();
+	}
 }
 
 bool SharedMemory::open(const bool createIfNotExisting) {
@@ -125,7 +129,7 @@ void SharedMemory::close() {
 	ptr = NULL;
 }
 
-void SharedMemory::destroy() {
+void SharedMemory::unlink() {
 	if (ptr)
 		close();
 
@@ -134,4 +138,8 @@ void SharedMemory::destroy() {
 #else
 	shm_unlink(name.c_str());
 #endif
+}
+
+void SharedMemory::setUnlinkOnDestruction(bool uod) {
+	unlinkOnDestruction = uod;
 }
