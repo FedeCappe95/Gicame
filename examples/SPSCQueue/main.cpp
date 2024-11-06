@@ -9,7 +9,7 @@ using namespace Gicame::Concurrency;
 
 
 uint8_t buffer[8 * 1024 * 1024];  // 8MiB buffer
-SLSPSCQueue queue(buffer, sizeof(buffer), SPSCQueue::BufferWrappingStrategy::MASTER);
+SLSPSCQueue queue(buffer, sizeof(buffer), Gicame::Concurrency::ConcurrencyRole::MASTER);
 constexpr size_t ELEM_COUNT = 64 * 1024 * 1024;  // 64Mi of size_t
 
 

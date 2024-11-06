@@ -443,9 +443,6 @@
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\TaskExecutor.hpp" />
     <ClInclude Include="..\..\..\headers\dataSerialization\BinarySerializer.h" />
-    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceExchanger.h" />
-    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceReceiver.h" />
-    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceSender.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectExchanger.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectReceiver.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectSender.h" />

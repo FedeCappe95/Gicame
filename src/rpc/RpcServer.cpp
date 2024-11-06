@@ -21,7 +21,14 @@ RpcServer::RpcServer(IDataExchanger* dataExchanger, const BinarySerializer& seri
         default:
             throw RUNTIME_ERROR("Invalid request");
         }
+#ifdef MSVC
+#pragma warning(push)
+#pragma warning (disable : 4702)
+#endif
         return false;
+#ifdef MSVC
+#pragma warning(pop)
+#endif
     };
 }
 

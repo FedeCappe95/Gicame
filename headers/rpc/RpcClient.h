@@ -5,7 +5,6 @@
 #include "../common.h"
 #include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
-#include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"
 #include "./RerBuilding.h"
 #include "../dataSerialization/BinarySerializer.h"

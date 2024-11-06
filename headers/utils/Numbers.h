@@ -24,6 +24,11 @@ namespace Gicame::Utilities {
         return static_cast<OutType>(std::numeric_limits<Type>::min());
     }
 
+#ifdef MSVC
+#pragma warning(push)
+#pragma warning (disable : 4702)
+#endif
+
     template<typename Target, typename Original>
     static inline Target safeNumericCast(const Original original) {
         if constexpr (std::is_same<Target, Original>::value)
@@ -63,6 +68,10 @@ namespace Gicame::Utilities {
 
         return (Target)original;
     }
+
+#ifdef MSVC
+#pragma warning (pop)
+#endif
 
 }
 

@@ -8,7 +8,6 @@
 #include "../common.h"
 #include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
-#include "../dataTransfer/BinaryInstanceExchanger.h"
 #include "./RpcCommon.h"
 #include "../dataSerialization/BinarySerializer.h"
 #include "../stream/ByteStream.h"

@@ -84,15 +84,6 @@
     <ClInclude Include="pch.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceExchanger.h">
-      <Filter>File di intestazione\dataTransfer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceReceiver.h">
-      <Filter>File di intestazione\dataTransfer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\headers\dataTransfer\BinaryInstanceSender.h">
-      <Filter>File di intestazione\dataTransfer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectExchanger.h">
       <Filter>File di intestazione\dataTransfer</Filter>
     </ClInclude>
