@@ -9,14 +9,14 @@ using namespace Gicame::Concurrency;
 using namespace Gicame::Concurrency::Impl;
 
 
-SPSCQueue::SPSCQueue(void* buffer, const size_t capacity, const BufferWrappingStrategy bws) :
+SPSCQueue::SPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr) :
 	meta((SPSCQueueMeta*)buffer),
 	buffer((uint8_t*)buffer + sizeof(SPSCQueueMeta)),
 	capacity(capacity - sizeof(SPSCQueueMeta))
 {
 	if (this->capacity > capacity || this->capacity < 2u)
 		throw RUNTIME_ERROR("Insufficient capacity");
-	if (bws == BufferWrappingStrategy::MASTER) {
+	if (cr == ConcurrencyRole::MASTER) {
 		meta->head = 0;
 		meta->tail = 0;
 	}

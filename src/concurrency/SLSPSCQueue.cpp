@@ -1,16 +1,14 @@
 #include "concurrency/SLSPSCQueue.h"
-#include "concurrency/implementation_details/SPSCQueueMeta.h"
 #include <string.h>
 #include <atomic>
 
 
 using namespace Gicame;
 using namespace Gicame::Concurrency;
-using namespace Gicame::Concurrency::Impl;
 
 
-SLSPSCQueue::SLSPSCQueue(void* buffer, const size_t capacity, const BufferWrappingStrategy bws) :
-	SPSCQueue(buffer, capacity, bws) {}
+SLSPSCQueue::SLSPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr) :
+	SPSCQueue(buffer, capacity, cr) {}
 
 SLSPSCQueue::~SLSPSCQueue() {}
 

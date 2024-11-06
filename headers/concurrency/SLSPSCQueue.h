@@ -22,7 +22,7 @@ namespace Gicame::Concurrency {
 		GICAME_API virtual void waitFreeSpace(const size_t dataSize) override final;
 
 	public:
-		GICAME_API SLSPSCQueue(void* buffer, const size_t capacity, const BufferWrappingStrategy bws);
+		GICAME_API SLSPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr);
 		GICAME_API virtual ~SLSPSCQueue() override final;
 
 	};

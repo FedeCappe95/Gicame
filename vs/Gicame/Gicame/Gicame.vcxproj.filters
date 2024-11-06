@@ -204,6 +204,12 @@
     <ClInclude Include="..\..\..\headers\concurrency\TaskExecutor.hpp">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\InterprocessQueue.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\ConcurrencyRole.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -252,6 +258,9 @@
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\concurrency\TaskExecutor.cpp">
+      <Filter>File di origine\concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\concurrency\InterprocessQueue.cpp">
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
   </ItemGroup>
