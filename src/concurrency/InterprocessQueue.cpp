@@ -53,11 +53,10 @@ void InterprocessQueue::notifyFreeSpace() {
 
 InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr) :
 	capacity(capacity),
-	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::SPSCQueueMeta)),
-	sem(std::string("iq_sem_") + name, 1)
+	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::SPSCQueueMeta))
 {
 	if (capacity < 1u)
-		RUNTIME_ERROR("Invalid capacity");
+		throw RUNTIME_ERROR("Invalid capacity");
 
 	if (cr == ConcurrencyRole::MASTER) {
 		shmem.open(true);
@@ -74,10 +73,7 @@ InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capac
 	const std::string dataFreeEventName = std::string("iq_dataFreeEvent_") + name;
 	dataFreeEvent = CreateEventA(NULL, FALSE, FALSE, dataFreeEventName.c_str());
 	if (dataPresentEvent == INVALID_HANDLE_VALUE || dataFreeEvent == INVALID_HANDLE_VALUE)
-		RUNTIME_ERROR("CreateEventA(...) failed");
-
-	mutex = CreateMutexA(NULL, cr == ConcurrencyRole::MASTER, "testmutex");
-	ReleaseMutex(mutex);
+		throw RUNTIME_ERROR("CreateEventA(...) failed");
 #endif
 }
 

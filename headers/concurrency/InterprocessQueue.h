@@ -28,11 +28,9 @@ namespace Gicame::Concurrency {
 	private:
 		const size_t capacity;
 		Gicame::SharedMemory shmem;
-		Gicame::Semaphore sem;
 #ifdef WINDOWS
 		void* dataPresentEvent;
 		void* dataFreeEvent;
-		void* mutex;
 #endif
 
 	private:
