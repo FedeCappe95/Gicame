@@ -9,10 +9,10 @@
 namespace Gicame {
 
 	/**
-	 * Receive data from the other peer. ObjectReceiver does not have to know the data size a
+	 * Receive data from the other peer. ObjectReceiver does not have to know the data bufferSize a
 	 * priori: this information is sent before the data itself.
 	 */
-	class ObjectReceiver : public IReceiver {
+	class ObjectReceiver {
 
 	private:
 		IReceiver* receiver;
@@ -20,9 +20,8 @@ namespace Gicame {
 	public:
 		ObjectReceiver(IReceiver* receiver);
 		virtual ~ObjectReceiver() = default;
-		virtual size_t receive(void* buffer, const size_t size) override;
-        virtual std::vector<byte_t> receive(const size_t maxSize) override;
-		virtual bool isReceiverConnected() const override;
+		size_t receiveObject(void* buffer, const size_t bufferSize);
+		bool isReceiverConnected() const;
 
 	};
 
@@ -33,7 +32,7 @@ namespace Gicame {
 
 	 inline ObjectReceiver::ObjectReceiver(IReceiver* receiver) : receiver(receiver) {}
 
-	 inline size_t ObjectReceiver::receive(void* buffer, const size_t size) {
+	 inline size_t ObjectReceiver::receiveObject(void* buffer, const size_t bufferSize) {
 		 uint64_t incomingObjectSize;
 		 size_t receivedBytes = receiver->receive(&incomingObjectSize, sizeof(incomingObjectSize));
 
@@ -41,9 +40,8 @@ namespace Gicame {
 			 throw RUNTIME_ERROR("Error receiving the incoming object size");
 		 }
 
-		 if (unlikely(incomingObjectSize > size)) {
+		 if (unlikely(incomingObjectSize > bufferSize))
 			 throw RUNTIME_ERROR("Incoming object size greater then buffer size");
-		 }
 
 		 receivedBytes = 0;
 		 do {
@@ -51,13 +49,6 @@ namespace Gicame {
 		 } while (receivedBytes < incomingObjectSize);
 
 		 return receivedBytes;
-	 }
-
-	 inline std::vector<byte_t> ObjectReceiver::receive(const size_t maxSize) {
-         std::vector<byte_t> ret(maxSize, 0u);
-		 const size_t receivedBytes = receive(ret.data(), maxSize);
-         ret.resize(receivedBytes);
-         return ret;
 	 }
 
 	 inline bool ObjectReceiver::isReceiverConnected() const {
