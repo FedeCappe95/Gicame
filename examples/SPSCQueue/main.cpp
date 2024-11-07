@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <thread>
 #include "../../headers/concurrency/SLSPSCQueue.h"
+#include "../../headers/dataTransfer/TextSender.h"
+#include "../../headers/dataTransfer/TextReceiver.h"
 
 
 using namespace Gicame;
@@ -31,6 +33,28 @@ void consumerBody() {
 	std::cout << "consumerBody -> errorCount: " << errorCount << std::endl;
 }
 
+void textProducerBody() {
+	TextSender textSender(&queue);
+
+	for (size_t i = 0; i < ELEM_COUNT; ++i)
+		textSender.sendText(std::to_string(i));
+	std::cout << "textProducerBody -> done" << std::endl;
+}
+
+
+void textConsumerBody() {
+	TextReceiver textReceiver(&queue);
+
+	size_t errorCount = 0;
+	size_t elem;
+	for (size_t i = 0; i < ELEM_COUNT; ++i) {
+		const std::string elem = textReceiver.receiveText();
+		if (elem != std::to_string(i))
+			++errorCount;
+	}
+	std::cout << "textConsumerBody -> errorCount: " << errorCount << std::endl;
+}
+
 
 int main(int argc, char* argv[]) {
 	std::cout << "Gicame example: SLSPSCQueue" << std::endl;
@@ -40,6 +64,12 @@ int main(int argc, char* argv[]) {
 
 	producer.join();
 	consumer.join();
+
+	std::thread textProducer(textProducerBody);
+	std::thread textConsumer(textConsumerBody);
+
+	textProducer.join();
+	textConsumer.join();
 
 	return 0;
 }

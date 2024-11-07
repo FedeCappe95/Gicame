@@ -84,9 +84,6 @@
     <ClInclude Include="pch.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\headers\dataTransfer\ObjectExchanger.h">
-      <Filter>File di intestazione\dataTransfer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectReceiver.h">
       <Filter>File di intestazione\dataTransfer</Filter>
     </ClInclude>
@@ -200,6 +197,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\headers\concurrency\ConcurrencyRole.h">
       <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\TextReceiver.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\headers\dataTransfer\TextSender.h">
+      <Filter>File di intestazione\dataTransfer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

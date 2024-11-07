@@ -34,13 +34,16 @@ namespace Gicame {
 
 	 inline size_t ObjectSender::sendObject(const void* buffer, const size_t size) {
 		 const uint64_t sizeToSend = (uint64_t)size;
-		 size_t sentBytes = sender->send(&sizeToSend, sizeof(sizeToSend));
-		 if (unlikely(sentBytes != sizeof(size)))
-			 throw RUNTIME_ERROR("Error sending outgoing object size");
+		 size_t sentBytes = 0;
+		 const byte_t* bufferToSend = (byte_t*)(&sizeToSend);
+		 do {
+			 sentBytes += sender->send(bufferToSend + sentBytes, sizeof(sizeToSend) - sentBytes);
+		 } while (sentBytes < sizeof(sizeToSend));
 
 		 sentBytes = 0;
+		 bufferToSend = (byte_t*)buffer;
 		 do {
-			 sentBytes += sender->send((byte_t*)buffer + sentBytes, size - sentBytes);
+			 sentBytes += sender->send(bufferToSend + sentBytes, size - sentBytes);
 		 } while(sentBytes < size);
 
 		 return sentBytes;
