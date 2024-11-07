@@ -5,6 +5,7 @@
 #include "../common.h"
 #include "../utils/NotCopyable.h"
 #include "./ConcurrencyRole.h"
+#include "../interfaces/IDataExchanger.h"
 
 
 // Forward declarations
@@ -20,7 +21,7 @@ namespace Gicame::Concurrency {
 	 *
 	 * Implementation: circular buffer
 	 */
-	class SPSCQueue {
+	class SPSCQueue : public IDataExchanger {
 
 		NOT_COPYABLE(SPSCQueue)
 
@@ -40,11 +41,11 @@ namespace Gicame::Concurrency {
 		GICAME_API virtual void pop(void* outBuffer, const size_t dataSize);
 		GICAME_API virtual size_t size();
 
-		template<typename Type>
-		void push(const Type& obj);
-
-		template<typename Type>
-		Type pop();
+		// IDataExchanger interface
+		virtual size_t send(const void* data, const size_t dataSize) override final;
+		virtual bool isSenderConnected() const override final;
+		virtual size_t receive(void* outBuffer, const size_t dataSize) override final;
+		virtual bool isReceiverConnected() const override final;
 
 	};
 
@@ -53,19 +54,19 @@ namespace Gicame::Concurrency {
 	 * Inline implementation
 	 */
 
-	template<typename Type>
-	inline void SPSCQueue::push(const Type& obj) {
-		// TODO: primitive types only are allowed
-		push(&obj, sizeof(obj));
+	inline size_t SPSCQueue::send(const void* data, const size_t dataSize) {
+		push(data, dataSize);
+		return dataSize;
 	}
 
-	template<typename Type>
-	inline Type SPSCQueue::pop() {
-		// TODO: primitive types only are allowed
-		Type obj;
-		pop(&obj, sizeof(obj));
-		return obj;
+	inline bool SPSCQueue::isSenderConnected() const { return true; }
+
+	inline size_t SPSCQueue::receive(void* outBuffer, const size_t dataSize) {
+		pop(outBuffer, dataSize);
+		return dataSize;
 	}
+
+	inline bool SPSCQueue::isReceiverConnected() const { return true; }
 
 };
 

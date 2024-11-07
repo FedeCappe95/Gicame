@@ -15,15 +15,16 @@ constexpr size_t ELEM_COUNT = 64 * 1024 * 1024;  // 64Mi of size_t
 
 void producerBody() {
 	for (size_t i = 0; i < ELEM_COUNT; ++i)
-		queue.push(i);
+		queue.push(&i, sizeof(i));
 	std::cout << "producerBody -> done" << std::endl;
 }
 
 
 void consumerBody() {
 	size_t errorCount = 0;
+	size_t elem;
 	for (size_t i = 0; i < ELEM_COUNT; ++i) {
-		const size_t elem = queue.pop<size_t>();
+		queue.pop(&elem, sizeof(elem));
 		if (elem != i)
 			++errorCount;
 	}
