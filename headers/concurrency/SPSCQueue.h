@@ -37,8 +37,8 @@ namespace Gicame::Concurrency {
 	public:    // Public methods
 		GICAME_API SPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr);
 		GICAME_API virtual ~SPSCQueue();
-		GICAME_API virtual void push(const void* data, const size_t dataSize);
-		GICAME_API virtual void pop(void* outBuffer, const size_t dataSize);
+		GICAME_API virtual void push(const void* data, size_t dataSize);
+		GICAME_API virtual void pop(void* outBuffer, size_t dataSize);
 		GICAME_API virtual size_t size();
 
 		// IDataExchanger interface

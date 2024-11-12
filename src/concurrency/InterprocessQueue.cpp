@@ -79,36 +79,46 @@ InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capac
 
 InterprocessQueue::~InterprocessQueue() {}
 
-void InterprocessQueue::push(const void* data, const size_t dataSize) {
-	waitFreeSpace(dataSize);
+void InterprocessQueue::push(const void* data, size_t dataSize) {
+	while (dataSize) {
+		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
 
-	auto* header = getHeader();
-	uint8_t* buffer = getBuffer();
+		waitFreeSpace(chunkSize);
 
-	const size_t h = header->head.load();
+		auto* header = getHeader();
+		uint8_t* buffer = getBuffer();
 
-	for (size_t i = 0; i < dataSize; ++i)
-		buffer[(h + i) % capacity] = ((uint8_t*)data)[i];
+		const size_t h = header->head.load();
+		for (size_t i = 0; i < chunkSize; ++i)
+			buffer[(h + i) % capacity] = ((uint8_t*)data)[i];
+		header->head.store((h + chunkSize) % capacity);
 
-	header->head.store((h + dataSize) % capacity);
+		notifyElemPresent();
 
-	notifyElemPresent();
+		dataSize -= chunkSize;
+		data = (uint8_t*)(data) + chunkSize;
+	}
 }
 
-void InterprocessQueue::pop(void* outBuffer, const size_t dataSize) {
-	waitElemPresent(dataSize);
+void InterprocessQueue::pop(void* outBuffer, size_t dataSize) {
+	while (dataSize) {
+		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
 
-	auto* header = getHeader();
-	const uint8_t* buffer = getBuffer();
+		waitElemPresent(chunkSize);
 
-	const size_t t = header->tail.load();
+		auto* header = getHeader();
+		const uint8_t* buffer = getBuffer();
 
-	for (size_t i = 0; i < dataSize; ++i)
-		((uint8_t*)outBuffer)[i] = buffer[(t + i) % capacity];
+		const size_t t = header->tail.load();
+		for (size_t i = 0; i < chunkSize; ++i)
+			((uint8_t*)outBuffer)[i] = buffer[(t + i) % capacity];
+		header->tail.store((t + chunkSize) % capacity);
 
-	header->tail.store((t + dataSize) % capacity);
+		notifyFreeSpace();
 
-	notifyFreeSpace();
+		dataSize -= chunkSize;
+		outBuffer = (uint8_t*)(outBuffer)+chunkSize;
+	}
 }
 
 size_t InterprocessQueue::size() {

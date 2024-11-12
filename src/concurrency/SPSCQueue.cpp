@@ -24,20 +24,36 @@ SPSCQueue::SPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole 
 
 SPSCQueue::~SPSCQueue() {}
 
-void SPSCQueue::push(const void* data, const size_t dataSize) {
-	waitFreeSpace(dataSize);
-	const size_t h = meta->head.load();
-	for (size_t i = 0; i < dataSize; ++i)
-		buffer[(h + i) % capacity] = ((uint8_t*)data)[i];
-	meta->head.store((h + dataSize) % capacity);
+void SPSCQueue::push(const void* data, size_t dataSize) {
+	while (dataSize) {
+		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
+
+		waitFreeSpace(chunkSize);
+
+		const size_t h = meta->head.load();
+		for (size_t i = 0; i < chunkSize; ++i)
+			buffer[(h + i) % capacity] = ((uint8_t*)data)[i];
+		meta->head.store((h + chunkSize) % capacity);
+
+		dataSize -= chunkSize;
+		data = (uint8_t*)(data)+chunkSize;
+	}
 }
 
-void SPSCQueue::pop(void* outBuffer, const size_t dataSize) {
-	waitElemPresent(dataSize);
-	const size_t t = meta->tail.load();
-	for (size_t i = 0; i < dataSize; ++i)
-		((uint8_t*)outBuffer)[i] = buffer[(t + i) % capacity];
-	meta->tail.store((t + dataSize) % capacity);
+void SPSCQueue::pop(void* outBuffer, size_t dataSize) {
+	while (dataSize) {
+		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
+
+		waitElemPresent(chunkSize);
+
+		const size_t t = meta->tail.load();
+		for (size_t i = 0; i < chunkSize; ++i)
+			((uint8_t*)outBuffer)[i] = buffer[(t + i) % capacity];
+		meta->tail.store((t + chunkSize) % capacity);
+
+		dataSize -= chunkSize;
+		outBuffer = (uint8_t*)(outBuffer)+chunkSize;
+	}
 }
 
 size_t SPSCQueue::size() {
