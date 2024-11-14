@@ -1,5 +1,5 @@
 #include "concurrency/InterprocessQueue.h"
-#include "concurrency/implementation_details/SPSCQueueMeta.h"
+#include "concurrency/implementation_details/CircularBuffer.h"
 #include <atomic>
 #include <string>
 #ifdef WINDOWS
@@ -11,12 +11,12 @@ using namespace Gicame;
 using namespace Gicame::Concurrency;
 
 
-Gicame::Concurrency::Impl::SPSCQueueMeta* InterprocessQueue::getHeader() {
-	return shmem.getAs<Gicame::Concurrency::Impl::SPSCQueueMeta>();
+Gicame::Concurrency::Impl::CircularBufferDescriptor* InterprocessQueue::getHeader() {
+	return shmem.getAs<Gicame::Concurrency::Impl::CircularBufferDescriptor>();
 }
 
 uint8_t* InterprocessQueue::getBuffer() {
-	return shmem.getAs<uint8_t>() + sizeof(Gicame::Concurrency::Impl::SPSCQueueMeta);
+	return shmem.getAs<uint8_t>() + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor);
 }
 
 void InterprocessQueue::waitElemPresent(const size_t dataSize) {
@@ -53,7 +53,7 @@ void InterprocessQueue::notifyFreeSpace() {
 
 InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr) :
 	capacity(capacity),
-	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::SPSCQueueMeta))
+	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor))
 {
 	if (capacity < 1u)
 		throw RUNTIME_ERROR("Invalid capacity");

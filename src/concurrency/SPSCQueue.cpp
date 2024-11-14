@@ -1,5 +1,5 @@
 #include "concurrency/SPSCQueue.h"
-#include "concurrency/implementation_details/SPSCQueueMeta.h"
+#include "concurrency/implementation_details/CircularBuffer.h"
 #include <string.h>
 #include <atomic>
 
@@ -10,9 +10,9 @@ using namespace Gicame::Concurrency::Impl;
 
 
 SPSCQueue::SPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr) :
-	meta((SPSCQueueMeta*)buffer),
-	buffer((uint8_t*)buffer + sizeof(SPSCQueueMeta)),
-	capacity(capacity - sizeof(SPSCQueueMeta))
+	meta((CircularBufferDescriptor*)buffer),
+	buffer((uint8_t*)buffer + sizeof(CircularBufferDescriptor)),
+	capacity(capacity - sizeof(CircularBufferDescriptor))
 {
 	if (this->capacity > capacity || this->capacity < 2u)
 		throw RUNTIME_ERROR("Insufficient capacity");

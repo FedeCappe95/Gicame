@@ -177,7 +177,7 @@
     <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\headers\concurrency\implementation_details\SPSCQueueMeta.h">
+    <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h">
       <Filter>File di intestazione\concurrency\implementation_details</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\headers\utils\NotCopyable.h">

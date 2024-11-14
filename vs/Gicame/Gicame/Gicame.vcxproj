@@ -437,7 +437,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\headers\common.h" />
     <ClInclude Include="..\..\..\headers\concurrency\ConcurrencyRole.h" />
-    <ClInclude Include="..\..\..\headers\concurrency\implementation_details\SPSCQueueMeta.h" />
+    <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h" />
     <ClInclude Include="..\..\..\headers\concurrency\InterprocessQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h" />

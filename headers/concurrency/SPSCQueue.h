@@ -10,7 +10,7 @@
 
 // Forward declarations
 namespace Gicame::Concurrency::Impl {
-	struct SPSCQueueMeta;
+	struct CircularBufferDescriptor;
 }
 
 
@@ -26,7 +26,7 @@ namespace Gicame::Concurrency {
 		NOT_COPYABLE(SPSCQueue)
 
 	protected:  // Protected data members
-		Impl::SPSCQueueMeta* meta;
+		Impl::CircularBufferDescriptor* meta;
 		uint8_t* const buffer;
 		const size_t capacity;
 

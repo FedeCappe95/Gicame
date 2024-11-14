@@ -12,7 +12,7 @@
 
 
 namespace Gicame::Concurrency::Impl {
-	struct SPSCQueueMeta;
+	struct CircularBufferDescriptor;
 };
 
 
@@ -39,7 +39,7 @@ namespace Gicame::Concurrency {
 		void waitFreeSpace(const size_t dataSize);
 		void notifyElemPresent();
 		void notifyFreeSpace();
-		Gicame::Concurrency::Impl::SPSCQueueMeta* getHeader();
+		Gicame::Concurrency::Impl::CircularBufferDescriptor* getHeader();
 		uint8_t* getBuffer();
 
 	public:
