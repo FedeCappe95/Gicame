@@ -439,9 +439,11 @@
     <ClInclude Include="..\..\..\headers\concurrency\ConcurrencyRole.h" />
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h" />
     <ClInclude Include="..\..\..\headers\concurrency\InterprocessQueue.h" />
+    <ClInclude Include="..\..\..\headers\concurrency\InterprocessSignal.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\TaskExecutor.hpp" />
+    <ClInclude Include="..\..\..\headers\concurrency\WaitResult.h" />
     <ClInclude Include="..\..\..\headers\dataSerialization\BinarySerializer.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectReceiver.h" />
     <ClInclude Include="..\..\..\headers\dataTransfer\ObjectSender.h" />
@@ -481,6 +483,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\common.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\InterprocessQueue.cpp" />
+    <ClCompile Include="..\..\..\src\concurrency\InterprocessSignal.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\SLSPSCQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\SPSCQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\TaskExecutor.cpp" />

@@ -16,7 +16,6 @@ namespace Gicame::Concurrency::Impl {
 };
 
 
-// Help-functions usefull in some classes
 namespace Gicame::Concurrency {
 
 	/**

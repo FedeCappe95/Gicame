@@ -46,7 +46,6 @@ void textConsumerBody() {
 	TextReceiver textReceiver(&queue);
 
 	size_t errorCount = 0;
-	size_t elem;
 	for (size_t i = 0; i < ELEM_COUNT; ++i) {
 		const std::string elem = textReceiver.receiveText();
 		if (elem != std::to_string(i))

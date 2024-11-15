@@ -11,7 +11,7 @@ SUB_DIRS         = $(sort $(dir $(wildcard ./src/*/)))
 SUB_DIRS_CRYPTO  = $(sort $(dir $(wildcard ./src/crypto/*/)))
 
 HEADERS = $(echo headers/*.h)
-GICAME_OBJ_FILES = $(BUILD_DIR)/common.o $(BUILD_DIR)/device/Serial.o $(BUILD_DIR)/network/NetworkDefinitions.o $(BUILD_DIR)/network/NetworkUtility.o $(BUILD_DIR)/network/TcpListeningSocket.o $(BUILD_DIR)/network/TcpSocket.o $(BUILD_DIR)/os/ErrorHandling.o $(BUILD_DIR)/os/NamedPipe.o $(BUILD_DIR)/rpc/RpcClient.o $(BUILD_DIR)/rpc/RpcServer.o $(BUILD_DIR)/sm/SharedMemory.o $(BUILD_DIR)/sm/Semaphore.o $(BUILD_DIR)/concurrency/TaskExecutor.o $(BUILD_DIR)/concurrency/SLSPSCQueue.o $(BUILD_DIR)/concurrency/SPSCQueue.o
+GICAME_OBJ_FILES = $(BUILD_DIR)/common.o $(BUILD_DIR)/device/Serial.o $(BUILD_DIR)/network/NetworkDefinitions.o $(BUILD_DIR)/network/NetworkUtility.o $(BUILD_DIR)/network/TcpListeningSocket.o $(BUILD_DIR)/network/TcpSocket.o $(BUILD_DIR)/os/ErrorHandling.o $(BUILD_DIR)/os/NamedPipe.o $(BUILD_DIR)/rpc/RpcClient.o $(BUILD_DIR)/rpc/RpcServer.o $(BUILD_DIR)/sm/SharedMemory.o $(BUILD_DIR)/sm/Semaphore.o $(BUILD_DIR)/concurrency/TaskExecutor.o $(BUILD_DIR)/concurrency/SLSPSCQueue.o $(BUILD_DIR)/concurrency/SPSCQueue.o $(BUILD_DIR)/concurrency/InterprocessSignal.o
 GICAME_CRYPTO_OBJ_FILES = $(BUILD_DIR)/crypto/certificate/X509Certificate.o $(BUILD_DIR)/crypto/certificate/X509Store.o $(BUILD_DIR)/crypto/dh/DiffieHellman.o $(BUILD_DIR)/crypto/ds/Signer.o $(BUILD_DIR)/crypto/ds/Verifier.o $(BUILD_DIR)/crypto/encryption/Decryptor.o $(BUILD_DIR)/crypto/encryption/Encryptor.o $(BUILD_DIR)/crypto/hash/HashCalculator.o $(BUILD_DIR)/crypto/hash/HmacCalculator.o $(BUILD_DIR)/crypto/key/EvpKey.o $(BUILD_DIR)/crypto/key/SymmetricKey.o $(BUILD_DIR)/crypto/random/Random.o
 
 
