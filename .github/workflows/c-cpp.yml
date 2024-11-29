@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: make clean
+      run: make clean
     - name: make bin/libgicame.so
       run: make bin/libgicame.so
