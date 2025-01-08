@@ -58,13 +58,13 @@ InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capac
 	if (capacity < 1u)
 		throw RUNTIME_ERROR("Invalid capacity");
 
+	const bool success = shmem.open(cr == ConcurrencyRole::MASTER);
+	if (!success)
+		throw RUNTIME_ERROR("Unable to open shared memory");
+
 	if (cr == ConcurrencyRole::MASTER) {
-		shmem.open(true);
 		getHeader()->head = 0;
 		getHeader()->tail = 0;
-	}
-	else {
-		shmem.open(false);
 	}
 
 #ifdef WINDOWS
