@@ -10,6 +10,9 @@
 #include <string>
 
 
+namespace Gicame::Concurrency::Impl { struct PosixMutexCV; };
+
+
 namespace Gicame::Concurrency {
 
 	class InterprocessSignal {
@@ -21,6 +24,7 @@ namespace Gicame::Concurrency {
 		void* eventHandle;
 #else
 		Gicame::SharedMemory shmem;
+		Impl::PosixMutexCV* sharedData;
 #endif
 
 	public:

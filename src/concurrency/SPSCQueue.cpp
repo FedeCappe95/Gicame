@@ -9,58 +9,71 @@ using namespace Gicame::Concurrency;
 using namespace Gicame::Concurrency::Impl;
 
 
-SPSCQueue::SPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr) :
-	meta((CircularBufferDescriptor*)buffer),
-	buffer((uint8_t*)buffer + sizeof(CircularBufferDescriptor)),
-	capacity(capacity - sizeof(CircularBufferDescriptor))
+SPSCQueue::SPSCQueue(void* buffer_, const size_t capacity_, const ConcurrencyRole cr) :
+	header(std::launder(static_cast<CircularBufferDescriptor*>(buffer_))),
+	buffer(std::launder(static_cast<uint8_t*>(buffer_) + sizeof(CircularBufferDescriptor))),
+	capacity(capacity_ - sizeof(CircularBufferDescriptor))
 {
-	if (this->capacity > capacity || this->capacity < 2u)
+	if (capacity > capacity_ || capacity < 2u)
 		throw RUNTIME_ERROR("Insufficient capacity");
+
+	constexpr ipc_size_t maxCapacity = ~ipc_size_t(0);
+	if (capacity > maxCapacity)
+		throw RUNTIME_ERROR("Capacity too big");
+
 	if (cr == ConcurrencyRole::MASTER) {
-		meta->head = 0;
-		meta->tail = 0;
+		header->head = 0;
+		header->tail = 0;
 	}
 }
 
 SPSCQueue::~SPSCQueue() {}
 
 void SPSCQueue::push(const void* data, size_t dataSize) {
+	const uint8_t* ptr = static_cast<const uint8_t*>(data);
+
 	while (dataSize) {
 		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
 
 		waitFreeSpace(chunkSize);
 
-		const size_t h = meta->head.load();
+		const ipc_size_t h = header->head.load();
+
 		for (size_t i = 0; i < chunkSize; ++i)
-			buffer[(h + i) % capacity] = ((uint8_t*)data)[i];
-		meta->head.store((h + chunkSize) % capacity);
+			buffer[(h + i) % capacity] = ptr[i];
+
+		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
 
 		dataSize -= chunkSize;
-		data = (uint8_t*)(data)+chunkSize;
+		ptr = ptr + chunkSize;
 	}
 }
 
 void SPSCQueue::pop(void* outBuffer, size_t dataSize) {
+	uint8_t* ptr = static_cast<uint8_t*>(outBuffer);
+
 	while (dataSize) {
 		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
 
 		waitElemPresent(chunkSize);
 
-		const size_t t = meta->tail.load();
+		const ipc_size_t t = header->tail.load();
+
 		for (size_t i = 0; i < chunkSize; ++i)
-			((uint8_t*)outBuffer)[i] = buffer[(t + i) % capacity];
-		meta->tail.store((t + chunkSize) % capacity);
+			ptr[i] = buffer[(t + i) % capacity];
+
+		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
 
 		dataSize -= chunkSize;
-		outBuffer = (uint8_t*)(outBuffer)+chunkSize;
+		ptr += chunkSize;
 	}
 }
 
 size_t SPSCQueue::size() {
-	const size_t h = meta->head.load();
-	const size_t t = meta->tail.load();
+	const ipc_size_t h = header->head.load();
+	const ipc_size_t t = header->tail.load();
 	if (h >= t)
-		return h - t;
+		return static_cast<size_t>(h - t);
 	else
-		return capacity - (t - h);
+		return static_cast<size_t>(capacity - (t - h));
 }

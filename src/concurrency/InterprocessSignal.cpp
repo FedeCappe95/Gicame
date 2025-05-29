@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
+#include <new>
 #endif
 
 
@@ -14,9 +15,13 @@ using namespace Gicame::Concurrency;
 
 #ifndef WINDOWS
 
-struct PosixMutexCV {
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
+namespace Gicame::Concurrency::Impl {
+
+	struct PosixMutexCV {
+		pthread_mutex_t mutex;
+		pthread_cond_t cond;
+	};
+
 };
 
 #endif
@@ -26,7 +31,8 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 #ifdef WINDOWS
 	eventHandle(NULL)
 #else
-	shmem(std::string("is_shmem_") + name, sizeof(PosixMutexCV))
+	shmem(std::string("is_shmem_") + name, sizeof(PosixMutexCV)),
+	sharedData(NULL)
 #endif
 {
 #ifdef WINDOWS
@@ -41,7 +47,7 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 		throw RUNTIME_ERROR("Cannot create shared memory");
 	shmem.setUnlinkOnDestruction(cr == ConcurrencyRole::MASTER);
 
-	PosixMutexCV* sharedData = shmem.getAs<PosixMutexCV>();
+	sharedData = std::launder(shmem.getAs<PosixMutexCV>());
 
 	// mutex initialization
 	pthread_mutexattr_t mutexAttr;
@@ -63,15 +69,13 @@ Gicame::Concurrency::InterprocessSignal::~InterprocessSignal() {
 #endif
 }
 
-GICAME_API WaitResult Gicame::Concurrency::InterprocessSignal::wait()
+WaitResult Gicame::Concurrency::InterprocessSignal::wait()
 {
 #ifdef WINDOWS
 	const DWORD waitResult = WaitForSingleObject(eventHandle, INFINITE);
 	if (waitResult == WAIT_TIMEOUT) return WaitResult::TIMEOUT_ELAPSED;
 	if (waitResult == WAIT_FAILED) return WaitResult::FAILED;
 #else
-	PosixMutexCV* sharedData = shmem.getAs<PosixMutexCV>();
-
 	int errorCode = pthread_mutex_lock(&(sharedData->mutex));
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_lock failed");
@@ -88,13 +92,11 @@ GICAME_API WaitResult Gicame::Concurrency::InterprocessSignal::wait()
 	return WaitResult::OK;
 }
 
-GICAME_API void Gicame::Concurrency::InterprocessSignal::signal()
+void Gicame::Concurrency::InterprocessSignal::signal()
 {
 #ifdef WINDOWS
 	SetEvent(eventHandle);
 #else
-	PosixMutexCV* sharedData = shmem.getAs<PosixMutexCV>();
-
 	int errorCode = pthread_mutex_lock(&(sharedData->mutex));
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_lock failed");

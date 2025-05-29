@@ -8,6 +8,7 @@
 #include "../sm/Semaphore.h"
 #include "../sm/SharedMemory.h"
 #include "../interfaces/IDataExchanger.h"
+#include "./InterprocessSignal.h"
 #include <string>
 
 
@@ -26,20 +27,16 @@ namespace Gicame::Concurrency {
 		NOT_COPYABLE(InterprocessQueue)
 
 	private:
+		Gicame::Concurrency::Impl::CircularBufferDescriptor* header;
+		uint8_t* buffer;
 		const size_t capacity;
 		Gicame::SharedMemory shmem;
-#ifdef WINDOWS
-		void* dataPresentEvent;
-		void* dataFreeEvent;
-#endif
+		InterprocessSignal dataPresentEvent;
+		InterprocessSignal dataFreeEvent;
 
 	private:
 		void waitElemPresent(const size_t dataSize);
 		void waitFreeSpace(const size_t dataSize);
-		void notifyElemPresent();
-		void notifyFreeSpace();
-		Gicame::Concurrency::Impl::CircularBufferDescriptor* getHeader();
-		uint8_t* getBuffer();
 
 	public:
 		GICAME_API InterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr);

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <thread>
 #include "../../headers/concurrency/SLSPSCQueue.h"
+#include "../../headers/concurrency/InterprocessQueue.h"
 #include "../../headers/dataTransfer/TextSender.h"
 #include "../../headers/dataTransfer/TextReceiver.h"
 
@@ -12,6 +13,7 @@ using namespace Gicame::Concurrency;
 
 uint8_t buffer[8 * 1024 * 1024];  // 8MiB buffer
 SLSPSCQueue queue(buffer, sizeof(buffer), Gicame::Concurrency::ConcurrencyRole::MASTER);
+InterprocessQueue ipcQueue("IPC1", 8 * 1024 * 1024, Gicame::Concurrency::ConcurrencyRole::MASTER);
 constexpr size_t ELEM_COUNT = 64 * 1024 * 1024;  // 64Mi of size_t
 
 
@@ -31,6 +33,23 @@ void consumerBody() {
 			++errorCount;
 	}
 	std::cout << "consumerBody -> errorCount: " << errorCount << std::endl;
+}
+
+void producerBodyIpc() {
+	for (size_t i = 0; i < ELEM_COUNT; ++i)
+		ipcQueue.push(&i, sizeof(i));
+	std::cout << "producerBodyIpc -> done" << std::endl;
+}
+
+void consumerBodyIpc() {
+	size_t errorCount = 0;
+	size_t elem;
+	for (size_t i = 0; i < ELEM_COUNT; ++i) {
+		ipcQueue.pop(&elem, sizeof(elem));
+		if (elem != i)
+			++errorCount;
+	}
+	std::cout << "consumerBodyIpc -> errorCount: " << errorCount << std::endl;
 }
 
 void textProducerBody() {
@@ -60,13 +79,16 @@ int main(int argc, char* argv[]) {
 
 	std::thread producer(producerBody);
 	std::thread consumer(consumerBody);
-
 	producer.join();
 	consumer.join();
 
+	std::thread ipcProducer(producerBodyIpc);
+	std::thread ipcConsumer(consumerBodyIpc);
+	ipcProducer.join();
+	ipcConsumer.join();
+
 	std::thread textProducer(textProducerBody);
 	std::thread textConsumer(textConsumerBody);
-
 	textProducer.join();
 	textConsumer.join();
 

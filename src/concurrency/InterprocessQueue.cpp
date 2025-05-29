@@ -2,6 +2,7 @@
 #include "concurrency/implementation_details/CircularBuffer.h"
 #include <atomic>
 #include <string>
+#include <new>
 #ifdef WINDOWS
 #include <Windows.h>
 #endif
@@ -11,20 +12,10 @@ using namespace Gicame;
 using namespace Gicame::Concurrency;
 
 
-Gicame::Concurrency::Impl::CircularBufferDescriptor* InterprocessQueue::getHeader() {
-	return shmem.getAs<Gicame::Concurrency::Impl::CircularBufferDescriptor>();
-}
-
-uint8_t* InterprocessQueue::getBuffer() {
-	return shmem.getAs<uint8_t>() + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor);
-}
-
 void InterprocessQueue::waitElemPresent(const size_t dataSize) {
 	size_t present = size();
 	while (present < dataSize) {
-#ifdef WINDOWS
-		WaitForSingleObject(dataPresentEvent, INFINITE);
-#endif
+		dataPresentEvent.wait();
 		present = size();
 	}
 }
@@ -32,103 +23,92 @@ void InterprocessQueue::waitElemPresent(const size_t dataSize) {
 void InterprocessQueue::waitFreeSpace(const size_t dataSize) {
 	size_t free = freeSpace();
 	while (free < dataSize) {
-#ifdef WINDOWS
-		WaitForSingleObject(dataFreeEvent, INFINITE);
-#endif
+		dataFreeEvent.wait();
 		free = freeSpace();
 	}
 }
 
-void InterprocessQueue::notifyElemPresent() {
-#ifdef WINDOWS
-	SetEvent(dataPresentEvent);
-#endif
-}
-
-void InterprocessQueue::notifyFreeSpace() {
-#ifdef WINDOWS
-	SetEvent(dataFreeEvent);
-#endif
-}
-
 InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr) :
+	header(NULL),
+	buffer(NULL),
 	capacity(capacity),
-	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor))
+	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor)),
+	dataPresentEvent(std::string("iq_dataPresentEvent_") + name, cr),
+	dataFreeEvent(std::string("iq_dataFreeEvent_") + name, cr)
 {
 	if (capacity < 1u)
-		throw RUNTIME_ERROR("Invalid capacity");
+		throw RUNTIME_ERROR("Insufficient capacity");
+
+	constexpr ipc_size_t maxCapacity = ~ipc_size_t(0);
+	if (capacity > maxCapacity)
+		throw RUNTIME_ERROR("Capacity too big");
 
 	const bool success = shmem.open(cr == ConcurrencyRole::MASTER);
 	if (!success)
 		throw RUNTIME_ERROR("Unable to open shared memory");
 
-	if (cr == ConcurrencyRole::MASTER) {
-		getHeader()->head = 0;
-		getHeader()->tail = 0;
-	}
+	header = std::launder(shmem.getAs<Gicame::Concurrency::Impl::CircularBufferDescriptor>());
+	buffer = std::launder(shmem.getAs<uint8_t>() + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor));
 
-#ifdef WINDOWS
-	const std::string dataPresentEventName = std::string("iq_dataPresentEvent_") + name;
-	dataPresentEvent = CreateEventA(NULL, FALSE, FALSE, dataPresentEventName.c_str());
-	const std::string dataFreeEventName = std::string("iq_dataFreeEvent_") + name;
-	dataFreeEvent = CreateEventA(NULL, FALSE, FALSE, dataFreeEventName.c_str());
-	if (dataPresentEvent == INVALID_HANDLE_VALUE || dataFreeEvent == INVALID_HANDLE_VALUE)
-		throw RUNTIME_ERROR("CreateEventA(...) failed");
-#endif
+	if (cr == ConcurrencyRole::MASTER) {
+		header->head = 0;
+		header->tail = 0;
+	}
 }
 
 InterprocessQueue::~InterprocessQueue() {}
 
 void InterprocessQueue::push(const void* data, size_t dataSize) {
+	const uint8_t* ptr = static_cast<const uint8_t*>(data);
+
 	while (dataSize) {
 		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
 
 		waitFreeSpace(chunkSize);
 
-		auto* header = getHeader();
-		uint8_t* buffer = getBuffer();
+		const ipc_size_t h = header->head.load();
 
-		const size_t h = header->head.load();
 		for (size_t i = 0; i < chunkSize; ++i)
-			buffer[(h + i) % capacity] = ((uint8_t*)data)[i];
-		header->head.store((h + chunkSize) % capacity);
+			buffer[(h + i) % capacity] = ptr[i];
 
-		notifyElemPresent();
+		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
+
+		dataPresentEvent.signal();
 
 		dataSize -= chunkSize;
-		data = (uint8_t*)(data) + chunkSize;
+		ptr = ptr + chunkSize;
 	}
 }
 
 void InterprocessQueue::pop(void* outBuffer, size_t dataSize) {
+	uint8_t* ptr = static_cast<uint8_t*>(outBuffer);
+
 	while (dataSize) {
 		const size_t chunkSize = likely(dataSize < (capacity - 1u)) ? dataSize : (capacity - 1u);
 
 		waitElemPresent(chunkSize);
 
-		auto* header = getHeader();
-		const uint8_t* buffer = getBuffer();
+		const ipc_size_t t = header->tail.load();
 
-		const size_t t = header->tail.load();
 		for (size_t i = 0; i < chunkSize; ++i)
-			((uint8_t*)outBuffer)[i] = buffer[(t + i) % capacity];
-		header->tail.store((t + chunkSize) % capacity);
+			ptr[i] = buffer[(t + i) % capacity];
 
-		notifyFreeSpace();
+		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
+
+		dataFreeEvent.signal();
 
 		dataSize -= chunkSize;
-		outBuffer = (uint8_t*)(outBuffer)+chunkSize;
+		ptr += chunkSize;
 	}
 }
 
 size_t InterprocessQueue::size() {
-	const auto* header = getHeader();
-	const size_t h = header->head.load();
-	const size_t t = header->tail.load();
+	const ipc_size_t h = header->head.load();
+	const ipc_size_t t = header->tail.load();
 	if (h >= t)
-		return h - t;
+		return static_cast<size_t>(h - t);
 	else
-		return capacity - (t - h);
+		return static_cast<size_t>(capacity - (t - h));
 }
 
 size_t InterprocessQueue::freeSpace() {

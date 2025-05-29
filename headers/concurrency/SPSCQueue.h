@@ -26,8 +26,8 @@ namespace Gicame::Concurrency {
 		NOT_COPYABLE(SPSCQueue)
 
 	protected:  // Protected data members
-		Impl::CircularBufferDescriptor* meta;
-		uint8_t* const buffer;
+		Impl::CircularBufferDescriptor* header;
+		uint8_t* buffer;
 		const size_t capacity;
 
 	protected:  // Protected data members
@@ -35,7 +35,7 @@ namespace Gicame::Concurrency {
 		virtual void waitFreeSpace(const size_t dataSize) = 0;
 
 	public:    // Public methods
-		GICAME_API SPSCQueue(void* buffer, const size_t capacity, const ConcurrencyRole cr);
+		GICAME_API SPSCQueue(void* buffer_, const size_t capacity_, const ConcurrencyRole cr);
 		GICAME_API virtual ~SPSCQueue();
 		GICAME_API virtual void push(const void* data, size_t dataSize);
 		GICAME_API virtual void pop(void* outBuffer, size_t dataSize);
