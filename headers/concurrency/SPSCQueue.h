@@ -28,7 +28,7 @@ namespace Gicame::Concurrency {
 	protected:  // Protected data members
 		Impl::CircularBufferDescriptor* header;
 		uint8_t* buffer;
-		const size_t capacity;
+		size_t capacity;
 
 	protected:  // Protected data members
 		virtual void waitElemPresent(const size_t dataSize) = 0;

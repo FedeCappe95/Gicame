@@ -1,7 +1,9 @@
 #include "concurrency/SPSCQueue.h"
 #include "concurrency/implementation_details/CircularBuffer.h"
+#include "utils/Memory.h"
 #include <string.h>
 #include <atomic>
+#include <memory>
 
 
 using namespace Gicame;
@@ -10,16 +12,23 @@ using namespace Gicame::Concurrency::Impl;
 
 
 SPSCQueue::SPSCQueue(void* buffer_, const size_t capacity_, const ConcurrencyRole cr) :
-	header(std::launder(static_cast<CircularBufferDescriptor*>(buffer_))),
-	buffer(std::launder(static_cast<uint8_t*>(buffer_) + sizeof(CircularBufferDescriptor))),
-	capacity(capacity_ - sizeof(CircularBufferDescriptor))
+	header(NULL),
+	buffer(NULL),
+	capacity(0)
 {
-	if (capacity > capacity_ || capacity < 2u)
-		throw RUNTIME_ERROR("Insufficient capacity");
-
 	constexpr ipc_size_t maxCapacity = ~ipc_size_t(0);
 	if (capacity > maxCapacity)
 		throw RUNTIME_ERROR("Capacity too big");
+
+	const auto [memPtr, newSize] = Utilities::align<CircularBufferDescriptor>(buffer_, capacity_);
+	if (!memPtr)
+		throw RUNTIME_ERROR("Insufficient capacity");
+
+	header = new (memPtr) CircularBufferDescriptor;
+	buffer = Utilities::advance<uint8_t>(memPtr, sizeof(CircularBufferDescriptor));
+	capacity = newSize - sizeof(CircularBufferDescriptor);
+	if (capacity < 2u)
+		throw RUNTIME_ERROR("Insufficient capacity");
 
 	if (cr == ConcurrencyRole::MASTER) {
 		header->head = 0;

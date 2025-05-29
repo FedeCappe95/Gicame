@@ -1,5 +1,6 @@
 #include "concurrency/InterprocessQueue.h"
 #include "concurrency/implementation_details/CircularBuffer.h"
+#include "utils/Memory.h"
 #include <atomic>
 #include <string>
 #include <new>
@@ -10,6 +11,7 @@
 
 using namespace Gicame;
 using namespace Gicame::Concurrency;
+using namespace Gicame::Concurrency::Impl;
 
 
 void InterprocessQueue::waitElemPresent(const size_t dataSize) {
@@ -28,27 +30,31 @@ void InterprocessQueue::waitFreeSpace(const size_t dataSize) {
 	}
 }
 
-InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr) :
+InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capacity_, const ConcurrencyRole cr) :
 	header(NULL),
 	buffer(NULL),
-	capacity(capacity),
-	shmem(std::string("iq_shmem_") + name, capacity + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor)),
+	capacity(0),
+	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor)),
 	dataPresentEvent(std::string("iq_dataPresentEvent_") + name, cr),
 	dataFreeEvent(std::string("iq_dataFreeEvent_") + name, cr)
 {
-	if (capacity < 1u)
-		throw RUNTIME_ERROR("Insufficient capacity");
-
 	constexpr ipc_size_t maxCapacity = ~ipc_size_t(0);
-	if (capacity > maxCapacity)
+	if (capacity_ > maxCapacity)
 		throw RUNTIME_ERROR("Capacity too big");
 
 	const bool success = shmem.open(cr == ConcurrencyRole::MASTER);
 	if (!success)
 		throw RUNTIME_ERROR("Unable to open shared memory");
 
-	header = std::launder(shmem.getAs<Gicame::Concurrency::Impl::CircularBufferDescriptor>());
-	buffer = std::launder(shmem.getAs<uint8_t>() + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor));
+	const auto[memPtr, newSize] = Utilities::align<CircularBufferDescriptor>(shmem.get(), shmem.getSize());
+	if (!memPtr)
+		throw RUNTIME_ERROR("Insufficient capacity");
+
+	header = new (memPtr) CircularBufferDescriptor;
+	buffer = Utilities::advance<uint8_t>(memPtr, sizeof(CircularBufferDescriptor));
+	capacity = newSize - sizeof(CircularBufferDescriptor);
+	if (capacity < 2u)
+		throw RUNTIME_ERROR("Insufficient capacity");
 
 	if (cr == ConcurrencyRole::MASTER) {
 		header->head = 0;

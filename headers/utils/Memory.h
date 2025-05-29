@@ -4,6 +4,9 @@
 
 #include "../common.h"
 #include <stdint.h>
+#include <new>
+#include <memory>
+#include <tuple>
 
 
 // Classes and structs (utilities)
@@ -24,6 +27,22 @@ namespace Gicame::Utilities {
 
 #endif
     }
+
+	template <typename T>
+	static inline std::tuple<void*, size_t> align(void* ptr, size_t size) {
+		ptr = std::align(alignof(T), sizeof(T), ptr, size);
+		return { ptr, size ? size : 0u };
+	}
+
+	template <typename Ret = void>
+	static inline const Ret* advance(const void* ptr, const size_t displacement) {
+		return static_cast<const Ret*>(static_cast<const uint8_t*>(ptr) + displacement);
+	}
+
+	template <typename Ret = void>
+	static inline Ret* advance(void* ptr, const size_t displacement) {
+		return static_cast<Ret*>(static_cast<uint8_t*>(ptr) + displacement);
+	}
 
 }
 

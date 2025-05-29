@@ -1,4 +1,5 @@
 #include "concurrency/InterprocessSignal.h"
+#include "utils/Memory.h"
 #ifdef WINDOWS
 #include <Windows.h>
 #else
@@ -11,6 +12,7 @@
 
 using namespace Gicame;
 using namespace Gicame::Concurrency;
+using namespace Gicame::Concurrency::Impl;
 
 
 #ifndef WINDOWS
@@ -47,7 +49,11 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 		throw RUNTIME_ERROR("Cannot create shared memory");
 	shmem.setUnlinkOnDestruction(cr == ConcurrencyRole::MASTER);
 
-	sharedData = std::launder(shmem.getAs<PosixMutexCV>());
+	const auto[memPtr, newSize] = Utilities::align<PosixMutexCV>(shmem.get(), shmem.size());
+	if (!memPtr)
+		throw RUNTIME_ERROR("Unaligned shared memory error");
+
+	sharedData = new (memPtr) PosixMutexCV;
 
 	// mutex initialization
 	pthread_mutexattr_t mutexAttr;

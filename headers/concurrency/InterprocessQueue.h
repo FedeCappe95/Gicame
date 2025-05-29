@@ -29,7 +29,7 @@ namespace Gicame::Concurrency {
 	private:
 		Gicame::Concurrency::Impl::CircularBufferDescriptor* header;
 		uint8_t* buffer;
-		const size_t capacity;
+		size_t capacity;
 		Gicame::SharedMemory shmem;
 		InterprocessSignal dataPresentEvent;
 		InterprocessSignal dataFreeEvent;
