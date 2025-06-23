@@ -49,7 +49,7 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 		throw RUNTIME_ERROR("Cannot create shared memory");
 	shmem.setUnlinkOnDestruction(cr == ConcurrencyRole::MASTER);
 
-	const auto[memPtr, newSize] = Utilities::align<PosixMutexCV>(shmem.get(), shmem.size());
+	const auto[memPtr, newSize] = Utilities::align<PosixMutexCV>(shmem.get(), shmem.getSize());
 	if (!memPtr)
 		throw RUNTIME_ERROR("Unaligned shared memory error");
 

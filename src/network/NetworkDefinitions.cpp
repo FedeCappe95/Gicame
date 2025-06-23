@@ -1,7 +1,7 @@
 #include <sstream>
 #include <iomanip>
+#include "common.h"
 #include "network/NetworkDefinitions.h"
-
 
 #ifdef WINDOWS
 #include <Ws2tcpip.h>
@@ -15,6 +15,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #endif
+
+#include <cstring>
 
 
 #ifdef WINDOWS
@@ -74,9 +76,13 @@ IPv6 IPv6::fromIPv4(const IPv4& ipv4) {
     for (size_t i = 4; i < ipv6.value.size(); ++i)
         ipv6.value[i] = 0;
 
+#ifdef MSVC
 #pragma warning (push, 0)
+#endif
     memcpy(ipv6.value.data(), &(ipv4.value), sizeof(ipv4.value));
+#ifdef MSVC
 #pragma warning (pop)
+#endif
 
     return ipv6;
 }
