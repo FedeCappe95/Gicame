@@ -45,10 +45,12 @@ in_addr IPv4::toInAddr() const {
 std::string MacAddress::toString() const {
     std::stringstream ss;
     ss << std::hex;
-    uint32_t i;
-    for (i = 0; i < sizeof(byteValues) - 1; ++i)
-        ss << std::setfill('0') << std::setw(2) << (unsigned int)byteValues[i] << ":";
-    ss << std::setfill('0') << std::setw(2) << (unsigned int)byteValues[i];
+
+    uint64_t tempValue = value;
+    for (size_t i = 0; i < 5u; ++i, tempValue >>= 8)
+        ss << std::setfill('0') << std::setw(2) << (unsigned int)(tempValue & 0xFFull) << ":";
+    ss << std::setfill('0') << std::setw(2) << (unsigned int)(tempValue & 0xFFull);
+
     return ss.str();
 }
 
@@ -68,8 +70,13 @@ in6_addr IPv6::toIn6Addr() const {
 
 IPv6 IPv6::fromIPv4(const IPv4& ipv4) {
     IPv6 ipv6;
-    *((uint32_t*)ipv6.value) = ipv4.value;
-    for (size_t i = 1u; i < 4u; ++i)
-        ((uint32_t*)ipv6.value)[i] = 0;
+
+    for (size_t i = 4; i < ipv6.value.size(); ++i)
+        ipv6.value[i] = 0;
+
+#pragma warning (push, 0)
+    memcpy(ipv6.value.data(), &(ipv4.value), sizeof(ipv4.value));
+#pragma warning (pop)
+
     return ipv6;
 }
