@@ -51,6 +51,22 @@ namespace Gicame::Serialization {
 			in.read((byte_t*)(&object), sizeof(object));
 		}
 
+		template <typename OType, typename Index, typename PropValue>
+		static inline void serializeProperty(const OType& object, Stream::ByteOStream& out, Index, PropValue pv) {
+			constexpr auto prop = std::get<Index::value>(OType::properties);
+			using PropMemberType = decltype(object.*(prop.member));
+
+			if constexpr (Gicame::Reflection::HasProperies<PropMemberType>::has()) {
+				binarySerialize(pv, out);
+			}
+			else if constexpr (std::is_fundamental<PropMemberType>::value) {
+				Internals::fundamentalToBinary(pv, out);
+			}
+			else {
+				Internals::toBinary(pv, out);
+			}
+		}
+
 	}
 
 	/*
@@ -69,7 +85,8 @@ namespace Gicame::Serialization {
 		Gicame::Reflection::apply_on_index_sequence(propertyIndexes, [&](auto i) {
 			constexpr auto prop = std::get<i>(OType::properties);
 			using PropType = decltype(prop);
-			using PropMemberType = PropType::template MemberType;
+			//using PropMemberType = PropType::template MemberType;  // Makes MSVC crash sometimes...
+			using PropMemberType = decltype(PropType::getPropValueType());  // Workaround
 
 			if constexpr (Gicame::Reflection::HasProperies<PropMemberType>::has()) {
 				binarySerialize(object.*(prop.member), out);
@@ -110,7 +127,8 @@ namespace Gicame::Serialization {
 		Gicame::Reflection::apply_on_index_sequence(propertyIndexes, [&](auto i) {
 			constexpr auto prop = std::get<i>(OType::properties);
 			using PropType = decltype(prop);
-			using PropMemberType = PropType::template MemberType;
+			//using PropMemberType = PropType::template MemberType;  // Makes MSVC crash sometimes...
+			using PropMemberType = decltype(PropType::getPropValueType());  // Workaround
 
 			if constexpr (Gicame::Reflection::HasProperies<PropMemberType>::has()) {
 				binaryDeserialize(object.*(prop.member), in);

@@ -16,6 +16,8 @@ namespace Gicame::Reflection {
 
 		constexpr Property(T Class::*member, const char* name) : member{ member }, name{ name } {}
 
+		static T getPropValueType();
+
 	};
 
 	template<typename Class, typename T>

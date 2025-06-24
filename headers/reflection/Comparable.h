@@ -27,8 +27,6 @@ namespace Gicame::Reflection {
 			// We iterate on the index sequence of size propertyCount
 			apply_on_index_sequence(propertyIndexes, [&](auto i) {
 				constexpr auto prop = std::get<i>(Derived::properties);
-				using PropType = decltype(prop);
-				//using PropMemberType = PropType::template MemberType;  // Makes MSVC crash sometimes
 				equality &= (self.*(prop.member) == o.*(prop.member));
 			});
 
