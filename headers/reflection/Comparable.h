@@ -2,8 +2,9 @@
 #define __GICAME__COMPARABLE_H__
 
 
-#include <type_traits>
 #include "Property.h"
+#include <type_traits>
+#include <utility>
 
 
 namespace Gicame::Reflection {
@@ -27,7 +28,7 @@ namespace Gicame::Reflection {
 			apply_on_index_sequence(propertyIndexes, [&](auto i) {
 				constexpr auto prop = std::get<i>(Derived::properties);
 				using PropType = decltype(prop);
-				using PropMemberType = PropType::template MemberType;
+				//using PropMemberType = PropType::template MemberType;  // Makes MSVC crash sometimes
 				equality &= (self.*(prop.member) == o.*(prop.member));
 			});
 
@@ -36,6 +37,10 @@ namespace Gicame::Reflection {
 
 		inline bool operator==(const Derived& o) const {
 			return equals(o);
+		}
+
+		inline bool operator!=(const Derived& o) const {
+			return !equals(o);
 		}
 
 	};
