@@ -1,14 +1,18 @@
 #define CATCH_CONFIG_MAIN
 #include "catch2/catch_amalgamated.hpp"
 #include "../headers/utils/Numbers.h"
+#include "../headers/utils/Memory.h"
 #include "../headers/serialization/Binary.h"
 #include "../headers/reflection/Property.h"
 #include "../headers/reflection/Comparable.h"
+#include "../headers/sm/SharedMemory.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 #include <array>
+#include <thread>
+#include <new>
 
 
 using namespace Gicame;
@@ -211,4 +215,60 @@ TEST_CASE("Binary serialization", "[serialization]") {
 
     // Check
     REQUIRE(pack2 == deserializedPack2);
+}
+
+TEST_CASE("Shared memory", "[shared memory]") {
+    struct MyData {
+        uint32_t a;
+        float b;
+        std::atomic<bool> readDone;
+        std::atomic<bool> writeDone;
+    };
+
+    SharedMemory sm1("MyMemory", sizeof(MyData));  // Should contain additional space
+    sm1.open(true);
+    const auto [memPtr, newSize] = Utilities::align<MyData>(sm1.get(), sm1.getSize());
+    REQUIRE(memPtr != NULL);
+    REQUIRE(memPtr == sm1.get());  // It should... right? RIGHT? Not always, but leave this for this test and check
+    REQUIRE(newSize >= sizeof(MyData));
+    MyData* myData1 = new (memPtr) MyData;
+    myData1->a = 5;
+    myData1->b = 12.0;
+    myData1->readDone = false;
+    myData1->writeDone = false;
+
+    bool success = false;
+
+    auto peer0 = [&]() {
+        SharedMemory sm("MyMemory", sizeof(MyData));
+        sm.open(false);
+        MyData* myData = std::launder(reinterpret_cast<MyData*>(sm.get()));
+        myData->a = 45;
+        myData->b = 96.5f;
+        myData->writeDone = true;
+        while (!myData->readDone) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        sm.close();
+    };
+
+    auto peer1 = [&]() {
+        SharedMemory sm("MyMemory", sizeof(MyData));
+        sm.open(false);
+        MyData* myData = std::launder(reinterpret_cast<MyData*>(sm.get()));
+        while (!myData->writeDone) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        success = myData->a == 45 && myData->b == 96.5f;
+        myData->readDone = true;
+        sm.close();
+    };
+
+    std::thread t0(peer0);
+    std::thread t1(peer1);
+
+    t0.join();
+    t1.join();
+
+    REQUIRE(success);
 }
