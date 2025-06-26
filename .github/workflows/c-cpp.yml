@@ -13,7 +13,29 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make clean
+    
+    - name: Clean
       run: make clean
-    - name: make bin/libgicame.so
+      
+    - name: Build
       run: make bin/libgicame.so
+      
+    - name: Run tests
+      run: |
+        cd tests
+        chmod +x compile_and_run.sh
+        ./compile_and_run.sh
+        
+    - name: Upload tests results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: tests/results.xml
+        
+    - name: Publish test report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Catch2 Tests
+        path: tests/results.xml
+        reporter: java-junit
