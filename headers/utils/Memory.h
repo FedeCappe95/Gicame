@@ -31,7 +31,7 @@ namespace Gicame::Utilities {
 	template <typename T>
 	static inline std::tuple<void*, size_t> align(void* ptr, size_t size) {
 		ptr = std::align(alignof(T), sizeof(T), ptr, size);
-		return { ptr, size ? size : 0u };
+		return { ptr, ptr ? size : 0u };
 	}
 
 	template <typename Ret = void>
