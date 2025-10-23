@@ -14,6 +14,7 @@
 #include <thread>
 #include <new>
 #include <atomic>
+#include <cstddef>
 
 
 using namespace Gicame;
@@ -219,31 +220,38 @@ TEST_CASE("Binary serialization", "[serialization]") {
 }
 
 TEST_CASE("Shared memory", "[shared memory]") {
+    static size_t constructorCalled;
+    constructorCalled = 0;
+
     struct MyData {
         uint32_t a;
         float b;
         std::atomic<bool> readDone;
         std::atomic<bool> writeDone;
+
+        inline MyData() { ++constructorCalled; }
     };
 
-    SharedMemory sm1("MyMemory", sizeof(MyData));  // Should contain additional space
+    constexpr size_t smSize = sizeof(MyData) + alignof(std::max_align_t);  // To make alignment possible
+
+    SharedMemory sm1("MyMemory", smSize);
     sm1.open(true);
-    const auto [memPtr, newSize] = Utilities::align<MyData>(sm1.get(), sm1.getSize());
-    REQUIRE(memPtr != NULL);
-    REQUIRE(memPtr == sm1.get());  // It should... right? RIGHT? Not always, but leave this for this test and check
-    REQUIRE(newSize >= sizeof(MyData));
-    MyData* myData1 = new (memPtr) MyData;
+    MyData* myData1 = sm1.getAs<MyData>(true);
+    REQUIRE(myData1 != NULL);  // It may fails if sm1 has a capacity exactly of sizeof(MyData)
     myData1->a = 5;
     myData1->b = 12.0;
     myData1->readDone = false;
     myData1->writeDone = false;
 
-    bool success = false;
+    bool peer0success = false;
+    bool peer1success = false;
 
     auto peer0 = [&]() {
-        SharedMemory sm("MyMemory", sizeof(MyData));
+        SharedMemory sm("MyMemory", smSize);
         sm.open(false);
-        MyData* myData = std::launder(reinterpret_cast<MyData*>(sm.get()));
+        MyData* myData = sm.getAs<MyData>(false);
+        if (!myData)
+            return;
         myData->a = 45;
         myData->b = 96.5f;
         myData->writeDone = true;
@@ -251,18 +259,22 @@ TEST_CASE("Shared memory", "[shared memory]") {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         sm.close();
+        peer0success = true;
     };
 
     auto peer1 = [&]() {
-        SharedMemory sm("MyMemory", sizeof(MyData));
+        SharedMemory sm("MyMemory", smSize);
         sm.open(false);
         MyData* myData = std::launder(reinterpret_cast<MyData*>(sm.get()));
+        if (!myData)
+            return;
         while (!myData->writeDone) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        success = myData->a == 45 && myData->b == 96.5f;
+        const bool success = myData->a == 45 && myData->b == 96.5f;
         myData->readDone = true;
         sm.close();
+        peer1success = success;
     };
 
     std::thread t0(peer0);
@@ -271,5 +283,7 @@ TEST_CASE("Shared memory", "[shared memory]") {
     t0.join();
     t1.join();
 
-    REQUIRE(success);
+    REQUIRE(constructorCalled == 1u);
+    REQUIRE(peer0success);
+    REQUIRE(peer1success);
 }

@@ -35,7 +35,7 @@ static void myStrCpy(char* dst, const size_t len, const char* src) {
 static void peer0() {
 	SharedMemory sm("MyMemory", sizeof(MyData));
 	sm.open(true);
-	MyData* myData = sm.getAs<MyData>();
+	MyData* myData = sm.getAs<MyData>(true);
 	myData->a = 5;
 	myData->b = 12.0;
 	myData->readDone = false;
@@ -52,7 +52,7 @@ static void peer0() {
 static void peer1() {
 	SharedMemory sm("MyMemory", sizeof(MyData));
 	sm.open(false);
-	MyData* myData = sm.getAs<MyData>();
+	MyData* myData = sm.getAs<MyData>(false);
 	printMyData(*myData);
 	myData->readDone = true;
 	sm.close();
