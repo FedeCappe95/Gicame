@@ -4,8 +4,18 @@
 #include <atomic>
 #include <string>
 #include <new>
+#include <cstddef>
+#include <algorithm>
 #ifdef WINDOWS
 #include <Windows.h>
+#endif
+
+
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
 #endif
 
 
@@ -34,7 +44,7 @@ InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capac
 	header(NULL),
 	buffer(NULL),
 	capacity(0),
-	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor)),
+	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor) + alignof(std::max_align_t)),
 	dataPresentEvent(std::string("iq_dataPresentEvent_") + name, cr),
 	dataFreeEvent(std::string("iq_dataFreeEvent_") + name, cr)
 {
@@ -53,6 +63,7 @@ InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capac
 	header = new (memPtr) CircularBufferDescriptor;
 	buffer = Utilities::advance<uint8_t>(memPtr, sizeof(CircularBufferDescriptor));
 	capacity = newSize - sizeof(CircularBufferDescriptor);
+	capacity = std::min(capacity, capacity_);  // not to go over capacity_
 	if (capacity < 2u)
 		throw RUNTIME_ERROR("Insufficient capacity");
 
