@@ -14,6 +14,11 @@
 
 namespace Gicame {
 
+	/**
+	 * @brief System level semaphore
+	 *
+	 * It satisfies the Lockable requirements.
+	 */
 	class Semaphore {
 
 	private:
@@ -30,6 +35,9 @@ namespace Gicame {
 		GICAME_API ~Semaphore();
 		GICAME_API bool acquire();
 		GICAME_API bool release();
+		GICAME_API void lock();
+		GICAME_API void unlock();
+		GICAME_API bool try_lock();  // snake_case to match std lib
 		GICAME_API void setUnlinkOnDestruction(bool uod);
 
 	};

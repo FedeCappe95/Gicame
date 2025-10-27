@@ -20,12 +20,6 @@
 #endif
 
 
-// Constants
-#ifdef WINDOWS
-constexpr DWORD ACQUISITION_TIMEOUT = 1;  // 1ms
-#endif
-
-
 using namespace Gicame;
 
 
@@ -118,7 +112,7 @@ bool Semaphore::acquire() {
     //   - returns WAIT_OBJECT_0 and decrements the current semaphore state
     DWORD result;
     do {
-        result = WaitForSingleObject(handle, ACQUISITION_TIMEOUT);
+        result = WaitForSingleObject(handle, INFINITE);
         if (unlikely(result == WAIT_FAILED))
             return false;
     } while (result != WAIT_OBJECT_0);
@@ -155,6 +149,50 @@ bool Semaphore::release() {
     // POSIX semaphore post (increments the semaphore)
     if (unlikely(sem_post(handle) != 0))
         return false;
+
+#endif
+
+    return true;
+}
+
+void Semaphore::lock() {
+    if (!acquire())
+        throw RUNTIME_ERROR("Unable to lock the semaphore");
+}
+
+void Semaphore::unlock() {
+    if (!release())
+        throw RUNTIME_ERROR("Unable to unlock the semaphore");
+}
+
+bool Semaphore::try_lock() {
+#ifdef WINDOWS
+
+    // WaitForSingleObject(...) either:
+    //   - timeouts (and returns WAIT_TIMEOUT) if the current sempahore state is 0 or
+    //   - returns WAIT_OBJECT_0 and decrements the current semaphore state
+    DWORD result;
+    do {
+        result = WaitForSingleObject(handle, 0);
+        if (result == WAIT_TIMEOUT)
+            return false;
+        if (unlikely(result == WAIT_FAILED))
+            throw RUNTIME_ERROR("Unable to lock the semaphore");
+    } while (result != WAIT_OBJECT_0);
+
+#else
+
+    // POSIX semaphore wait (blocks until the semaphore is greater than 0, then decrements it)
+    for (int result;;) {
+        result = sem_trywait(handle);
+        if (likely(result == 0))
+            break;
+        if (errno == EINTR)
+            continue;
+        if (errno == EAGAIN)
+            return false;
+        throw RUNTIME_ERROR("Unable to unlock the semaphore");
+    }
 
 #endif
 
