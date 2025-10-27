@@ -514,6 +514,7 @@
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h" />
     <ClInclude Include="..\..\..\headers\concurrency\InterprocessQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\InterprocessSignal.h" />
+    <ClInclude Include="..\..\..\headers\concurrency\MultiLock.h" />
     <ClInclude Include="..\..\..\headers\concurrency\Semaphore.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h" />

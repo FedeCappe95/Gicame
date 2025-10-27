@@ -210,6 +210,9 @@
     <ClInclude Include="..\..\..\headers\concurrency\Semaphore.h">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\MultiLock.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

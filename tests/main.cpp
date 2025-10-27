@@ -7,6 +7,7 @@
 #include "../headers/reflection/Comparable.h"
 #include "../headers/sm/SharedMemory.h"
 #include "../headers/concurrency/Semaphore.h"
+#include "../headers/concurrency/MultiLock.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
@@ -289,7 +290,7 @@ TEST_CASE("Shared memory", "[shared memory]") {
     REQUIRE(peer1success);
 }
 
-TEST_CASE("Semaphore 1", "[semaphore]") {
+TEST_CASE("Semaphore 1", "[concurrency]") {
     Semaphore testSem("TestSem", 2u);   // Starts with 2 free resource
     testSem.setUnlinkOnDestruction(true);
 
@@ -298,6 +299,8 @@ TEST_CASE("Semaphore 1", "[semaphore]") {
 
     success = testSem.acquire();        // 0 free resources over a max of 2
     REQUIRE(success);
+
+    REQUIRE(!testSem.try_lock());       // No free resources, it should return false
 
     success = testSem.release();        // 1 free resource over a max of 2
     REQUIRE(success);
@@ -326,7 +329,7 @@ TEST_CASE("Semaphore 1", "[semaphore]") {
     // SEM_VALUE_MAX and it cannot be changed.
 }
 
-TEST_CASE("Semaphore 2", "[semaphore]") {
+TEST_CASE("Semaphore 2", "[concurrency]") {
     using namespace std::chrono_literals;
 
     Semaphore testSem("TestSem", 1u);
@@ -353,4 +356,19 @@ TEST_CASE("Semaphore 2", "[semaphore]") {
     REQUIRE(success);
 
     worker.join();
+}
+
+TEST_CASE("MultiLock", "[concurrency]") {
+    Semaphore testSem("TestSem", 1u);   // Starts with 2 free resource
+    testSem.setUnlinkOnDestruction(true);
+
+    MultiLock ml(testSem);
+
+    REQUIRE_NOTHROW(ml.lock());
+    REQUIRE_NOTHROW(ml.unlock());
+    REQUIRE(ml.try_lock());
+    REQUIRE(ml.try_lock());
+    REQUIRE_NOTHROW(ml.unlock());
+    REQUIRE_NOTHROW(ml.unlock());
+    REQUIRE_THROWS(ml.unlock());
 }
