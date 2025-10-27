@@ -1,5 +1,7 @@
+#include "concurrency/Semaphore.h"
 #include "common.h"
 #include "utils/Numbers.h"
+#include <limits>
 #ifdef WINDOWS
 #include <windows.h>
 #else
@@ -8,7 +10,15 @@
 #include <sys/stat.h>        // For mode constants
 #include <errno.h>
 #endif
-#include "sm/Semaphore.h"
+
+
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+
 
 // Constants
 #ifdef WINDOWS
@@ -20,7 +30,7 @@ using namespace Gicame;
 
 
 
-Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const size_t initialLockCount) :
+Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency) :
     handle(NULL),
 #ifndef WINDOWS
     posixName(std::string("/") + name),
@@ -29,9 +39,6 @@ Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const
 {
     if (unlikely(maxConcurrency == 0))
         throw RUNTIME_ERROR("maxConcurrency cannot be 0");
-
-    if (unlikely(initialLockCount > maxConcurrency))
-        throw RUNTIME_ERROR("initialLockCount cannot be greater than maxConcurrency");
 
     if (unlikely(name.empty()))
         throw RUNTIME_ERROR("name cannot be empty");
@@ -49,8 +56,8 @@ Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const
     if (unlikely(windowsName.length() > MAX_PATH - 1))
         throw RUNTIME_ERROR("name too long");
 
-    const LONG windowsMaxSemCount = Gicame::Utilities::safeNumericCast<LONG>(maxConcurrency);
-    const LONG windowsIniSemCount = Gicame::Utilities::safeNumericCast<LONG>(maxConcurrency - initialLockCount);
+    const LONG windowsMaxSemCount = Utilities::safeNumericCast<LONG>(maxConcurrency);
+    const LONG windowsIniSemCount = Utilities::safeNumericCast<LONG>(maxConcurrency);
 
     handle = CreateSemaphoreA(
         NULL,                // default security attributes
@@ -65,7 +72,9 @@ Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency, const
 #else
 
     // Open a named semaphore (O_CREAT | O_EXCL ensures that if the semaphore already exists, we get an error)
-    handle = sem_open(posixName.c_str(), O_CREAT | O_EXCL, 0644, maxConcurrency - initialLockCount);
+    const unsigned int semValue = /*static_cast<unsigned int>(SEM_VALUE_MAX);*/
+        Utilities::safeNumericCast<unsigned int>(maxConcurrency);
+    handle = sem_open(posixName.c_str(), O_CREAT | O_EXCL, 0644, semValue);
 
     if (handle == SEM_FAILED) {
         if (errno == EEXIST) {  // If the semaphore already exists, open the existing one
@@ -117,7 +126,11 @@ bool Semaphore::acquire() {
 #else
 
     // POSIX semaphore wait (blocks until the semaphore is greater than 0, then decrements it)
-    if (unlikely(sem_wait(handle) != 0))
+    int result;
+    while (unlikely((result = sem_wait(handle)) == -1 && errno == EINTR))
+        continue;       // Restart if interrupted by handler
+
+    if (unlikely(result != 0))
         return false;
 
 #endif

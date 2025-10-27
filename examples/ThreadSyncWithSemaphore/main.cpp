@@ -3,7 +3,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
-#include "../../headers/sm/Semaphore.h"
+#include "../../headers/concurrency/Semaphore.h"
 
 
 using namespace Gicame;

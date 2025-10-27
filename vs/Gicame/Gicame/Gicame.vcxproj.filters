@@ -144,9 +144,6 @@
     <ClInclude Include="..\..\..\headers\io\Io.h">
       <Filter>File di intestazione\io</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\headers\sm\Semaphore.h">
-      <Filter>File di intestazione\sm</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\headers\reflection\Comparable.h">
       <Filter>File di intestazione\reflection</Filter>
     </ClInclude>
@@ -210,6 +207,9 @@
     <ClInclude Include="..\..\..\headers\concurrency\WaitResult.h">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\Semaphore.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -245,9 +245,6 @@
     <ClCompile Include="..\..\..\src\common.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\sm\Semaphore.cpp">
-      <Filter>File di origine\sm</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\os\NamedPipe.cpp">
       <Filter>File di origine\os</Filter>
     </ClCompile>
@@ -264,6 +261,9 @@
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\concurrency\InterprocessSignal.cpp">
+      <Filter>File di origine\concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\concurrency\Semaphore.cpp">
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
   </ItemGroup>

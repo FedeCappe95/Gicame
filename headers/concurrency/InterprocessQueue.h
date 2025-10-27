@@ -5,7 +5,7 @@
 #include "../common.h"
 #include "../utils/NotCopyable.h"
 #include "./SPSCQueue.h"
-#include "../sm/Semaphore.h"
+#include "../concurrency/Semaphore.h"
 #include "../sm/SharedMemory.h"
 #include "../interfaces/IDataExchanger.h"
 #include "./InterprocessSignal.h"

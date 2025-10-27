@@ -514,6 +514,7 @@
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h" />
     <ClInclude Include="..\..\..\headers\concurrency\InterprocessQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\InterprocessSignal.h" />
+    <ClInclude Include="..\..\..\headers\concurrency\Semaphore.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\TaskExecutor.hpp" />
@@ -544,7 +545,6 @@
     <ClInclude Include="..\..\..\headers\serialization\Binary.h" />
     <ClInclude Include="..\..\..\headers\serialization\Serialization.h" />
     <ClInclude Include="..\..\..\headers\serialization\Tree.h" />
-    <ClInclude Include="..\..\..\headers\sm\Semaphore.h" />
     <ClInclude Include="..\..\..\headers\sm\SharedMemory.h" />
     <ClInclude Include="..\..\..\headers\stream\ByteStream.h" />
     <ClInclude Include="..\..\..\headers\stream\MemoryStream.h" />
@@ -558,6 +558,7 @@
     <ClCompile Include="..\..\..\src\common.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\InterprocessQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\InterprocessSignal.cpp" />
+    <ClCompile Include="..\..\..\src\concurrency\Semaphore.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\SLSPSCQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\SPSCQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\TaskExecutor.cpp" />
@@ -570,7 +571,6 @@
     <ClCompile Include="..\..\..\src\os\NamedPipe.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcServer.cpp" />
-    <ClCompile Include="..\..\..\src\sm\Semaphore.cpp" />
     <ClCompile Include="..\..\..\src\sm\SharedMemory.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
