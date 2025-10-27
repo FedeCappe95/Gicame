@@ -6,6 +6,7 @@
 #include "../headers/reflection/Property.h"
 #include "../headers/reflection/Comparable.h"
 #include "../headers/sm/SharedMemory.h"
+#include "../headers/concurrency/Semaphore.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
@@ -286,4 +287,70 @@ TEST_CASE("Shared memory", "[shared memory]") {
     REQUIRE(constructorCalled == 1u);
     REQUIRE(peer0success);
     REQUIRE(peer1success);
+}
+
+TEST_CASE("Semaphore 1", "[semaphore]") {
+    Semaphore testSem("TestSem", 2u);   // Starts with 2 free resource
+    testSem.setUnlinkOnDestruction(true);
+
+    bool success = testSem.acquire();   // 1 free resources over a max of 2
+    REQUIRE(success);
+
+    success = testSem.acquire();        // 0 free resources over a max of 2
+    REQUIRE(success);
+
+    success = testSem.release();        // 1 free resource over a max of 2
+    REQUIRE(success);
+
+    success = testSem.release();        // 2 free resource over a max of 2
+    REQUIRE(success);
+
+
+    success = testSem.acquire();        // 1 free resources over a max of 2
+    REQUIRE(success);
+
+    success = testSem.release();        // 2 free resource over a max of 2
+    REQUIRE(success);
+
+
+#ifdef WINDOWS
+    success = testSem.release();        // 3 free resources over a max of 2? (Note: 1)
+    REQUIRE(!success);
+#else
+    success = testSem.release();        // 3 free resources over a max of 2? (Note: 1)
+    REQUIRE(success);
+#endif
+
+    // Note 1: This is undefined behaviour because it fails on Windows, but
+    // it does not fails on Linux, where the maximum value for the sem_t is
+    // SEM_VALUE_MAX and it cannot be changed.
+}
+
+TEST_CASE("Semaphore 2", "[semaphore]") {
+    using namespace std::chrono_literals;
+
+    Semaphore testSem("TestSem", 1u);
+    testSem.setUnlinkOnDestruction(true);
+
+    bool success = testSem.acquire();
+    REQUIRE(success);
+
+    bool workerAcquiredSem = false;
+    auto workerBody = [&]() {
+        if (testSem.acquire())
+            workerAcquiredSem = true;
+    };
+
+    std::thread worker(workerBody);
+
+    // Wait the worker
+    std::this_thread::sleep_for(1000ms);
+
+    // Check the worker never succedded to acquire the sem
+    REQUIRE(!workerAcquiredSem);
+
+    success = testSem.release();
+    REQUIRE(success);
+
+    worker.join();
 }
