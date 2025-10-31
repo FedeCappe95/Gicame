@@ -12,14 +12,29 @@ namespace Gicame::Concurrency {
 				cvTaskAvailable.wait(lock, [&] { return taskAvailable || stopFlag; });  // Wait for task or stop signal
 				if (stopFlag)
 					return;  // Exit if stop is signaled
-				taskToRun = task;
+				taskToRun.swap(task);
 				taskAvailable = false;  // Reset task availability
+				taskCompletionState = CompletionState::NOT_DONE;  // Could be not necessary
+				lastTaskException.reset();
 			}
 			if (taskToRun) {
-				taskToRun();  // Execute the task
-				{
+				bool success = false;
+				try {
+					taskToRun();  // Execute the task
+					success = true;
+				}
+				catch (const std::exception& exc) {
 					std::unique_lock<std::mutex> lock(mtx);
-					taskDone = true;  // Mark task as done
+					taskCompletionState = CompletionState::DONE_WITH_ERRORS;  // Mark task as done
+					lastTaskException = exc;
+				}
+				catch (...) {
+					std::unique_lock<std::mutex> lock(mtx);
+					taskCompletionState = CompletionState::DONE_WITH_ERRORS;  // Mark task as done
+				}
+				if (success) {
+					std::unique_lock<std::mutex> lock(mtx);
+					taskCompletionState = CompletionState::DONE;  // Mark task as done
 				}
 				cvTaskDone.notify_one();  // Notify that task is done
 			}
@@ -29,7 +44,7 @@ namespace Gicame::Concurrency {
 	TaskExecutor::TaskExecutor() :
 		taskAvailable(false),
 		stopFlag(false),
-		taskDone(true)
+		taskCompletionState(CompletionState::NOT_DONE)
 	{
 		worker = std::thread(&TaskExecutor::workerThreadBody, this);  // Launch worker thread
 	}
@@ -37,26 +52,31 @@ namespace Gicame::Concurrency {
 	TaskExecutor::~TaskExecutor() {
 		{
 			std::unique_lock<std::mutex> lock(mtx);
-			stopFlag = true;
-			taskAvailable = true;  // Wake up the thread if it's waiting
+			stopFlag = true;  // It also wakes up the thread if it's waiting
 		}
 		cvTaskAvailable.notify_all();
 		worker.join();  // Ensure the worker thread is properly joined
 	}
 
-	void TaskExecutor::waitForTaskCompletion() {
+	TaskExecutor::CompletionState TaskExecutor::waitForTaskCompletion() {
 		std::unique_lock<std::mutex> lock(mtx);
-		cvTaskDone.wait(lock, [&] { return taskDone; });  // Wait for task completion
+		cvTaskDone.wait(lock, [&] { return taskCompletionState != CompletionState::NOT_DONE; });
+		return taskCompletionState;
 	}
 
 	void TaskExecutor::submitVoidTask(const std::function<void()>& newTask) {
 		{
 			std::unique_lock<std::mutex> lock(mtx);
+			cvTaskAvailable.wait(lock, [&] { return !taskAvailable; });
 			task = newTask;
 			taskAvailable = true;
-			taskDone = false;
+			taskCompletionState = CompletionState::NOT_DONE;
 		}
 		cvTaskAvailable.notify_one();  // Notify the worker thread
+	}
+
+	std::optional<std::exception> TaskExecutor::getLastTaskException() {
+		return lastTaskException;
 	}
 
 };

@@ -7,6 +7,8 @@
 #include <condition_variable>
 #include <future>
 #include <type_traits>
+#include <exception>
+#include <optional>
 
 
 namespace Gicame::Concurrency {
@@ -18,6 +20,11 @@ namespace Gicame::Concurrency {
 
 		NOT_COPYABLE(TaskExecutor)
 
+	public:   // Public types
+		enum class CompletionState {
+			NOT_DONE, DONE, DONE_WITH_ERRORS
+		};
+
 	private:  // Private data members
 		std::thread worker;
 		std::mutex mtx;
@@ -26,7 +33,8 @@ namespace Gicame::Concurrency {
 		std::function<void()> task;
 		bool taskAvailable;
 		bool stopFlag;
-		bool taskDone;
+		CompletionState taskCompletionState;
+		std::optional<std::exception> lastTaskException;
 
 	private:
 		// Function run by the worker thread
@@ -35,8 +43,9 @@ namespace Gicame::Concurrency {
 	public:
 		GICAME_API TaskExecutor();
 		GICAME_API ~TaskExecutor();
-		GICAME_API void waitForTaskCompletion();
+		GICAME_API CompletionState waitForTaskCompletion();
 		GICAME_API void submitVoidTask(const std::function<void()>&);
+		GICAME_API std::optional<std::exception> getLastTaskException();
 		
 		template <typename Res>
 		inline std::future<Res> submitTask(const std::function<Res()>& newTask) {
