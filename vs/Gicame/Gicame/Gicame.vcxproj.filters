@@ -213,6 +213,9 @@
     <ClInclude Include="..\..\..\headers\concurrency\MultiLock.h">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\os\DynLibraryHandler.h">
+      <Filter>File di intestazione\os</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -268,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\concurrency\Semaphore.cpp">
       <Filter>File di origine\concurrency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\os\DynLibraryHandler.cpp">
+      <Filter>File di origine\os</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

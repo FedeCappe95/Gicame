@@ -535,6 +535,7 @@
     <ClInclude Include="..\..\..\headers\network\NetworkUtility.h" />
     <ClInclude Include="..\..\..\headers\network\TcpListeningSocket.h" />
     <ClInclude Include="..\..\..\headers\network\TcpSocket.h" />
+    <ClInclude Include="..\..\..\headers\os\DynLibraryHandler.h" />
     <ClInclude Include="..\..\..\headers\os\ErrorHandling.h" />
     <ClInclude Include="..\..\..\headers\os\NamedPipe.h" />
     <ClInclude Include="..\..\..\headers\reflection\Comparable.h" />
@@ -568,6 +569,7 @@
     <ClCompile Include="..\..\..\src\network\NetworkUtility.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpListeningSocket.cpp" />
     <ClCompile Include="..\..\..\src\network\TcpSocket.cpp" />
+    <ClCompile Include="..\..\..\src\os\DynLibraryHandler.cpp" />
     <ClCompile Include="..\..\..\src\os\ErrorHandling.cpp" />
     <ClCompile Include="..\..\..\src\os\NamedPipe.cpp" />
     <ClCompile Include="..\..\..\src\rpc\RpcClient.cpp" />
