@@ -33,7 +33,7 @@ namespace Gicame::Os {
 		GICAME_API void* getSymbolAddress(const char* symbolName);
 		template <typename T, typename = std::enable_if_t<std::is_pointer_v<T>>>
 		inline T getSymbol(const char* symbolName) {
-			return std::launder(reinterpret_cast<T>(getSymbol(symbolName)));
+			return std::launder(reinterpret_cast<T>(getSymbolAddress(symbolName)));
 		}
 
 	};

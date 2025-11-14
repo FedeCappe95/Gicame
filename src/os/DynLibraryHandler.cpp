@@ -51,6 +51,6 @@ void* DynLibraryHandler::getSymbolAddress(const char* symbolName) {
 #ifdef WINDOWS
 	return GetProcAddress(reinterpret_cast<HINSTANCE>(nativeHandle), symbolName);
 #else
-	return dlsym(nativeHandler, symbolName);
+	return dlsym(nativeHandle, symbolName);
 #endif
 }
