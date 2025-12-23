@@ -54,6 +54,7 @@ namespace Gicame::Device {
 		virtual bool isSenderConnected() const override final;
 		virtual size_t send(const void* buffer, const size_t size) override final;
 		virtual size_t receive(void* buffer, const size_t size) override final;
+		void clear(const bool rx, const bool tx);
 		void flush();
 
 		/**

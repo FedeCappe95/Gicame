@@ -50,6 +50,10 @@ bool Serial::open() {
     dcb.ByteSize = Gicame::Utilities::safeNumericCast<BYTE>(byteSize);     // ex. 8           //  data size, xmit and rcv
     dcb.Parity = Gicame::Utilities::safeNumericCast<BYTE>(parity);         // ex. NOPARITY    //  parity bit
     dcb.StopBits = Gicame::Utilities::safeNumericCast<BYTE>(stopBitsMode); // ex. ONESTOPBIT  //  stop bit
+    dcb.fDtrControl = DTR_CONTROL_ENABLE;   // Control singal PC to device, Data Terminal Ready, 
+    dcb.fRtsControl = RTS_CONTROL_ENABLE;   // Control signal PC to device, Request To Send, flow control or wake-up signal
+    dcb.fOutxCtsFlow = FALSE;               // Control signal device to pc, Clear To Send
+    dcb.fOutxDsrFlow = FALSE;               // Control signal device to pc, Data Set Ready
 
     // Set configuration
     if (unlikely(!SetCommState(handle, &dcb)))
@@ -99,16 +103,15 @@ size_t Serial::receive(void* buffer, const size_t size) {
 #ifdef WINDOWS
 
     DWORD r = 0;
-    DWORD stillToRead = Gicame::Utilities::safeNumericCast<DWORD>(size);
-    void* ptr = buffer;
+    size_t stillToRead = size;
     while (stillToRead) {
-        if (!ReadFile(handle, ptr, stillToRead, &r, NULL) || r == 0u) {
+        if (!ReadFile(handle, buffer, Gicame::Utilities::safeNumericCast<DWORD>(stillToRead), &r, NULL) || r == 0u) {
             if (blockingRecpt)
                 continue;
             else
                 break;
         }
-        ptr = VP_DISPLACEMENT(ptr, r);
+        buffer = VP_DISPLACEMENT(buffer, r);
         stillToRead -= r;
     }
 
@@ -120,6 +123,33 @@ size_t Serial::receive(void* buffer, const size_t size) {
     UNUSED(size);
     nyi();
     return 0;
+
+#endif
+}
+
+void Serial::clear(const bool rx, const bool tx) {
+#ifdef WINDOWS
+
+    if (!handle || handle == INVALID_HANDLE_VALUE)
+        return;
+
+    // PURGE_RXCLEAR -> Discards all unread received bytes
+    // PURGE_RXABORT -> Cancels pending read operations
+    // PURGE_TXCLEAR -> Discards queued outgoing bytes
+    // PURGE_TXABORT -> Cancels pending write operations
+    DWORD flags = 0;
+    if (rx)
+        flags |= PURGE_RXCLEAR | PURGE_RXABORT;
+    if (tx)
+        flags |= PURGE_TXCLEAR | PURGE_TXABORT;
+
+    PurgeComm(handle, flags);
+
+#else
+
+    UNUSED(rx);
+    UNUSED(tx);
+    nyi();
 
 #endif
 }
