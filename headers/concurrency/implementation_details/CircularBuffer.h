@@ -3,6 +3,7 @@
 
 
 #include "../../common.h"
+#include "../../configuration.h"
 #include <atomic>
 
 

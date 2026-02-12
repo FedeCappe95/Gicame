@@ -112,13 +112,6 @@ typedef void* ptr_t;
 #define GICAME_ISA_32
 #endif
 
-#if defined(GICAME_FORCE_IPC_SIZE_64)
-    namespace Gicame { using ipc_size_t = uint64_t; };
-#elif defined(GICAME_FORCE_IPC_SIZE_32)
-    namespace Gicame { using ipc_size_t = uint32_t; };
-#else
-    namespace Gicame { using ipc_size_t = size_t; };
-#endif
 
 #define RUNTIME_ERROR(MSG) std::runtime_error(std::string(__FUNCTION__) + "(...): " + (MSG))
 

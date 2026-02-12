@@ -1,6 +1,11 @@
 #include "concurrency/InterprocessSignal.h"
 #include "utils/Memory.h"
-#ifdef WINDOWS
+#include "configuration.h"
+#ifdef GICAME_USE_FUTEX
+#include <atomic>
+#include "futex/Futex.h"
+#endif
+#if defined(WINDOWS)
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -15,7 +20,7 @@ using namespace Gicame::Concurrency;
 using namespace Gicame::Concurrency::Impl;
 
 
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(GICAME_USE_FUTEX)
 
 namespace Gicame::Concurrency::Impl {
 
@@ -30,20 +35,40 @@ namespace Gicame::Concurrency::Impl {
 
 
 Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& name, const ConcurrencyRole cr) :
-#ifdef WINDOWS
+#if defined(WINDOWS)
 	eventHandle(NULL)
+#elif defined(GICAME_USE_FUTEX)
+	shmem(std::string("is_shmem_") + name, sizeof(*futexp)),
+	futexp(NULL)
 #else
 	shmem(std::string("is_shmem_") + name, sizeof(PosixMutexCV)),
 	sharedData(NULL)
 #endif
 {
-#ifdef WINDOWS
+#if defined(WINDOWS)
+
 	UNUSED(cr);
 	const std::string eventName = std::string("is_") + name;
 	eventHandle = CreateEventA(NULL, FALSE, FALSE, eventName.c_str());
 	if (!eventHandle)
 		throw RUNTIME_ERROR("CreateEvent failed, check signal name");
+
+#elif defined(GICAME_USE_FUTEX)
+
+	const bool success = shmem.open(cr == ConcurrencyRole::MASTER);
+	if (!success)
+		throw RUNTIME_ERROR("Cannot create shared memory");
+	shmem.setUnlinkOnDestruction(cr == ConcurrencyRole::MASTER);
+
+	const auto[memPtr, newSize] = Utilities::align<std::atomic<uint32_t>>(shmem.get(), shmem.getSize());
+	if (!memPtr)
+		throw RUNTIME_ERROR("Unaligned shared memory error");
+
+	futexp = new (memPtr) std::atomic<uint32_t>;
+	*futexp = 0u;
+
 #else
+
 	const bool success = shmem.open(cr == ConcurrencyRole::MASTER);
 	if (!success)
 		throw RUNTIME_ERROR("Cannot create shared memory");
@@ -66,22 +91,30 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 	pthread_condattr_init(&condAttr);
 	pthread_condattr_setpshared(&condAttr, PTHREAD_PROCESS_SHARED);
 	pthread_cond_init(&(sharedData->cond), &condAttr);
+
 #endif
 }
 
 Gicame::Concurrency::InterprocessSignal::~InterprocessSignal() {
-#ifdef WINDOWS
+#if defined(WINDOWS)
 	CloseHandle(eventHandle);
 #endif
 }
 
 WaitResult Gicame::Concurrency::InterprocessSignal::wait()
 {
-#ifdef WINDOWS
+#if defined(WINDOWS)
+
 	const DWORD waitResult = WaitForSingleObject(eventHandle, INFINITE);
 	if (waitResult == WAIT_TIMEOUT) return WaitResult::TIMEOUT_ELAPSED;
 	if (waitResult == WAIT_FAILED) return WaitResult::FAILED;
+
+#elif defined(GICAME_USE_FUTEX)
+
+	fwait(futexp);
+
 #else
+
 	int errorCode = pthread_mutex_lock(&(sharedData->mutex));
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_lock failed");
@@ -94,15 +127,23 @@ WaitResult Gicame::Concurrency::InterprocessSignal::wait()
 
 	if (condWaitErrorCode == ETIMEDOUT) return WaitResult::TIMEOUT_ELAPSED;
 	if (condWaitErrorCode != 0) return WaitResult::FAILED;
+
 #endif
 	return WaitResult::OK;
 }
 
 void Gicame::Concurrency::InterprocessSignal::signal()
 {
-#ifdef WINDOWS
+#if defined(WINDOWS)
+
 	SetEvent(eventHandle);
+
+#elif defined(GICAME_USE_FUTEX)
+
+	fpost(futexp);
+
 #else
+
 	int errorCode = pthread_mutex_lock(&(sharedData->mutex));
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_lock failed");
@@ -115,5 +156,6 @@ void Gicame::Concurrency::InterprocessSignal::signal()
 
 	if (condSigErrorCode != 0)
 		throw RUNTIME_ERROR("pthread_cond_signal failed");
+
 #endif
 }

@@ -1,6 +1,6 @@
 CC           = g++
-FLAGS        = -std=c++17 -DGICAME_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build
-FLAGS_CRYPTO = -std=c++17 -DGICAME_CRYPTO_EXPORTS -I./headers -lstdc++ -L/usr/lib -L./build -I/usr/lib/openssl-1.0/include -L/usr/lib/openssl-1.0/lib -lssl -lcrypto
+FLAGS        = -std=c++17 -DGICAME_EXPORTS -I./headers -I./internal_headers -lstdc++ -L/usr/lib -L./build
+FLAGS_CRYPTO = -std=c++17 -DGICAME_CRYPTO_EXPORTS -I./headers -I./internal_headers -lstdc++ -L/usr/lib -L./build -I/usr/lib/openssl-1.0/include -L/usr/lib/openssl-1.0/lib -lssl -lcrypto
 CFLAGS       = -fPIC -Wall -Wextra -lrt
 RELEASEFLAGS = -O2
 

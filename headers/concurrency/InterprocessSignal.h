@@ -3,11 +3,15 @@
 
 
 #include "../common.h"
+#include "../configuration.h"
 #include "../utils/NotCopyable.h"
 #include "./ConcurrencyRole.h"
 #include "./WaitResult.h"
 #include "../sm/SharedMemory.h"
 #include <string>
+#if defined(GICAME_USE_FUTEX)
+#include <atomic>
+#endif
 
 
 namespace Gicame::Concurrency::Impl { struct PosixMutexCV; };
@@ -20,8 +24,11 @@ namespace Gicame::Concurrency {
 		NOT_COPYABLE(InterprocessSignal)
 
 	private:
-#ifdef WINDOWS
+#if defined(WINDOWS)
 		void* eventHandle;
+#elif defined(GICAME_USE_FUTEX)
+		Gicame::SharedMemory shmem;
+		std::atomic<uint32_t>* futexp;
 #else
 		Gicame::SharedMemory shmem;
 		Impl::PosixMutexCV* sharedData;
