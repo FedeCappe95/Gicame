@@ -12,18 +12,10 @@ using namespace Gicame;
 using namespace Gicame::Crypto;
 
 
-#define MAX_FILE_SIZE (size_t)(128*1024*1024)  // 128MB
-
-
-static byte_t iv[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-static byte_t keyBuffer[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-
-
-
 static void printDigitalSign(const std::vector<byte_t>& ds) {
 	std::cout << "DigitalSign: ";
 	for (const byte_t b : ds)
-		std::cout << (uint32_t)b;
+		std::cout << (uint32_t)b << " ";
 	std::cout << std::endl;
 }
 

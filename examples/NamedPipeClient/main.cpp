@@ -9,7 +9,7 @@ using namespace Gicame::Os;
 
 
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
 	std::cout << "Gicame example: NamedPipeClient" << std::endl;
 
 	NamedPipe pipe("ExamplePipeName");

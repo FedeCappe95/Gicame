@@ -74,7 +74,7 @@ void textConsumerBody() {
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
 	std::cout << "Gicame example: SLSPSCQueue" << std::endl;
 
 	std::thread producer(producerBody);
