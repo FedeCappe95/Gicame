@@ -50,7 +50,7 @@ In the future, Gicame may adopt other cryptographic methods, but for now all of 
 ### Example: digital signature
 This will require only 2 lines of code! Just load your PEM private key ad use it to sign your content!
 ```
-const EvpKey privKey = EvpKey::fromPrivateKeyPemFile("../../../examples/KeyPairExample/privKey.pem");
+const EvpKey privKey = EvpKey::fromPrivateKeyPemFile("../../../examples-assets/KeyPairExample/privKey.pem");
 const std::vector<byte_t> digitalSign = Signer::sign(privKey, fileContent.data(), fileContent.size());
 ```
 ### Example: AES-128 encryption
