@@ -51,7 +51,11 @@ namespace Gicame::Serialization::Tree {
 		Gicame::Reflection::apply_on_index_sequence(propertyIndexes, [&](auto i) {
 			constexpr auto prop = std::get<i>(OType::properties);
 			using PropType = decltype(prop);
+#if defined(_MSC_VER)
 			using PropMemberType = PropType::template MemberType;
+#else
+			using PropMemberType = typename PropType::MemberType;
+#endif
 
 			const std::string_view childNodeName(prop.name);
 
