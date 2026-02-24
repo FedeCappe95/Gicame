@@ -94,8 +94,9 @@ namespace Gicame::Stream {
 
 	public:
 		inline MemoryOStream(ElemType* buffer, const std::streamsize bufferSize) :
-			memBuff(buffer, bufferSize),
-			std::basic_ostream<ElemType, std::char_traits<ElemType>>((std::basic_streambuf<ElemType, std::char_traits<ElemType>>*)(&memBuff)) {}
+			std::basic_ostream<ElemType, std::char_traits<ElemType>>((std::basic_streambuf<ElemType, std::char_traits<ElemType>>*)(&memBuff)),
+			memBuff(buffer, bufferSize)
+		{}
 		virtual ~MemoryOStream() {}
 
 	};
@@ -108,8 +109,9 @@ namespace Gicame::Stream {
 
 	public:
 		inline MemoryIStream(const ElemType* buffer, const std::streamsize bufferSize) :
-			memBuff((ElemType*)buffer, bufferSize),
-			std::basic_istream<ElemType, std::char_traits<ElemType>>((std::basic_streambuf<ElemType, std::char_traits<ElemType>>*)(&memBuff)) {}
+			std::basic_istream<ElemType, std::char_traits<ElemType>>((std::basic_streambuf<ElemType, std::char_traits<ElemType>>*)(&memBuff)),
+			memBuff((ElemType*)buffer, bufferSize)
+		{}
 		virtual ~MemoryIStream() {}
 
 	};
