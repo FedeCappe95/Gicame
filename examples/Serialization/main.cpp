@@ -5,6 +5,7 @@
 #include <tuple>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 #include "../../headers/reflection/Property.h"
 #include "../../headers/serialization/Tree.h"
 #include "../../headers/serialization/Binary.h"
