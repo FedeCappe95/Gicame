@@ -3,6 +3,7 @@
 #include <string.h>
 #include <thread>
 #include <chrono>
+#include <atomic>
 #include "../../headers/sm/SharedMemory.h"
 
 
