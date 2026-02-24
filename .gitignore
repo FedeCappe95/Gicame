@@ -62,3 +62,4 @@ vs/Gicame/Intermediate/*
 # Build
 build-*
 *.bak
+bin
