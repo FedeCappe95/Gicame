@@ -9,6 +9,7 @@
 #include <fcntl.h>           // For O_CREAT and O_EXCL
 #include <sys/stat.h>        // For mode constants
 #include <errno.h>
+#include <time.h>            // For clock_gettime
 #endif
 
 
@@ -130,6 +131,54 @@ bool Semaphore::acquire() {
 #endif
 
     return true;
+}
+
+Semaphore::AcquireResult Semaphore::acquireWithTimeout(const std::chrono::milliseconds timeout) {
+#ifdef WINDOWS
+    const DWORD timeoutMs = Utilities::safeNumericCast<DWORD>(timeout.count());
+
+    DWORD result;
+    do {
+        result = WaitForSingleObject(handle, timeoutMs);
+
+        if (unlikely(result == WAIT_FAILED))
+            return AcquireResult::FAIL;
+
+        if (result == WAIT_TIMEOUT)
+            return AcquireResult::TIMEOUT;
+
+    } while (result != WAIT_OBJECT_0);
+
+    return AcquireResult::SUCCESS;
+#else
+    // POSIX sem_timedwait requires absolute time
+    struct timespec absTime;
+
+    // Get current time
+    if (clock_gettime(CLOCK_REALTIME, &absTime) == -1)
+        return AcquireResult::ERROR;
+
+    // Add timeout to current time
+    long long totalNs = absTime.tv_nsec + (timeout.count() * 1000000LL);
+    absTime.tv_sec += totalNs / 1000000000LL;
+    absTime.tv_nsec = totalNs % 1000000000LL;
+
+    int result;
+    while (true) {
+        result = sem_timedwait(handle, &absTime);
+
+        if (result == 0)
+            return AcquireResult::SUCCESS;
+
+        if (errno == EINTR)
+            continue;  // Interrupted by signal, retry
+
+        if (errno == ETIMEDOUT)
+            return AcquireResult::TIMEOUT;
+
+        return AcquireResult::FAIL;
+    }
+#endif
 }
 
 bool Semaphore::release() {
