@@ -156,7 +156,7 @@ Semaphore::AcquireResult Semaphore::acquireWithTimeout(const std::chrono::millis
 
     // Get current time
     if (clock_gettime(CLOCK_REALTIME, &absTime) == -1)
-        return AcquireResult::ERROR;
+        return AcquireResult::FAIL;
 
     // Add timeout to current time
     long long totalNs = absTime.tv_nsec + (timeout.count() * 1000000LL);
