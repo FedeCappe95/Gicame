@@ -216,6 +216,9 @@
     <ClInclude Include="..\..\..\headers\os\DynLibraryHandler.h">
       <Filter>File di intestazione\os</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\configuration.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
