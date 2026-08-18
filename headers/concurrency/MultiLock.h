@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <limits>
 #include "../common.h"
+#include "../configuration.h"
 
 
-namespace Gicame {
+namespace Gicame::Concurrency {
 
 	/**
 	 * @brief Protect a lock from multiple acquire/release operation.
@@ -80,6 +81,11 @@ namespace Gicame {
 	}
 
 };
+
+
+#ifdef GICAME_ENABLE_API_V1
+namespace Gicame { template <typename Lock> using MultiLock = Gicame::Concurrency::MultiLock<Lock>; };
+#endif
 
 
 #endif

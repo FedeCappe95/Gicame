@@ -18,4 +18,7 @@
 //#define GICAME_USE_FUTEX
 
 
+// API backward compatibility
+#define GICAME_ENABLE_API_V1
+
 #endif

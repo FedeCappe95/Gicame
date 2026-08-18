@@ -7,20 +7,21 @@
 #include <stdint.h>
 #include <chrono>
 #include "../common.h"
+#include "../configuration.h"
 #ifndef WINDOWS
 #include <semaphore.h>
 #endif
 
 
 
-namespace Gicame {
+namespace Gicame::Concurrency {
 
 	/**
-	 * @brief System level semaphore
+	 * @brief System level named semaphore
 	 *
 	 * It satisfies the Lockable requirements.
 	 */
-	class Semaphore {
+	class InterprocessSemaphore {
 
 	public:
 		/**
@@ -29,7 +30,7 @@ namespace Gicame {
 		enum class AcquireResult {
 			SUCCESS,        // Lock acquired successfully
 			TIMEOUT,        // Timeout expired before acquiring lock
-			FAIL           // An error occurred
+			FAIL            // An error occurred
 		};
 
 	private:
@@ -47,9 +48,9 @@ namespace Gicame {
 		 * @param name The name of the semaphore (cannot be empty, cannot contain '/' on POSIX)
 		 * @param maxConcurrency Maximum number of concurrent acquisitions (cannot be 0)
 		 */
-		GICAME_API Semaphore(const std::string& name, const size_t maxConcurrency);
+		GICAME_API InterprocessSemaphore(const std::string& name, const size_t maxConcurrency);
 
-		GICAME_API ~Semaphore();
+		GICAME_API ~InterprocessSemaphore();
 
 		/**
 		 * @brief Acquire the semaphore (blocking, no timeout)
@@ -94,6 +95,11 @@ namespace Gicame {
 	};
 
 };
+
+
+#ifdef GICAME_ENABLE_API_V1
+namespace Gicame { using Semaphore = Gicame::Concurrency::InterprocessSemaphore; };
+#endif
 
 
 #endif

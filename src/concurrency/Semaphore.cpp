@@ -22,10 +22,11 @@
 
 
 using namespace Gicame;
+using namespace Gicame::Concurrency;
 
 
 
-Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency) :
+InterprocessSemaphore::InterprocessSemaphore(const std::string& name, const size_t maxConcurrency) :
     handle(NULL),
 #ifndef WINDOWS
     posixName(std::string("/") + name),
@@ -88,7 +89,7 @@ Semaphore::Semaphore(const std::string& name, const size_t maxConcurrency) :
 #endif
 }
 
-Semaphore::~Semaphore() {
+InterprocessSemaphore::~InterprocessSemaphore() {
 #ifdef WINDOWS
 
     if (likely(handle))
@@ -105,7 +106,7 @@ Semaphore::~Semaphore() {
 #endif
 }
 
-bool Semaphore::acquire() {
+bool InterprocessSemaphore::acquire() {
 #ifdef WINDOWS
 
     // WaitForSingleObject(...) either:
@@ -133,7 +134,7 @@ bool Semaphore::acquire() {
     return true;
 }
 
-Semaphore::AcquireResult Semaphore::acquireWithTimeout(const std::chrono::milliseconds timeout) {
+InterprocessSemaphore::AcquireResult InterprocessSemaphore::acquireWithTimeout(const std::chrono::milliseconds timeout) {
 #ifdef WINDOWS
     const DWORD timeoutMs = Utilities::safeNumericCast<DWORD>(timeout.count());
 
@@ -181,7 +182,7 @@ Semaphore::AcquireResult Semaphore::acquireWithTimeout(const std::chrono::millis
 #endif
 }
 
-bool Semaphore::release() {
+bool InterprocessSemaphore::release() {
 #ifdef WINDOWS
 
     // ReleaseSemaphore(...) increments the current semaphore state
@@ -204,17 +205,17 @@ bool Semaphore::release() {
     return true;
 }
 
-void Semaphore::lock() {
+void InterprocessSemaphore::lock() {
     if (!acquire())
         throw RUNTIME_ERROR("Unable to lock the semaphore");
 }
 
-void Semaphore::unlock() {
+void InterprocessSemaphore::unlock() {
     if (!release())
         throw RUNTIME_ERROR("Unable to unlock the semaphore");
 }
 
-bool Semaphore::try_lock() {
+bool InterprocessSemaphore::try_lock() {
 #ifdef WINDOWS
 
     // WaitForSingleObject(...) either:
@@ -248,6 +249,6 @@ bool Semaphore::try_lock() {
     return true;
 }
 
-void Semaphore::setUnlinkOnDestruction(bool uod) {
+void InterprocessSemaphore::setUnlinkOnDestruction(bool uod) {
     unlinkOnDestruction = uod;
 }

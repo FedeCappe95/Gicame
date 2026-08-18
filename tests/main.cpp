@@ -362,7 +362,7 @@ TEST_CASE("MultiLock", "[concurrency]") {
     Semaphore testSem("TestSem", 1u);   // Starts with 2 free resource
     testSem.setUnlinkOnDestruction(true);
 
-    MultiLock ml(testSem);
+    Concurrency::MultiLock ml(testSem);
 
     REQUIRE_NOTHROW(ml.lock());
     REQUIRE_NOTHROW(ml.unlock());
