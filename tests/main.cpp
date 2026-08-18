@@ -8,6 +8,7 @@
 #include "../headers/sm/SharedMemory.h"
 #include "../headers/concurrency/Semaphore.h"
 #include "../headers/concurrency/MultiLock.h"
+#include "../headers/concurrency/Signal.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
@@ -371,4 +372,215 @@ TEST_CASE("MultiLock", "[concurrency]") {
     REQUIRE_NOTHROW(ml.unlock());
     REQUIRE_NOTHROW(ml.unlock());
     REQUIRE_THROWS(ml.unlock());
+}
+
+TEST_CASE("Signal - initial state is not signaled", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    // A timeout of 0 ms acts as a non-blocking tryWait; on a fresh Signal
+    // nothing has been signaled yet, so it must return false immediately.
+    REQUIRE(!sig.wait(0u));
+}
+
+TEST_CASE("Signal - wait(0) is non-blocking and returns fast", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    const auto start = std::chrono::steady_clock::now();
+    const bool result = sig.wait(0u);
+    const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start).count();
+
+    REQUIRE(!result);
+    REQUIRE(elapsedMs < 50);   // Must not block at all
+}
+
+TEST_CASE("Signal - signal() then tryWait consumes it exactly once", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    sig.signal();
+    REQUIRE(sig.wait(0u));    // Consumes the pending signal
+    REQUIRE(!sig.wait(0u));   // Nothing left to consume
+}
+
+TEST_CASE("Signal - is sticky and does not accumulate multiple signal() calls", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    // Signaling repeatedly while nobody consumes must not create a counter:
+    // the class only has two levels, 0 and 1.
+    sig.signal();
+    sig.signal();
+    sig.signal();
+
+    REQUIRE(sig.wait(0u));    // Consumes the single pending level
+    REQUIRE(!sig.wait(0u));   // No leftover signal, even though signal() was called 3 times
+}
+
+TEST_CASE("Signal - signal() raised before wait() is not lost", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    sig.signal();   // Nobody is waiting yet
+
+    std::atomic<bool> waiterDone{false};
+    std::thread waiter([&]() {
+        sig.wait();
+        waiterDone = true;
+    });
+
+    waiter.join();
+    REQUIRE(waiterDone);
+}
+
+TEST_CASE("Signal - blocking wait() stays blocked until signaled by another thread", "[concurrency]") {
+    Concurrency::Signal sig;
+    std::atomic<bool> waiterDone{false};
+
+    std::thread waiter([&]() {
+        sig.wait();   // Indefinite blocking wait
+        waiterDone = true;
+    });
+
+    // Give the waiter thread time to actually enter the wait
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    REQUIRE(!waiterDone);   // Must still be blocked, since nobody signaled yet
+
+    sig.signal();
+    waiter.join();
+
+    REQUIRE(waiterDone);
+}
+
+TEST_CASE("Signal - wait(timeoutMs) times out and returns false if never signaled", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    const auto start = std::chrono::steady_clock::now();
+    const bool result = sig.wait(300u);
+    const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start).count();
+
+    REQUIRE(!result);
+    REQUIRE(elapsedMs >= 290);   // Small slack to absorb scheduling jitter
+}
+
+TEST_CASE("Signal - wait(timeoutMs) returns true promptly when signaled before the deadline", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    std::thread signaler([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        sig.signal();
+    });
+
+    const auto start = std::chrono::steady_clock::now();
+    const bool result = sig.wait(5000u);   // Much larger than the 100ms delay above
+    const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start).count();
+
+    signaler.join();
+
+    REQUIRE(result);
+    REQUIRE(elapsedMs < 4000);   // Must return well before the timeout expires
+}
+
+TEST_CASE("Signal - wait(timeoutMs) performs a final check right at the deadline", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    std::thread signaler([&]() {
+        // Signal right around when the timeout is expected to fire
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        sig.signal();
+    });
+
+    const bool result = sig.wait(200u);
+    signaler.join();
+
+    // Either outcome is technically valid depending on scheduling, but the
+    // call must not throw and must complete in bounded time; if it does
+    // catch the race it must correctly report success.
+    if (result) {
+        REQUIRE(result);
+    } else {
+        // The signal may have arrived just after the deadline: make sure
+        // it is still there and consumable afterwards.
+        REQUIRE(sig.wait(500u));
+    }
+}
+
+TEST_CASE("Signal - multiple signal() calls while a thread is waiting only release it once", "[concurrency]") {
+    Concurrency::Signal sig;
+    std::atomic<bool> waiterDone{false};
+
+    std::thread waiter([&]() {
+        sig.wait();
+        waiterDone = true;
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    sig.signal();
+    sig.signal();
+    sig.signal();
+
+    waiter.join();
+    REQUIRE(waiterDone);
+
+    // Since there is no counter, no extra signal should remain pending
+    REQUIRE(!sig.wait(0u));
+}
+
+TEST_CASE("Signal - only one of several waiters is released per signal", "[concurrency]") {
+    Concurrency::Signal sig;
+    std::atomic<int> consumedCount{0};
+
+    auto waiterBody = [&]() {
+        if (sig.wait(3000u))
+            ++consumedCount;
+    };
+
+    std::thread w1(waiterBody);
+    std::thread w2(waiterBody);
+
+    // Let both threads reach the blocking wait
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    sig.signal();   // Only one of the two waiters must wake up and consume it
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    REQUIRE(consumedCount == 1);
+
+    sig.signal();   // Release the second waiter too
+    w1.join();
+    w2.join();
+
+    REQUIRE(consumedCount == 2);
+}
+
+TEST_CASE("Signal - repeated signal/consume cycles behave like an auto-reset event", "[concurrency]") {
+    Concurrency::Signal sig;
+
+    for (int i = 0; i < 10; ++i) {
+        REQUIRE(!sig.wait(0u));   // Nothing pending at the start of each cycle
+        sig.signal();
+        REQUIRE(sig.wait(0u));   // Consumes it
+        REQUIRE(!sig.wait(0u));  // And it stays consumed
+    }
+}
+
+TEST_CASE("Signal - producer/consumer handshake across threads", "[concurrency]") {
+    Concurrency::Signal ready;
+    Concurrency::Signal processed;
+    std::atomic<int> sharedValue{0};
+    constexpr int iterations = 50;
+
+    std::thread consumer([&]() {
+        for (int i = 0; i < iterations; ++i) {
+            ready.wait();
+            REQUIRE(sharedValue == i + 1);
+            processed.signal();
+        }
+    });
+
+    for (int i = 0; i < iterations; ++i) {
+        sharedValue = i + 1;
+        ready.signal();
+        processed.wait();
+    }
+
+    consumer.join();
 }

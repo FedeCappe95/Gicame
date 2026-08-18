@@ -219,6 +219,9 @@
     <ClInclude Include="..\..\..\headers\configuration.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\Signal.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
