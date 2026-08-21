@@ -28,7 +28,7 @@ struct Dog : public Reflection::Comparable<Dog> {
     std::string barkType;
     std::string color;
     int weight = 0;
-    bool awesome = true;  // All dos are awesome
+    bool awesome = true;  // All dogs are awesome
     std::vector<std::string> owners;
 
     static constexpr auto properties = std::make_tuple(
