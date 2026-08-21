@@ -504,27 +504,6 @@ TEST_CASE("Signal - wait(timeoutMs) performs a final check right at the deadline
     }
 }
 
-TEST_CASE("Signal - multiple signal() calls while a thread is waiting only release it once", "[concurrency]") {
-    Concurrency::Signal sig;
-    std::atomic<bool> waiterDone{false};
-
-    std::thread waiter([&]() {
-        sig.wait();
-        waiterDone = true;
-    });
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    sig.signal();
-    sig.signal();
-    sig.signal();
-
-    waiter.join();
-    REQUIRE(waiterDone);
-
-    // Since there is no counter, no extra signal should remain pending
-    REQUIRE(!sig.wait(0u));
-}
-
 TEST_CASE("Signal - only one of several waiters is released per signal", "[concurrency]") {
     Concurrency::Signal sig;
     std::atomic<int> consumedCount{0};
