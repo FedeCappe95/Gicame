@@ -3,17 +3,12 @@
 
 
 #include "../common.h"
+#include "../configuration.h"
 #include "../utils/NotCopyable.h"
 #include "../interfaces/IDataExchanger.h"
 #include "./Signal.h"
 #include <stdint.h>
 #include <vector>
-
-
-// Forward declarations
-namespace Gicame::Concurrency::Impl {
-	struct CircularBufferDescriptor;
-}
 
 
 namespace Gicame::Concurrency {
@@ -26,7 +21,8 @@ namespace Gicame::Concurrency {
 		NOT_COPYABLE(SPSCQueue)
 
 	private:
-		Gicame::Concurrency::Impl::CircularBufferDescriptor* header;
+		std::atomic<ipc_size_t> head;
+		std::atomic<ipc_size_t> tail;
 		size_t capacity;
 		std::vector<uint8_t> buffer;
 		Signal dataPresentEvent;

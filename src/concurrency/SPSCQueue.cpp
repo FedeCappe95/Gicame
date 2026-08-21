@@ -40,16 +40,11 @@ void SPSCQueue::waitFreeSpace(const size_t dataSize) {
 
 SPSCQueue::SPSCQueue(const size_t capacity_) :
 	capacity(capacity_),
-	header(nullptr)
-{
-	header = new CircularBufferDescriptor;
-	header->head = 0;
-	header->tail = 0;
-}
+	head(0u),
+	tail(0u)
+{}
 
-SPSCQueue::~SPSCQueue() {
-	Gicame::Utilities::deleteAndNullify(header);
-}
+SPSCQueue::~SPSCQueue() {}
 
 void SPSCQueue::push(const void* data, size_t dataSize) {
 	const uint8_t* ptr = static_cast<const uint8_t*>(data);
@@ -59,12 +54,12 @@ void SPSCQueue::push(const void* data, size_t dataSize) {
 
 		waitFreeSpace(chunkSize);
 
-		const ipc_size_t h = header->head.load();
+		const ipc_size_t h = head.load();
 
 		for (size_t i = 0; i < chunkSize; ++i)
 			buffer[(h + i) % capacity] = ptr[i];
 
-		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
+		head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
 
 		dataPresentEvent.signal();
 
@@ -81,12 +76,12 @@ void SPSCQueue::pop(void* outBuffer, size_t dataSize) {
 
 		waitElemPresent(chunkSize);
 
-		const ipc_size_t t = header->tail.load();
+		const ipc_size_t t = tail.load();
 
 		for (size_t i = 0; i < chunkSize; ++i)
 			ptr[i] = buffer[(t + i) % capacity];
 
-		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
+		tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
 
 		dataFreeEvent.signal();
 
@@ -102,13 +97,13 @@ bool SPSCQueue::pop(void* outBuffer, size_t dataSize, uint32_t timeoutMs) {
 	if (!waitElemPresent(dataSize, timeoutMs))
 		return false;
 
-	const ipc_size_t t = header->tail.load();
+	const ipc_size_t t = tail.load();
 
 	uint8_t* ptr = static_cast<uint8_t*>(outBuffer);
 	for (size_t i = 0; i < dataSize; ++i)
 		ptr[i] = buffer[(t + i) % capacity];
 
-	header->tail.store(static_cast<ipc_size_t>((t + dataSize) % capacity));
+	tail.store(static_cast<ipc_size_t>((t + dataSize) % capacity));
 
 	dataFreeEvent.signal();
 
@@ -116,8 +111,8 @@ bool SPSCQueue::pop(void* outBuffer, size_t dataSize, uint32_t timeoutMs) {
 }
 
 size_t SPSCQueue::size() const noexcept {
-	const ipc_size_t h = header->head.load();
-	const ipc_size_t t = header->tail.load();
+	const ipc_size_t h = head.load();
+	const ipc_size_t t = tail.load();
 	if (h >= t)
 		return static_cast<size_t>(h - t);
 	else
