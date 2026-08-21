@@ -44,6 +44,14 @@ namespace Gicame::Utilities {
 		return static_cast<Ret*>(static_cast<uint8_t*>(ptr) + displacement);
 	}
 
+	template <typename T>
+	static inline void deleteAndNullify(T*& ptr) {
+		if (ptr) {
+			delete ptr;
+			ptr = nullptr;
+		}
+	}
+
 }
 
 

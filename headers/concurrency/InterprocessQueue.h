@@ -43,8 +43,8 @@ namespace Gicame::Concurrency {
 		GICAME_API ~InterprocessQueue();
 		GICAME_API void push(const void* data, size_t dataSize);
 		GICAME_API void pop(void* outBuffer, size_t dataSize);
-		GICAME_API size_t size();
-		GICAME_API size_t freeSpace();
+		GICAME_API size_t size() const noexcept;
+		GICAME_API size_t freeSpace() const noexcept;
 
 		// IDataExchanger interface
 		virtual size_t send(const void* data, const size_t dataSize) override final;

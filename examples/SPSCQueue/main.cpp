@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <thread>
-#include "../../headers/concurrency/SLSPSCQueue.h"
+#include "../../headers/concurrency/SPSCQueue.h"
 #include "../../headers/concurrency/InterprocessQueue.h"
 #include "../../headers/dataTransfer/TextSender.h"
 #include "../../headers/dataTransfer/TextReceiver.h"
@@ -11,10 +11,10 @@ using namespace Gicame;
 using namespace Gicame::Concurrency;
 
 
-uint8_t buffer[8 * 1024 * 1024];  // 8MiB buffer
-SLSPSCQueue queue(buffer, sizeof(buffer), Gicame::Concurrency::ConcurrencyRole::MASTER);
-InterprocessQueue ipcQueue("IPC1", 8 * 1024 * 1024, Gicame::Concurrency::ConcurrencyRole::MASTER);
+constexpr size_t QUEUE_SIZE = 8 * 1024 * 1024;   // 8MiB
 constexpr size_t ELEM_COUNT = 64 * 1024 * 1024;  // 64Mi of size_t
+SPSCQueue queue(QUEUE_SIZE);
+InterprocessQueue ipcQueue("IPC1", QUEUE_SIZE, Gicame::Concurrency::ConcurrencyRole::MASTER);
 
 
 void producerBody() {

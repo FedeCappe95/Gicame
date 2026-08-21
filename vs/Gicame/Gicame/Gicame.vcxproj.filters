@@ -171,9 +171,6 @@
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h">
-      <Filter>File di intestazione\concurrency</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h">
       <Filter>File di intestazione\concurrency\implementation_details</Filter>
     </ClInclude>
@@ -261,9 +258,6 @@
       <Filter>File di origine\os</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\concurrency\SPSCQueue.cpp">
-      <Filter>File di origine\concurrency</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\concurrency\SLSPSCQueue.cpp">
       <Filter>File di origine\concurrency</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\concurrency\TaskExecutor.cpp">

@@ -4,8 +4,10 @@
 
 #include "../common.h"
 #include "../utils/NotCopyable.h"
-#include "./ConcurrencyRole.h"
 #include "../interfaces/IDataExchanger.h"
+#include "./Signal.h"
+#include <stdint.h>
+#include <vector>
 
 
 // Forward declarations
@@ -17,29 +19,32 @@ namespace Gicame::Concurrency::Impl {
 namespace Gicame::Concurrency {
 
 	/**
-	 * @brief Abstract class for a Single Producer Single Consumer Queue
-	 *
-	 * Implementation: circular buffer
+	 * @brief Single Producer Single Consumer Queue implemented via circular buffer
 	 */
 	class SPSCQueue : public IDataExchanger {
 
 		NOT_COPYABLE(SPSCQueue)
 
-	protected:  // Protected data members
-		Impl::CircularBufferDescriptor* header;
-		uint8_t* buffer;
+	private:
+		Gicame::Concurrency::Impl::CircularBufferDescriptor* header;
 		size_t capacity;
+		std::vector<uint8_t> buffer;
+		Signal dataPresentEvent;
+		Signal dataFreeEvent;
 
-	protected:  // Protected data members
-		virtual void waitElemPresent(const size_t dataSize) = 0;
-		virtual void waitFreeSpace(const size_t dataSize) = 0;
+	private:
+		void waitElemPresent(const size_t dataSize);
+		bool waitElemPresent(const size_t dataSize, uint32_t timeoutMs);
+		void waitFreeSpace(const size_t dataSize);
 
-	public:    // Public methods
-		GICAME_API SPSCQueue(void* buffer_, const size_t capacity_, const ConcurrencyRole cr);
-		GICAME_API virtual ~SPSCQueue();
-		GICAME_API virtual void push(const void* data, size_t dataSize);
-		GICAME_API virtual void pop(void* outBuffer, size_t dataSize);
-		GICAME_API virtual size_t size();
+	public:
+		GICAME_API SPSCQueue(const size_t capacity_);
+		GICAME_API ~SPSCQueue();
+		GICAME_API void push(const void* data, size_t dataSize);
+		GICAME_API void pop(void* outBuffer, size_t dataSize);
+		GICAME_API bool pop(void* outBuffer, size_t dataSize, uint32_t timeoutMs);
+		GICAME_API size_t size() const noexcept;
+		GICAME_API size_t freeSpace() const noexcept;
 
 		// IDataExchanger interface
 		virtual size_t send(const void* data, const size_t dataSize) override final;

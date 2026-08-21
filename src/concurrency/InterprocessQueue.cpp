@@ -6,17 +6,6 @@
 #include <new>
 #include <cstddef>
 #include <algorithm>
-#ifdef WINDOWS
-#include <Windows.h>
-#endif
-
-
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
 
 
 using namespace Gicame;
@@ -119,7 +108,7 @@ void InterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 	}
 }
 
-size_t InterprocessQueue::size() {
+size_t InterprocessQueue::size() const noexcept {
 	const ipc_size_t h = header->head.load();
 	const ipc_size_t t = header->tail.load();
 	if (h >= t)
@@ -128,6 +117,6 @@ size_t InterprocessQueue::size() {
 		return static_cast<size_t>(capacity - (t - h));
 }
 
-size_t InterprocessQueue::freeSpace() {
+size_t InterprocessQueue::freeSpace() const noexcept {
 	return capacity - size() - 1u;
 }

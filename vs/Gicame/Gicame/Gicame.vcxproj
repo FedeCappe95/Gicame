@@ -517,7 +517,6 @@
     <ClInclude Include="..\..\..\headers\concurrency\MultiLock.h" />
     <ClInclude Include="..\..\..\headers\concurrency\Semaphore.h" />
     <ClInclude Include="..\..\..\headers\concurrency\Signal.h" />
-    <ClInclude Include="..\..\..\headers\concurrency\SLSPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\SPSCQueue.h" />
     <ClInclude Include="..\..\..\headers\concurrency\TaskExecutor.hpp" />
     <ClInclude Include="..\..\..\headers\concurrency\WaitResult.h" />
@@ -563,7 +562,6 @@
     <ClCompile Include="..\..\..\src\concurrency\InterprocessQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\InterprocessSignal.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\Semaphore.cpp" />
-    <ClCompile Include="..\..\..\src\concurrency\SLSPSCQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\SPSCQueue.cpp" />
     <ClCompile Include="..\..\..\src\concurrency\TaskExecutor.cpp" />
     <ClCompile Include="..\..\..\src\device\Serial.cpp" />

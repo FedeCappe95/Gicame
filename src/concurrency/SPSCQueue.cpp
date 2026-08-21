@@ -1,9 +1,6 @@
 #include "concurrency/SPSCQueue.h"
 #include "concurrency/implementation_details/CircularBuffer.h"
 #include "utils/Memory.h"
-#include <string.h>
-#include <atomic>
-#include <memory>
 
 
 using namespace Gicame;
@@ -11,32 +8,48 @@ using namespace Gicame::Concurrency;
 using namespace Gicame::Concurrency::Impl;
 
 
-SPSCQueue::SPSCQueue(void* buffer_, const size_t capacity_, const ConcurrencyRole cr) :
-	header(NULL),
-	buffer(NULL),
-	capacity(0)
-{
-	constexpr ipc_size_t maxCapacity = ~ipc_size_t(0);
-	if (capacity > maxCapacity)
-		throw RUNTIME_ERROR("Capacity too big");
-
-	const auto [memPtr, newSize] = Utilities::align<CircularBufferDescriptor>(buffer_, capacity_);
-	if (!memPtr)
-		throw RUNTIME_ERROR("Insufficient capacity");
-
-	header = new (memPtr) CircularBufferDescriptor;
-	buffer = Utilities::advance<uint8_t>(memPtr, sizeof(CircularBufferDescriptor));
-	capacity = newSize - sizeof(CircularBufferDescriptor);
-	if (capacity < 2u)
-		throw RUNTIME_ERROR("Insufficient capacity");
-
-	if (cr == ConcurrencyRole::MASTER) {
-		header->head = 0;
-		header->tail = 0;
+void SPSCQueue::waitElemPresent(const size_t dataSize) {
+	size_t present = size();
+	while (present < dataSize) {
+		dataPresentEvent.wait();
+		present = size();
 	}
 }
 
-SPSCQueue::~SPSCQueue() {}
+bool SPSCQueue::waitElemPresent(const size_t dataSize, uint32_t timeoutMs) {
+	if (size() >= dataSize)
+		return true;
+
+	// The signal may be already signaled
+	dataPresentEvent.wait(0u);
+	if (size() >= dataSize)
+		return true;
+
+	// Now wait
+	dataPresentEvent.wait(timeoutMs);
+	return size() >= dataSize;
+}
+
+void SPSCQueue::waitFreeSpace(const size_t dataSize) {
+	size_t free = freeSpace();
+	while (free < dataSize) {
+		dataFreeEvent.wait();
+		free = freeSpace();
+	}
+}
+
+SPSCQueue::SPSCQueue(const size_t capacity_) :
+	capacity(capacity_),
+	header(nullptr)
+{
+	header = new CircularBufferDescriptor;
+	header->head = 0;
+	header->tail = 0;
+}
+
+SPSCQueue::~SPSCQueue() {
+	Gicame::Utilities::deleteAndNullify(header);
+}
 
 void SPSCQueue::push(const void* data, size_t dataSize) {
 	const uint8_t* ptr = static_cast<const uint8_t*>(data);
@@ -52,6 +65,8 @@ void SPSCQueue::push(const void* data, size_t dataSize) {
 			buffer[(h + i) % capacity] = ptr[i];
 
 		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
+
+		dataPresentEvent.signal();
 
 		dataSize -= chunkSize;
 		ptr = ptr + chunkSize;
@@ -73,16 +88,42 @@ void SPSCQueue::pop(void* outBuffer, size_t dataSize) {
 
 		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
 
+		dataFreeEvent.signal();
+
 		dataSize -= chunkSize;
 		ptr += chunkSize;
 	}
 }
 
-size_t SPSCQueue::size() {
+bool SPSCQueue::pop(void* outBuffer, size_t dataSize, uint32_t timeoutMs) {
+	if (dataSize > capacity - 1u)
+		return false;
+
+	if (!waitElemPresent(dataSize, timeoutMs))
+		return false;
+
+	const ipc_size_t t = header->tail.load();
+
+	uint8_t* ptr = static_cast<uint8_t*>(outBuffer);
+	for (size_t i = 0; i < dataSize; ++i)
+		ptr[i] = buffer[(t + i) % capacity];
+
+	header->tail.store(static_cast<ipc_size_t>((t + dataSize) % capacity));
+
+	dataFreeEvent.signal();
+
+	return true;
+}
+
+size_t SPSCQueue::size() const noexcept {
 	const ipc_size_t h = header->head.load();
 	const ipc_size_t t = header->tail.load();
 	if (h >= t)
 		return static_cast<size_t>(h - t);
 	else
 		return static_cast<size_t>(capacity - (t - h));
+}
+
+size_t SPSCQueue::freeSpace() const noexcept {
+	return capacity - size() - 1u;
 }
