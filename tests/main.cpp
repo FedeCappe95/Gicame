@@ -18,6 +18,8 @@
 #include <new>
 #include <atomic>
 #include <cstddef>
+#include <type_traits>
+#include <vector>
 
 
 using namespace Gicame;
@@ -545,12 +547,15 @@ TEST_CASE("Signal - producer/consumer handshake across threads", "[concurrency]"
     Concurrency::Signal ready;
     Concurrency::Signal processed;
     std::atomic<int> sharedValue{0};
+    std::atomic<int> mismatches{0};
     constexpr int iterations = 50;
 
+    // REQUIRE is not thread safe, so the consumer only counts and the check is done on join
     std::thread consumer([&]() {
         for (int i = 0; i < iterations; ++i) {
             ready.wait();
-            REQUIRE(sharedValue == i + 1);
+            if (sharedValue != i + 1)
+                ++mismatches;
             processed.signal();
         }
     });
@@ -562,4 +567,417 @@ TEST_CASE("Signal - producer/consumer handshake across threads", "[concurrency]"
     }
 
     consumer.join();
+
+    REQUIRE(mismatches == 0);
+}
+
+
+/*
+ * ===== SignalGroup and SignalOfAGroup =====
+ */
+
+// Generic helper proving that Signal and SignalOfAGroup expose the very same contract: it is
+// instantiated on both types and must behave identically on each of them.
+template <typename AnySignal>
+static void checkSignalContract(AnySignal& sig) {
+    // Fresh or fully drained signal: there is nothing to consume
+    REQUIRE(!sig.wait(0u));
+
+    // Sticky: signaling twice does not create a counter
+    sig.signal();
+    sig.signal();
+    REQUIRE(sig.wait(0u));
+    REQUIRE(!sig.wait(0u));
+
+    // A blocking wait is released by another thread
+    std::thread signaler([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        sig.signal();
+    });
+    sig.wait();
+    signaler.join();
+
+    // The timeout really elapses when nobody signals
+    REQUIRE(!sig.wait(200u));
+}
+
+
+TEST_CASE("SignalGroup - initial state has no signal pending on any index", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    for (size_t i = 0; i < 4; ++i)
+        REQUIRE(!group.wait(i, 0u));
+
+    REQUIRE(group.waitOne(0u) == Concurrency::SignalGroup<4>::NO_SIGNALS);
+}
+
+TEST_CASE("SignalGroup - each signal of the group is sticky and independent", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    // Signaling index 1 three times must not create a counter, and must not touch the others
+    group.signal(1);
+    group.signal(1);
+    group.signal(1);
+
+    REQUIRE(!group.wait(0u, 0u));
+    REQUIRE(!group.wait(2u, 0u));
+    REQUIRE(!group.wait(3u, 0u));
+
+    REQUIRE(group.wait(1u, 0u));    // Consumes the single pending level
+    REQUIRE(!group.wait(1u, 0u));   // Nothing left, even after three signal() calls
+}
+
+TEST_CASE("SignalGroup - out of range indexes throw", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    SECTION("signal") {
+        REQUIRE_THROWS_AS(group.signal(4), std::runtime_error);
+        REQUIRE_THROWS_AS(group.signal(~size_t(0)), std::runtime_error);
+    }
+
+    SECTION("wait") {
+        REQUIRE_THROWS_AS(group.wait(4), std::runtime_error);
+        REQUIRE_THROWS_AS(group.wait(100), std::runtime_error);
+    }
+
+    SECTION("wait with timeout") {
+        REQUIRE_THROWS_AS(group.wait(4, 0u), std::runtime_error);
+        REQUIRE_THROWS_AS(group.wait(4, 1000u), std::runtime_error);
+    }
+
+    SECTION("getSignal") {
+        REQUIRE_THROWS_AS(group.getSignal(4), std::runtime_error);
+        REQUIRE_THROWS_AS(group.getSignal(Concurrency::SignalGroup<4>::NO_SIGNALS), std::runtime_error);
+    }
+
+    SECTION("the last valid index does not throw") {
+        REQUIRE_NOTHROW(group.signal(3));
+        REQUIRE_NOTHROW(group.wait(3, 0u));
+        REQUIRE_NOTHROW(group.getSignal(3));
+    }
+}
+
+TEST_CASE("SignalGroup - waitOne returns the index of the signaled one", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    group.signal(2);
+    REQUIRE(group.waitOne(0u) == 2u);
+    REQUIRE(group.waitOne(0u) == Concurrency::SignalGroup<4>::NO_SIGNALS);
+}
+
+TEST_CASE("SignalGroup - waitOne consumes exactly one signal, lowest index first", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    group.signal(3);
+    group.signal(1);
+    group.signal(2);
+
+    // Documented behaviour: when more than one signal is pending the lowest index wins
+    REQUIRE(group.waitOne(0u) == 1u);
+    REQUIRE(group.waitOne(0u) == 2u);
+    REQUIRE(group.waitOne(0u) == 3u);
+    REQUIRE(group.waitOne(0u) == Concurrency::SignalGroup<4>::NO_SIGNALS);
+}
+
+TEST_CASE("SignalGroup - waitOne(0) is non-blocking and returns fast", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    const auto start = std::chrono::steady_clock::now();
+    const size_t index = group.waitOne(0u);
+    const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start).count();
+
+    REQUIRE(index == Concurrency::SignalGroup<4>::NO_SIGNALS);
+    REQUIRE(elapsedMs < 50);   // Must not block at all
+}
+
+TEST_CASE("SignalGroup - waitOne(timeoutMs) times out and returns NO_SIGNALS", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    const auto start = std::chrono::steady_clock::now();
+    const size_t index = group.waitOne(300u);
+    const auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start).count();
+
+    REQUIRE(index == Concurrency::SignalGroup<4>::NO_SIGNALS);
+    REQUIRE(elapsedMs >= 290);   // Small slack to absorb scheduling jitter
+}
+
+TEST_CASE("SignalGroup - blocking waitOne stays blocked until signaled by another thread", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    std::atomic<size_t> firedIndex{ 0u };
+    std::atomic<bool> waiterDone{ false };
+
+    std::thread waiter([&]() {
+        firedIndex = group.waitOne();   // Indefinite blocking wait
+        waiterDone = true;
+    });
+
+    // Give the waiter thread time to actually enter the wait
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    REQUIRE(!waiterDone);   // Must still be blocked, since nobody signaled yet
+
+    group.signal(3);
+    waiter.join();
+
+    REQUIRE(waiterDone);
+    REQUIRE(firedIndex == 3u);
+}
+
+TEST_CASE("SignalGroup - signal() raised before waitOne() is not lost", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+
+    group.signal(2);   // Nobody is waiting yet
+
+    std::atomic<size_t> firedIndex{ 0u };
+    std::thread waiter([&]() { firedIndex = group.waitOne(); });
+    waiter.join();
+
+    REQUIRE(firedIndex == 2u);
+}
+
+TEST_CASE("SignalGroup - a signal does not release a waiter waiting on another index", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    std::atomic<bool> consumed{ false };
+
+    std::thread waiter([&]() { consumed = group.wait(0u, 3000u); });
+
+    // Let the waiter reach the blocking wait, then signal an index it is not waiting for
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    group.signal(2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    REQUIRE(!consumed);   // Still blocked: index 2 is not the one it is waiting for
+
+    group.signal(0);
+    waiter.join();
+
+    REQUIRE(consumed);
+    REQUIRE(group.waitOne(0u) == 2u);   // The unrelated signal is still pending, untouched
+}
+
+TEST_CASE("SignalGroup - only one waiter is released per signal", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    std::atomic<int> consumedCount{ 0 };
+
+    auto waiterBody = [&]() {
+        if (group.waitOne(3000u) != Concurrency::SignalGroup<4>::NO_SIGNALS)
+            ++consumedCount;
+    };
+
+    std::thread w1(waiterBody);
+    std::thread w2(waiterBody);
+
+    // Let both threads reach the blocking wait
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    group.signal(1);   // Only one of the two waiters must wake up and consume it
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    REQUIRE(consumedCount == 1);
+
+    group.signal(3);   // Release the second waiter too
+    w1.join();
+    w2.join();
+
+    REQUIRE(consumedCount == 2);
+}
+
+TEST_CASE("SignalGroup - repeated signal/consume cycles behave like auto-reset events", "[concurrency]") {
+    Concurrency::SignalGroup<3> group;
+
+    for (int i = 0; i < 10; ++i) {
+        for (size_t index = 0; index < 3; ++index) {
+            REQUIRE(!group.wait(index, 0u));   // Nothing pending at the start of each cycle
+            group.signal(index);
+            REQUIRE(group.wait(index, 0u));    // Consumes it
+            REQUIRE(!group.wait(index, 0u));   // And it stays consumed
+        }
+    }
+}
+
+TEST_CASE("SignalGroup - a group of one behaves as a standalone Signal", "[concurrency]") {
+    Concurrency::SignalGroup<1> group;
+
+    REQUIRE(group.waitOne(0u) == Concurrency::SignalGroup<1>::NO_SIGNALS);
+    group.signal(0);
+    REQUIRE(group.waitOne(0u) == 0u);
+    REQUIRE(group.waitOne(0u) == Concurrency::SignalGroup<1>::NO_SIGNALS);
+    REQUIRE_THROWS_AS(group.signal(1), std::runtime_error);
+}
+
+TEST_CASE("SignalOfAGroup - proxies the group in both directions", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    auto proxy = group.getSignal(0);
+
+    // Signaled through the proxy, consumed through the group
+    proxy.signal();
+    REQUIRE(group.waitOne(0u) == 0u);
+
+    // Signaled through the group, consumed through the proxy
+    group.signal(0);
+    REQUIRE(proxy.wait(0u));
+    REQUIRE(group.waitOne(0u) == Concurrency::SignalGroup<4>::NO_SIGNALS);
+}
+
+TEST_CASE("SignalOfAGroup - proxies of different indexes stay independent", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    auto proxy0 = group.getSignal(0);
+    auto proxy1 = group.getSignal(1);
+
+    proxy1.signal();
+
+    REQUIRE(!proxy0.wait(0u));
+    REQUIRE(proxy1.wait(0u));
+    REQUIRE(!proxy1.wait(0u));
+}
+
+TEST_CASE("SignalOfAGroup - is a copyable handle onto the same signal", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    auto proxy = group.getSignal(2);
+    auto copy = proxy;   // Lightweight handle: the copy points to the very same signal
+
+    proxy.signal();
+    REQUIRE(copy.wait(0u));     // Consumed through the copy
+    REQUIRE(!proxy.wait(0u));   // So the original sees nothing left
+
+    copy.signal();
+    REQUIRE(group.waitOne(0u) == 2u);
+}
+
+TEST_CASE("SignalOfAGroup - both getSignal overloads address the same signal", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    auto runtimeProxy = group.getSignal(3);         // Bound checked at runtime
+    auto compileTimeProxy = group.getSignal<3>();   // Bound checked by static_assert
+
+    runtimeProxy.signal();
+    REQUIRE(compileTimeProxy.wait(0u));
+
+    compileTimeProxy.signal();
+    REQUIRE(runtimeProxy.wait(0u));
+}
+
+TEST_CASE("SignalOfAGroup - exposes the same contract as Signal", "[concurrency]") {
+    // The very same generic code must compile and behave identically on both types
+    SECTION("on Signal") {
+        Concurrency::Signal sig;
+        checkSignalContract(sig);
+    }
+
+    SECTION("on SignalOfAGroup") {
+        Concurrency::SignalGroup<4> group;
+        auto proxy = group.getSignal(1);
+        checkSignalContract(proxy);
+    }
+}
+
+TEST_CASE("SignalOfAGroup - waitOne sees the signals raised through a proxy", "[concurrency]") {
+    Concurrency::SignalGroup<4> group;
+    auto proxy = group.getSignal(2);
+
+    std::thread signaler([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        proxy.signal();
+    });
+
+    const size_t index = group.waitOne(5000u);
+    signaler.join();
+
+    REQUIRE(index == 2u);
+}
+
+// Static storage duration: getSignal<INDEX>() is a constant expression on it, so the proxies
+// below are constant initialized, with no dynamic initialization at program startup
+static Concurrency::SignalGroup<4> staticGroup;
+static Concurrency::SignalOfAGroup<4> constantInitializedProxy = staticGroup.getSignal<2>();
+constexpr auto constexprProxy = staticGroup.getSignal<1>();
+
+TEST_CASE("SignalOfAGroup - the compile time getSignal<INDEX>() is constexpr and noexcept", "[concurrency]") {
+    // The compile time overload replaces the runtime check with a static_assert, so it cannot throw
+    STATIC_REQUIRE(noexcept(staticGroup.getSignal<0>()));
+    STATIC_REQUIRE(!noexcept(staticGroup.getSignal(0u)));
+
+    // The proxy is a literal type, which is what makes the constant initialization above possible
+    STATIC_REQUIRE(std::is_trivially_copyable<Concurrency::SignalOfAGroup<4>>::value);
+    STATIC_REQUIRE(std::is_trivially_destructible<Concurrency::SignalOfAGroup<4>>::value);
+
+    // A constant initialized proxy is a fully working one
+    constantInitializedProxy.signal();
+    REQUIRE(staticGroup.waitOne(0u) == 2u);
+
+    // A constexpr proxy is const, and wait()/signal() are non const as in Signal: copy it to use it
+    auto usable = constexprProxy;
+    usable.signal();
+    REQUIRE(staticGroup.waitOne(0u) == 1u);
+}
+
+TEST_CASE("SignalGroup - producer/consumer handshake through proxies", "[concurrency]") {
+    Concurrency::SignalGroup<2> group;
+    auto ready = group.getSignal<0>();
+    auto processed = group.getSignal<1>();
+    std::atomic<int> sharedValue{ 0 };
+    std::atomic<int> mismatches{ 0 };
+    constexpr int iterations = 50;
+
+    // REQUIRE is not thread safe, so the consumer only counts and the check is done on join
+    std::thread consumer([&]() {
+        for (int i = 0; i < iterations; ++i) {
+            ready.wait();
+            if (sharedValue != i + 1)
+                ++mismatches;
+            processed.signal();
+        }
+    });
+
+    for (int i = 0; i < iterations; ++i) {
+        sharedValue = i + 1;
+        ready.signal();
+        processed.wait();
+    }
+
+    consumer.join();
+
+    REQUIRE(mismatches == 0);
+}
+
+TEST_CASE("SignalGroup - concurrent producers on every index are all served", "[concurrency]") {
+    constexpr size_t signalCount = 4;
+    constexpr int roundsPerProducer = 200;
+
+    Concurrency::SignalGroup<signalCount> group;
+    std::vector<std::thread> producers;
+
+    for (size_t i = 0; i < signalCount; ++i) {
+        auto proxy = group.getSignal(i);   // Captured by value: a proxy is a copyable handle
+        producers.emplace_back([proxy]() mutable {
+            for (int round = 0; round < roundsPerProducer; ++round) {
+                proxy.signal();
+                std::this_thread::yield();
+            }
+        });
+    }
+
+    int consumed[signalCount] = { 0 };
+    for (;;) {
+        const size_t index = group.waitOne(500u);
+        if (index == Concurrency::SignalGroup<signalCount>::NO_SIGNALS)
+            break;
+        ++consumed[index];
+    }
+
+    for (auto& producer : producers)
+        producer.join();
+
+    // Drain whatever was signaled while the consumer was giving up
+    for (;;) {
+        const size_t index = group.waitOne(0u);
+        if (index == Concurrency::SignalGroup<signalCount>::NO_SIGNALS)
+            break;
+        ++consumed[index];
+    }
+
+    for (size_t i = 0; i < signalCount; ++i) {
+        // Signals are sticky, so a producer signaling faster than the consumer collapses several
+        // signal() calls into one: the count is bounded, but no index may be starved completely
+        REQUIRE(consumed[i] > 0);
+        REQUIRE(consumed[i] <= roundsPerProducer);
+    }
 }
