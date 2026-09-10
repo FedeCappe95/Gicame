@@ -19,6 +19,11 @@ namespace Gicame::Concurrency::Impl { struct PosixMutexCV; };
 
 namespace Gicame::Concurrency {
 
+	/*
+	 * @brief Interprocess signal.
+	 * 
+	 * Signaling is sticky
+	 */
 	class InterprocessSignal {
 
 		NOT_COPYABLE(InterprocessSignal)
@@ -39,6 +44,22 @@ namespace Gicame::Concurrency {
 		GICAME_API ~InterprocessSignal();
 		GICAME_API WaitResult wait();
 		GICAME_API void signal();
+
+	};
+
+
+	/*
+	 * @brief Fake interprocess signal used as stub
+	 */
+	class StubInterprocessSignal {
+
+		NOT_COPYABLE(StubInterprocessSignal)
+
+	public:
+		StubInterprocessSignal(const std::string&, const ConcurrencyRole) {}
+		~StubInterprocessSignal() = default;
+		WaitResult wait() noexcept { return WaitResult::TIMEOUT_ELAPSED; }
+		void signal() noexcept {}
 
 	};
 
