@@ -5,6 +5,7 @@
 #include <string>
 #include <new>
 #include <cstddef>
+#include <cstring>
 #include <algorithm>
 
 
@@ -82,11 +83,22 @@ void InterprocessQueue::push(const void* data, size_t dataSize) {
 		// Producer-private index: nobody else writes head, so no ordering is needed to read it.
 		const ipc_size_t h = header->head.load(std::memory_order_relaxed);
 
-		for (size_t i = 0; i < chunkSize; ++i)
-			buffer[(h + i) % capacity] = ptr[i];
+		// At most one wrap: fill up to the end of the ring, then the remainder from its start.
+		const size_t avail = capacity - h;
+		const size_t first = (chunkSize < avail) ? chunkSize : avail;
+
+		std::memcpy(buffer + h, ptr, first);
+		if (first != chunkSize)
+			std::memcpy(buffer, ptr + first, chunkSize - first);
+
+		// h <= capacity - 1 and chunkSize <= capacity - 1, so h + chunkSize < 2 * capacity:
+		// a single conditional subtraction does what the modulo used to do.
+		size_t nextHead = static_cast<size_t>(h) + chunkSize;
+		if (nextHead >= capacity)
+			nextHead -= capacity;
 
 		// Release: the bytes written above must be visible to whoever acquires head.
-		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity), std::memory_order_release);
+		header->head.store(static_cast<ipc_size_t>(nextHead), std::memory_order_release);
 
 		dataPresentEvent.signal();
 
@@ -106,11 +118,22 @@ void InterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 		// Consumer-private index: nobody else writes tail, so no ordering is needed to read it.
 		const ipc_size_t t = header->tail.load(std::memory_order_relaxed);
 
-		for (size_t i = 0; i < chunkSize; ++i)
-			ptr[i] = buffer[(t + i) % capacity];
+		// At most one wrap: drain up to the end of the ring, then the remainder from its start.
+		const size_t avail = capacity - t;
+		const size_t first = (chunkSize < avail) ? chunkSize : avail;
+
+		std::memcpy(ptr, buffer + t, first);
+		if (first != chunkSize)
+			std::memcpy(ptr + first, buffer, chunkSize - first);
+
+		// t <= capacity - 1 and chunkSize <= capacity - 1, so t + chunkSize < 2 * capacity:
+		// a single conditional subtraction does what the modulo used to do.
+		size_t nextTail = static_cast<size_t>(t) + chunkSize;
+		if (nextTail >= capacity)
+			nextTail -= capacity;
 
 		// Release: the reads above must complete before the producer is told the space is free.
-		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity), std::memory_order_release);
+		header->tail.store(static_cast<ipc_size_t>(nextTail), std::memory_order_release);
 
 		dataFreeEvent.signal();
 
@@ -195,11 +218,22 @@ void SLInterprocessQueue::push(const void* data, size_t dataSize) {
 		// Producer-private index: nobody else writes head, so no ordering is needed to read it.
 		const ipc_size_t h = header->head.load(std::memory_order_relaxed);
 
-		for (size_t i = 0; i < chunkSize; ++i)
-			buffer[(h + i) % capacity] = ptr[i];
+		// At most one wrap: fill up to the end of the ring, then the remainder from its start.
+		const size_t avail = capacity - h;
+		const size_t first = (chunkSize < avail) ? chunkSize : avail;
+
+		std::memcpy(buffer + h, ptr, first);
+		if (first != chunkSize)
+			std::memcpy(buffer, ptr + first, chunkSize - first);
+
+		// h <= capacity - 1 and chunkSize <= capacity - 1, so h + chunkSize < 2 * capacity:
+		// a single conditional subtraction does what the modulo used to do.
+		size_t nextHead = static_cast<size_t>(h) + chunkSize;
+		if (nextHead >= capacity)
+			nextHead -= capacity;
 
 		// Release: the bytes written above must be visible to whoever acquires head.
-		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity), std::memory_order_release);
+		header->head.store(static_cast<ipc_size_t>(nextHead), std::memory_order_release);
 
 		dataSize -= chunkSize;
 		ptr = ptr + chunkSize;
@@ -217,11 +251,22 @@ void SLInterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 		// Consumer-private index: nobody else writes tail, so no ordering is needed to read it.
 		const ipc_size_t t = header->tail.load(std::memory_order_relaxed);
 
-		for (size_t i = 0; i < chunkSize; ++i)
-			ptr[i] = buffer[(t + i) % capacity];
+		// At most one wrap: drain up to the end of the ring, then the remainder from its start.
+		const size_t avail = capacity - t;
+		const size_t first = (chunkSize < avail) ? chunkSize : avail;
+
+		std::memcpy(ptr, buffer + t, first);
+		if (first != chunkSize)
+			std::memcpy(ptr + first, buffer, chunkSize - first);
+
+		// t <= capacity - 1 and chunkSize <= capacity - 1, so t + chunkSize < 2 * capacity:
+		// a single conditional subtraction does what the modulo used to do.
+		size_t nextTail = static_cast<size_t>(t) + chunkSize;
+		if (nextTail >= capacity)
+			nextTail -= capacity;
 
 		// Release: the reads above must complete before the producer is told the space is free.
-		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity), std::memory_order_release);
+		header->tail.store(static_cast<ipc_size_t>(nextTail), std::memory_order_release);
 
 		dataSize -= chunkSize;
 		ptr += chunkSize;
