@@ -40,7 +40,7 @@ InterprocessQueue::InterprocessQueue(const std::string& name, const size_t capac
 	header(NULL),
 	buffer(NULL),
 	capacity(0),
-	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor) + alignof(std::max_align_t)),
+	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor) + alignof(Gicame::Concurrency::Impl::CircularBufferDescriptor)),
 	dataPresentEvent(std::string("iq_dataPresentEvent_") + name, cr),
 	dataFreeEvent(std::string("iq_dataFreeEvent_") + name, cr)
 {
@@ -79,12 +79,14 @@ void InterprocessQueue::push(const void* data, size_t dataSize) {
 
 		waitFreeSpace(chunkSize);
 
-		const ipc_size_t h = header->head.load();
+		// Producer-private index: nobody else writes head, so no ordering is needed to read it.
+		const ipc_size_t h = header->head.load(std::memory_order_relaxed);
 
 		for (size_t i = 0; i < chunkSize; ++i)
 			buffer[(h + i) % capacity] = ptr[i];
 
-		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
+		// Release: the bytes written above must be visible to whoever acquires head.
+		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity), std::memory_order_release);
 
 		dataPresentEvent.signal();
 
@@ -101,12 +103,14 @@ void InterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 
 		waitElemPresent(chunkSize);
 
-		const ipc_size_t t = header->tail.load();
+		// Consumer-private index: nobody else writes tail, so no ordering is needed to read it.
+		const ipc_size_t t = header->tail.load(std::memory_order_relaxed);
 
 		for (size_t i = 0; i < chunkSize; ++i)
 			ptr[i] = buffer[(t + i) % capacity];
 
-		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
+		// Release: the reads above must complete before the producer is told the space is free.
+		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity), std::memory_order_release);
 
 		dataFreeEvent.signal();
 
@@ -116,8 +120,10 @@ void InterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 }
 
 size_t InterprocessQueue::size() const noexcept {
-	const ipc_size_t h = header->head.load();
-	const ipc_size_t t = header->tail.load();
+	// Acquire on both: size() is used by producer and consumer alike, and each one has to see
+	// the other's index together with the data published before it.
+	const ipc_size_t h = header->head.load(std::memory_order_acquire);
+	const ipc_size_t t = header->tail.load(std::memory_order_acquire);
 	if (h >= t)
 		return static_cast<size_t>(h - t);
 	else
@@ -149,7 +155,7 @@ SLInterprocessQueue::SLInterprocessQueue(const std::string& name, const size_t c
 	header(NULL),
 	buffer(NULL),
 	capacity(0),
-	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor) + alignof(std::max_align_t))
+	shmem(std::string("iq_shmem_") + name, capacity_ + sizeof(Gicame::Concurrency::Impl::CircularBufferDescriptor) + alignof(Gicame::Concurrency::Impl::CircularBufferDescriptor))
 {
 	constexpr ipc_size_t maxCapacity = ~ipc_size_t(0);
 	if (capacity_ > maxCapacity)
@@ -186,12 +192,14 @@ void SLInterprocessQueue::push(const void* data, size_t dataSize) {
 
 		waitFreeSpace(chunkSize);
 
-		const ipc_size_t h = header->head.load();
+		// Producer-private index: nobody else writes head, so no ordering is needed to read it.
+		const ipc_size_t h = header->head.load(std::memory_order_relaxed);
 
 		for (size_t i = 0; i < chunkSize; ++i)
 			buffer[(h + i) % capacity] = ptr[i];
 
-		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity));
+		// Release: the bytes written above must be visible to whoever acquires head.
+		header->head.store(static_cast<ipc_size_t>((h + chunkSize) % capacity), std::memory_order_release);
 
 		dataSize -= chunkSize;
 		ptr = ptr + chunkSize;
@@ -206,12 +214,14 @@ void SLInterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 
 		waitElemPresent(chunkSize);
 
-		const ipc_size_t t = header->tail.load();
+		// Consumer-private index: nobody else writes tail, so no ordering is needed to read it.
+		const ipc_size_t t = header->tail.load(std::memory_order_relaxed);
 
 		for (size_t i = 0; i < chunkSize; ++i)
 			ptr[i] = buffer[(t + i) % capacity];
 
-		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity));
+		// Release: the reads above must complete before the producer is told the space is free.
+		header->tail.store(static_cast<ipc_size_t>((t + chunkSize) % capacity), std::memory_order_release);
 
 		dataSize -= chunkSize;
 		ptr += chunkSize;
@@ -219,8 +229,10 @@ void SLInterprocessQueue::pop(void* outBuffer, size_t dataSize) {
 }
 
 size_t SLInterprocessQueue::size() const noexcept {
-	const ipc_size_t h = header->head.load();
-	const ipc_size_t t = header->tail.load();
+	// Acquire on both: size() is used by producer and consumer alike, and each one has to see
+	// the other's index together with the data published before it.
+	const ipc_size_t h = header->head.load(std::memory_order_acquire);
+	const ipc_size_t t = header->tail.load(std::memory_order_acquire);
 	if (h >= t)
 		return static_cast<size_t>(h - t);
 	else
