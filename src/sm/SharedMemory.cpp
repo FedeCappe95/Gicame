@@ -44,6 +44,27 @@ SharedMemory::SharedMemory(const std::string& name, const size_t size) :
 	unlinkOnDestruction(true)
 {}
 
+SharedMemory::SharedMemory(SharedMemory&& other) :
+	name(other.name),
+	size(other.size),
+	ptr(other.ptr),
+#ifdef WINDOWS
+	fileHandle(other.fileHandle),
+#else
+	fd(other.fd),
+#endif
+	unlinkOnDestruction(other.unlinkOnDestruction)
+{
+	// The destructor keys off ptr, so clearing it is what makes the source inert.
+	other.ptr = NULL;
+#ifdef WINDOWS
+	other.fileHandle = NULL;
+#else
+	other.fd = -1;
+#endif
+	other.unlinkOnDestruction = false;
+}
+
 SharedMemory::~SharedMemory() {
 	if (ptr) {
 		close();

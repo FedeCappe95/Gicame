@@ -222,6 +222,9 @@
     <ClInclude Include="..\..\..\headers\concurrency\IDataExchangerQueueAdapter.h">
       <Filter>File di intestazione\concurrency</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\headers\concurrency\ByteRing.h">
+      <Filter>File di intestazione\concurrency</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

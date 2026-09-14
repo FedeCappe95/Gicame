@@ -3,49 +3,66 @@
 
 
 #include "../common.h"
+#include "../configuration.h"
 #include "../utils/NotCopyable.h"
 #include "../sm/SharedMemory.h"
-#include "../interfaces/IDataExchanger.h"
-#include "./IDataExchangerQueueAdapter.h"
 #include "./InterprocessSignal.h"
+#include "./ByteRing.h"
 #include <string>
 
 
 namespace Gicame::Concurrency::Impl {
-	struct CircularBufferDescriptor;
+
+	class IntPrQueueLockPolicy {
+
+	private:
+		InterprocessSignal dataPresentEvent;
+		InterprocessSignal dataFreeEvent;
+
+	public:
+		IntPrQueueLockPolicy(const std::string& name, ConcurrencyRole cr) :
+			dataPresentEvent(std::string("iq_dataPresentEvent_") + name, cr),
+			dataFreeEvent(std::string("iq_dataFreeEvent_") + name, cr)
+		{}
+		void waitDataPresent() { dataPresentEvent.wait(); }
+		void waitDataFree() { dataFreeEvent.wait(); }
+		void signalDataPresent() { dataPresentEvent.signal(); }
+		void signalDataFree() { dataFreeEvent.signal(); }
+	};
+
+
+	class SLIntPrQueueLockPolicy {
+
+	public:
+		SLIntPrQueueLockPolicy() noexcept {}
+		void waitDataPresent() const noexcept {}
+		void waitDataFree() const noexcept {}
+		void signalDataPresent() const noexcept {}
+		void signalDataFree() const noexcept {}
+
+	};
+
 };
 
 
 namespace Gicame::Concurrency {
 
+	
 	/**
 	 * @brief A byte-wise ring based interprocess queue.
 	 * 
 	 * Sync done via InterprocessSignal
 	 */
-	class InterprocessQueue : public IDataExchangerQueueAdapter<InterprocessQueue> {
+	class InterprocessQueue : public ByteRing<Impl::IntPrQueueLockPolicy> {
 
 		NOT_COPYABLE(InterprocessQueue)
 
 	private:
-		Gicame::Concurrency::Impl::CircularBufferDescriptor* header;
-		uint8_t* buffer;
-		size_t capacity;
 		Gicame::SharedMemory shmem;
-		InterprocessSignal dataPresentEvent;
-		InterprocessSignal dataFreeEvent;
-
-	private:
-		void waitElemPresent(const size_t dataSize);
-		void waitFreeSpace(const size_t dataSize);
 
 	public:
 		GICAME_API InterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr);
 		GICAME_API ~InterprocessQueue();
-		GICAME_API void push(const void* data, size_t dataSize);
-		GICAME_API void pop(void* outBuffer, size_t dataSize);
-		GICAME_API size_t size() const noexcept;
-		GICAME_API size_t freeSpace() const noexcept;
 
 	};
 
@@ -56,27 +73,16 @@ namespace Gicame::Concurrency {
 	 * Sync done via spinlocks.
 	 * Spinlock in userspace are evil. Don't use them unless you -really- know what you're doing.
 	 */
-	class SLInterprocessQueue : public IDataExchangerQueueAdapter<SLInterprocessQueue> {
+	class SLInterprocessQueue : public ByteRing<Impl::SLIntPrQueueLockPolicy> {
 
 		NOT_COPYABLE(SLInterprocessQueue)
 
 	private:
-		Gicame::Concurrency::Impl::CircularBufferDescriptor* header;
-		uint8_t* buffer;
-		size_t capacity;
 		Gicame::SharedMemory shmem;
-
-	private:
-		void waitElemPresent(const size_t dataSize);
-		void waitFreeSpace(const size_t dataSize);
 
 	public:
 		GICAME_API SLInterprocessQueue(const std::string& name, const size_t capacity, const ConcurrencyRole cr);
 		GICAME_API ~SLInterprocessQueue();
-		GICAME_API void push(const void* data, size_t dataSize);
-		GICAME_API void pop(void* outBuffer, size_t dataSize);
-		GICAME_API size_t size() const noexcept;
-		GICAME_API size_t freeSpace() const noexcept;
 
 	};
 

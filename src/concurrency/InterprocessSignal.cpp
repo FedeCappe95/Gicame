@@ -1,6 +1,7 @@
 #include "concurrency/InterprocessSignal.h"
 #include "utils/Memory.h"
 #include "configuration.h"
+#include <utility>
 #ifdef GICAME_USE_FUTEX
 #include <atomic>
 #include "futex/Futex.h"
@@ -95,9 +96,35 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 #endif
 }
 
+Gicame::Concurrency::InterprocessSignal::InterprocessSignal(InterprocessSignal&& other) :
+#if defined(WINDOWS)
+	eventHandle(other.eventHandle)
+#elif defined(GICAME_USE_FUTEX)
+	shmem(std::move(other.shmem)),
+	futexp(other.futexp)
+#else
+	shmem(std::move(other.shmem)),
+	sharedData(other.sharedData)
+#endif
+{
+	// Leave the source inert: its destructor must not release what this object has just taken
+	// over. On the non-Windows branches the mapping itself is owned by shmem, whose move
+	// constructor already cleared the source; the pointers below merely point into it.
+#if defined(WINDOWS)
+	other.eventHandle = NULL;
+#elif defined(GICAME_USE_FUTEX)
+	other.futexp = NULL;
+#else
+	other.sharedData = NULL;
+#endif
+}
+
 Gicame::Concurrency::InterprocessSignal::~InterprocessSignal() {
 #if defined(WINDOWS)
-	CloseHandle(eventHandle);
+	// NULL after a move: CloseHandle(NULL) is an invalid-handle call and raises under a debugger
+	// with invalid-handle checks enabled.
+	if (eventHandle)
+		CloseHandle(eventHandle);
 #endif
 }
 

@@ -41,6 +41,7 @@ namespace Gicame::Concurrency {
 
 	public:
 		GICAME_API InterprocessSignal(const std::string& name, const ConcurrencyRole cr);
+		GICAME_API InterprocessSignal(InterprocessSignal&& other);
 		GICAME_API ~InterprocessSignal();
 		GICAME_API WaitResult wait();
 		GICAME_API void signal();
@@ -56,7 +57,8 @@ namespace Gicame::Concurrency {
 		NOT_COPYABLE(StubInterprocessSignal)
 
 	public:
-		StubInterprocessSignal(const std::string&, const ConcurrencyRole) {}
+		StubInterprocessSignal(const std::string&, const ConcurrencyRole) noexcept {}
+		StubInterprocessSignal(StubInterprocessSignal&&) noexcept {}
 		~StubInterprocessSignal() = default;
 		WaitResult wait() noexcept { return WaitResult::TIMEOUT_ELAPSED; }
 		void signal() noexcept {}

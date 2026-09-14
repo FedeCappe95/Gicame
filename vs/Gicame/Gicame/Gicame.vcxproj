@@ -510,6 +510,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\headers\common.h" />
+    <ClInclude Include="..\..\..\headers\concurrency\ByteRing.h" />
     <ClInclude Include="..\..\..\headers\concurrency\ConcurrencyRole.h" />
     <ClInclude Include="..\..\..\headers\concurrency\IDataExchangerQueueAdapter.h" />
     <ClInclude Include="..\..\..\headers\concurrency\implementation_details\CircularBuffer.h" />

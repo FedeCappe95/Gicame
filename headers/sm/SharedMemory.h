@@ -28,6 +28,7 @@ namespace Gicame {
 
 	public:
 		GICAME_API SharedMemory(const std::string& name, const size_t size);
+		GICAME_API SharedMemory(SharedMemory&& other);
 		GICAME_API ~SharedMemory();
 		GICAME_API void close();
 		GICAME_API bool open(const bool createIfNotExisting);

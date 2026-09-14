@@ -11,6 +11,9 @@
 #include <vector>
 
 
+// This code must be unified with InterprocessQueue.h/.cpp and ByteRing
+
+
 namespace Gicame::Concurrency {
 
 	/**

@@ -26,7 +26,7 @@ namespace Gicame::Concurrency {
 
 	template <typename Queue>
 	inline size_t IDataExchangerQueueAdapter<Queue>::send(const void* data, const size_t dataSize) {
-		dynamic_cast<Queue*>(this)->push(data, dataSize);
+		static_cast<Queue*>(this)->push(data, dataSize);
 		return dataSize;
 	}
 
@@ -35,7 +35,7 @@ namespace Gicame::Concurrency {
 
 	template <typename Queue>
 	inline size_t IDataExchangerQueueAdapter<Queue>::receive(void* outBuffer, const size_t dataSize) {
-		dynamic_cast<Queue*>(this)->pop(outBuffer, dataSize);
+		static_cast<Queue*>(this)->pop(outBuffer, dataSize);
 		return dataSize;
 	}
 
