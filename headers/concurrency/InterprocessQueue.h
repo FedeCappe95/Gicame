@@ -6,6 +6,7 @@
 #include "../utils/NotCopyable.h"
 #include "../sm/SharedMemory.h"
 #include "../interfaces/IDataExchanger.h"
+#include "./IDataExchangerQueueAdapter.h"
 #include "./InterprocessSignal.h"
 #include <string>
 
@@ -16,17 +17,6 @@ namespace Gicame::Concurrency::Impl {
 
 
 namespace Gicame::Concurrency {
-
-	template <typename Queue>
-	class IDataExchangerQueueAdapter : public IDataExchanger {
-
-	public:
-		virtual size_t send(const void* data, const size_t dataSize) override final;
-		virtual bool isSenderConnected() const override final;
-		virtual size_t receive(void* outBuffer, const size_t dataSize) override final;
-		virtual bool isReceiverConnected() const override final;
-
-	};
 
 	/**
 	 * @brief A byte-wise ring based interprocess queue.
@@ -89,29 +79,6 @@ namespace Gicame::Concurrency {
 		GICAME_API size_t freeSpace() const noexcept;
 
 	};
-
-
-	/*
-	 * Inline implementation
-	 */
-
-	template <typename Queue>
-	inline size_t IDataExchangerQueueAdapter<Queue>::send(const void* data, const size_t dataSize) {
-		dynamic_cast<Queue*>(this)->push(data, dataSize);
-		return dataSize;
-	}
-
-	template <typename Queue>
-	inline bool IDataExchangerQueueAdapter<Queue>::isSenderConnected() const { return true; }
-
-	template <typename Queue>
-	inline size_t IDataExchangerQueueAdapter<Queue>::receive(void* outBuffer, const size_t dataSize) {
-		dynamic_cast<Queue*>(this)->pop(outBuffer, dataSize);
-		return dataSize;
-	}
-
-	template <typename Queue>
-	inline bool IDataExchangerQueueAdapter<Queue>::isReceiverConnected() const { return true; }
 
 };
 
