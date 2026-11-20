@@ -309,6 +309,16 @@ TEST_CASE("Shared memory - an opener with a smaller size does not shrink the cre
     REQUIRE(*lastByte == 0xA5u);
 }
 
+TEST_CASE("Shared memory - a name the system rejects throws at construction", "[shared memory]") {
+    // E.g. names built from pin names or other user input.
+    REQUIRE_THROWS(SharedMemory(std::string(300u, 'a'), 16u));
+#ifdef WINDOWS
+    REQUIRE_THROWS(SharedMemory("pin\\1", 16u));
+#else
+    REQUIRE_THROWS(SharedMemory("pin/1", 16u));
+#endif
+}
+
 TEST_CASE("Semaphore 1", "[concurrency]") {
     Semaphore testSem("TestSem", 2u);   // Starts with 2 free resource
     testSem.setUnlinkOnDestruction(true);

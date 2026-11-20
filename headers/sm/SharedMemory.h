@@ -25,6 +25,14 @@ namespace Gicame {
 		bool unlinkOnDestruction;
 
 	public:
+		/**
+		 * @brief Whether the operating system accepts name for a shared memory
+		 *
+		 * The rules are the system ones (not empty, no '/' on POSIX, no '\' on Windows, a length
+		 * limit). The constructor throws for a name that fails this check.
+		 */
+		GICAME_API static bool isValidName(const std::string& name);
+
 		GICAME_API SharedMemory(const std::string& name, const size_t size);
 		GICAME_API SharedMemory(SharedMemory&& other);
 		GICAME_API ~SharedMemory();
@@ -57,8 +65,10 @@ namespace Gicame {
 		 * @return A pointer to an object of type T in case of success, NULL
 		 *         otherwise.
 		 */
-		template<class T, typename = std::enable_if<std::is_trivial_v<T> && std::is_standard_layout_v<T>>>
+		template<class T>
 		inline T* getAs(const bool construct) {
+			// Virtual functions or virtual bases would put process-local pointers in the object.
+			static_assert(std::is_standard_layout_v<T>, "T must be standard-layout (e.g. no virtual functions or bases)");
 			auto [objPtr, resultingSize] = Gicame::Utilities::align<T>(ptr, size);
 			if (!objPtr)
 				return NULL;
