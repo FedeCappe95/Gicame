@@ -398,6 +398,15 @@ TEST_CASE("InterprocessSignal - master already waiting when the slave connects",
     REQUIRE(waiterDone);
 }
 
+TEST_CASE("InterprocessSignal - signal() raised before wait() is not lost", "[concurrency]") {
+    // The peer may signal before this side has started waiting: the signal must be kept.
+    Concurrency::InterprocessSignal master("TestIpSignalEarly", Concurrency::ConcurrencyRole::MASTER);
+    Concurrency::InterprocessSignal slave("TestIpSignalEarly", Concurrency::ConcurrencyRole::SLAVE);
+
+    slave.signal();
+    REQUIRE(master.wait() == Concurrency::WaitResult::OK);   // Hangs if the signal was dropped
+}
+
 TEST_CASE("Signal - initial state is not signaled", "[concurrency]") {
     Concurrency::Signal sig;
 

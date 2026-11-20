@@ -29,6 +29,7 @@ namespace Gicame::Concurrency::Impl {
 	struct PosixMutexCV {
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
+		uint32_t signaled;
 		// Set last by the master: a zero-filled pthread object is not a valid process-shared one.
 		std::atomic<uint32_t> initialized;
 	};
@@ -94,6 +95,7 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 
 	if (cr == ConcurrencyRole::MASTER) {
 		sharedData = new (memPtr) PosixMutexCV;
+		sharedData->signaled = 0u;
 		// A mapping left behind by a crashed run may still read as initialized.
 		sharedData->initialized.store(0u, std::memory_order_relaxed);
 
@@ -173,13 +175,17 @@ WaitResult Gicame::Concurrency::InterprocessSignal::wait()
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_lock failed");
 
-	const int condWaitErrorCode = pthread_cond_wait(&(sharedData->cond), &(sharedData->mutex));
+	// Looping on the flag absorbs spurious wakeups of pthread_cond_wait.
+	int condWaitErrorCode = 0;
+	while (!sharedData->signaled && condWaitErrorCode == 0)
+		condWaitErrorCode = pthread_cond_wait(&(sharedData->cond), &(sharedData->mutex));
+	if (condWaitErrorCode == 0)
+		sharedData->signaled = 0u;
 
 	errorCode = pthread_mutex_unlock(&(sharedData->mutex));
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_unlock failed");
 
-	if (condWaitErrorCode == ETIMEDOUT) return WaitResult::TIMEOUT_ELAPSED;
 	if (condWaitErrorCode != 0) return WaitResult::FAILED;
 
 #endif
@@ -202,6 +208,7 @@ void Gicame::Concurrency::InterprocessSignal::signal()
 	if (errorCode != 0)
 		throw RUNTIME_ERROR("pthread_mutex_lock failed");
 
+	sharedData->signaled = 1u;
 	const int condSigErrorCode = pthread_cond_signal(&(sharedData->cond));
 
 	errorCode = pthread_mutex_unlock(&(sharedData->mutex));
