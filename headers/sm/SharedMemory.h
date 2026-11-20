@@ -21,8 +21,6 @@ namespace Gicame {
 		void* ptr;
 #ifdef WINDOWS
 		void* fileHandle;
-#else
-		int fd;
 #endif
 		bool unlinkOnDestruction;
 
@@ -31,6 +29,12 @@ namespace Gicame {
 		GICAME_API SharedMemory(SharedMemory&& other);
 		GICAME_API ~SharedMemory();
 		GICAME_API void close();
+		/**
+		 * @brief Map the memory, creating it first if createIfNotExisting
+		 *
+		 * Opening without creating never resizes the object and fails if it is smaller than the
+		 * size given to the constructor.
+		 */
 		GICAME_API bool open(const bool createIfNotExisting);
 		GICAME_API void unlink();
 		GICAME_API void setUnlinkOnDestruction(bool uod);

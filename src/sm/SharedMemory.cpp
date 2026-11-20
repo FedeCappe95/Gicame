@@ -39,7 +39,6 @@ SharedMemory::SharedMemory(const std::string& name, const size_t size) :
 	name(std::string("/") + name),
 	size(size),
 	ptr(NULL),
-	fd(-1),
 #endif
 	unlinkOnDestruction(true)
 {}
@@ -50,8 +49,6 @@ SharedMemory::SharedMemory(SharedMemory&& other) :
 	ptr(other.ptr),
 #ifdef WINDOWS
 	fileHandle(other.fileHandle),
-#else
-	fd(other.fd),
 #endif
 	unlinkOnDestruction(other.unlinkOnDestruction)
 {
@@ -59,8 +56,6 @@ SharedMemory::SharedMemory(SharedMemory&& other) :
 	other.ptr = NULL;
 #ifdef WINDOWS
 	other.fileHandle = NULL;
-#else
-	other.fd = -1;
 #endif
 	other.unlinkOnDestruction = false;
 }
@@ -117,20 +112,32 @@ bool SharedMemory::open(const bool createIfNotExisting) {
 #else
 
 	const int flags = createIfNotExisting ? (O_CREAT | O_RDWR) : (O_RDWR);
-	fd = shm_open(name.c_str(), flags, 0666);
+	const int fd = shm_open(name.c_str(), flags, 0666);
 	if (unlikely(fd < 0))
 		return false;
 
-	if (unlikely(ftruncate(fd, size) < 0)) {
-		shm_unlink(name.c_str());
-		return false;
+	// Only the creator sizes the object: an opener with a smaller size would truncate it under
+	// the creator, whose accesses past the new end then raise SIGBUS. An opener checks instead
+	// that the object is big enough (its size is 0 until the creator has sized it).
+	bool sizeOk;
+	if (createIfNotExisting) {
+		sizeOk = (ftruncate(fd, size) == 0);
+	}
+	else {
+		struct stat st;
+		sizeOk = (fstat(fd, &st) == 0 && static_cast<size_t>(st.st_size) >= size);
 	}
 
-	ptr = mmap(0, size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
-	if (unlikely(!ptr)) {
-		shm_unlink(name.c_str());
+	void* const mapped = sizeOk ? mmap(0, size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0) : MAP_FAILED;
+
+	// The mapping keeps the object alive: the descriptor is no longer needed.
+	::close(fd);
+
+	// Failures never unlink the name: it may belong to another process.
+	if (unlikely(mapped == MAP_FAILED))
 		return false;
-	}
+
+	ptr = mapped;
 
 #endif
 

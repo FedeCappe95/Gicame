@@ -294,6 +294,20 @@ TEST_CASE("Shared memory", "[shared memory]") {
     REQUIRE(peer1success);
 }
 
+TEST_CASE("Shared memory - an opener with a smaller size does not shrink the creator's memory", "[shared memory]") {
+    // E.g. two processes built with different versions of a shared struct.
+    constexpr size_t creatorSize = 64u * 1024u;
+    SharedMemory creator("TestShmShrink", creatorSize);
+    REQUIRE(creator.open(true));
+
+    SharedMemory opener("TestShmShrink", 16u);
+    REQUIRE(opener.open(false));
+
+    uint8_t* const lastByte = static_cast<uint8_t*>(creator.get()) + creatorSize - 1u;
+    *lastByte = 0xA5u;   // SIGBUS if the opener truncated the object
+    REQUIRE(*lastByte == 0xA5u);
+}
+
 TEST_CASE("Semaphore 1", "[concurrency]") {
     Semaphore testSem("TestSem", 2u);   // Starts with 2 free resource
     testSem.setUnlinkOnDestruction(true);
