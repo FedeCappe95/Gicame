@@ -36,6 +36,10 @@ namespace Gicame {
 		 * size given to the constructor.
 		 */
 		GICAME_API bool open(const bool createIfNotExisting);
+		/**
+		 * @brief Close and remove the name, so nobody else can open it (no-op for the name on
+		 *        Windows, where the object goes away with its last handle)
+		 */
 		GICAME_API void unlink();
 		GICAME_API void setUnlinkOnDestruction(bool uod);
 		inline void* get() { return ptr; }

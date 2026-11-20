@@ -150,6 +150,8 @@ void SharedMemory::close() {
 
 #ifdef WINDOWS
 	UnmapViewOfFile(ptr);
+	CloseHandle(fileHandle);
+	fileHandle = NULL;
 #else
 	munmap(ptr, size);
 #endif
@@ -161,9 +163,8 @@ void SharedMemory::unlink() {
 	if (ptr)
 		close();
 
-#ifdef WINDOWS
-	CloseHandle(fileHandle);
-#else
+	// Windows has no name to remove: the object goes away with its last handle.
+#ifndef WINDOWS
 	shm_unlink(name.c_str());
 #endif
 }

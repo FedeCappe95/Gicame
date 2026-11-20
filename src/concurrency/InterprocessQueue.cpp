@@ -33,6 +33,8 @@ static auto initShMem(SharedMemory& shmem, size_t capacity_, ConcurrencyRole cr)
 	const bool success = shmem.open(cr == ConcurrencyRole::MASTER);
 	if (!success)
 		throw RUNTIME_ERROR("Unable to open shared memory");
+	// A slave removing the name would stop a restarted slave from reattaching to the master.
+	shmem.setUnlinkOnDestruction(cr == ConcurrencyRole::MASTER);
 
 	const auto [memPtr, newSize] = Utilities::align<CircularBufferDescriptor>(shmem.get(), shmem.getSize());
 	if (!memPtr)

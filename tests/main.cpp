@@ -10,6 +10,7 @@
 #include "../headers/concurrency/MultiLock.h"
 #include "../headers/concurrency/Signal.h"
 #include "../headers/concurrency/InterprocessSignal.h"
+#include "../headers/concurrency/InterprocessQueue.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
@@ -419,6 +420,21 @@ TEST_CASE("InterprocessSignal - signal() raised before wait() is not lost", "[co
 
     slave.signal();
     REQUIRE(master.wait() == Concurrency::WaitResult::OK);   // Hangs if the signal was dropped
+}
+
+TEST_CASE("InterprocessQueue - a slave can reattach after the previous slave has gone", "[concurrency]") {
+    // E.g. the peer process restarts while the master keeps running.
+    Concurrency::InterprocessQueue master("TestIpQueueReattach", 64u, Concurrency::ConcurrencyRole::MASTER);
+    {
+        Concurrency::InterprocessQueue firstSlave("TestIpQueueReattach", 64u, Concurrency::ConcurrencyRole::SLAVE);
+    }
+
+    Concurrency::InterprocessQueue secondSlave("TestIpQueueReattach", 64u, Concurrency::ConcurrencyRole::SLAVE);
+    const uint32_t sent = 42u;
+    master.push(&sent, sizeof(sent));
+    uint32_t received = 0u;
+    secondSlave.pop(&received, sizeof(received));
+    REQUIRE(received == sent);
 }
 
 TEST_CASE("Signal - initial state is not signaled", "[concurrency]") {
