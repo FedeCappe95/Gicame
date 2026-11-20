@@ -23,6 +23,8 @@ namespace Gicame::Concurrency {
 	 * @brief Interprocess signal.
 	 * 
 	 * Signaling is sticky
+	 * The slave must be constructed after the master constructor has returned: on POSIX the
+	 * master initializes the shared state and the slave constructor throws if it is not ready.
 	 */
 	class InterprocessSignal {
 

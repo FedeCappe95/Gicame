@@ -2,13 +2,14 @@
 #include "utils/Memory.h"
 #include "configuration.h"
 #include <utility>
-#ifdef GICAME_USE_FUTEX
 #include <atomic>
+#ifdef GICAME_USE_FUTEX
 #include "futex/Futex.h"
 #endif
 #if defined(WINDOWS)
 #include <Windows.h>
 #else
+#include <pthread.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
@@ -28,7 +29,12 @@ namespace Gicame::Concurrency::Impl {
 	struct PosixMutexCV {
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
+		// Set last by the master: a zero-filled pthread object is not a valid process-shared one.
+		std::atomic<uint32_t> initialized;
 	};
+
+	// An atomic shared between processes only works if it is lock-free.
+	static_assert(std::atomic<uint32_t>::is_always_lock_free);
 
 };
 
@@ -65,8 +71,15 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 	if (!memPtr)
 		throw RUNTIME_ERROR("Unaligned shared memory error");
 
-	futexp = new (memPtr) std::atomic<uint32_t>;
-	*futexp = 0u;
+	// Only the master resets the word: a slave doing it would drop a pending signal. A fresh
+	// mapping is zero-filled, which already means "not signaled".
+	if (cr == ConcurrencyRole::MASTER) {
+		futexp = new (memPtr) std::atomic<uint32_t>;
+		futexp->store(0u);
+	}
+	else {
+		futexp = std::launder(reinterpret_cast<std::atomic<uint32_t>*>(memPtr));
+	}
 
 #else
 
@@ -79,19 +92,33 @@ Gicame::Concurrency::InterprocessSignal::InterprocessSignal(const std::string& n
 	if (!memPtr)
 		throw RUNTIME_ERROR("Unaligned shared memory error");
 
-	sharedData = new (memPtr) PosixMutexCV;
+	if (cr == ConcurrencyRole::MASTER) {
+		sharedData = new (memPtr) PosixMutexCV;
+		// A mapping left behind by a crashed run may still read as initialized.
+		sharedData->initialized.store(0u, std::memory_order_relaxed);
 
-	// mutex initialization
-	pthread_mutexattr_t mutexAttr;
-	pthread_mutexattr_init(&mutexAttr);
-	pthread_mutexattr_setpshared(&mutexAttr, PTHREAD_PROCESS_SHARED);
-	pthread_mutex_init(&(sharedData->mutex), &mutexAttr);
+		pthread_mutexattr_t mutexAttr;
+		if (pthread_mutexattr_init(&mutexAttr) != 0 ||
+			pthread_mutexattr_setpshared(&mutexAttr, PTHREAD_PROCESS_SHARED) != 0 ||
+			pthread_mutex_init(&(sharedData->mutex), &mutexAttr) != 0)
+			throw RUNTIME_ERROR("pthread_mutex_init failed");
+		pthread_mutexattr_destroy(&mutexAttr);
 
-	// cond initialization
-	pthread_condattr_t condAttr;
-	pthread_condattr_init(&condAttr);
-	pthread_condattr_setpshared(&condAttr, PTHREAD_PROCESS_SHARED);
-	pthread_cond_init(&(sharedData->cond), &condAttr);
+		pthread_condattr_t condAttr;
+		if (pthread_condattr_init(&condAttr) != 0 ||
+			pthread_condattr_setpshared(&condAttr, PTHREAD_PROCESS_SHARED) != 0 ||
+			pthread_cond_init(&(sharedData->cond), &condAttr) != 0)
+			throw RUNTIME_ERROR("pthread_cond_init failed");
+		pthread_condattr_destroy(&condAttr);
+
+		sharedData->initialized.store(1u, std::memory_order_release);
+	}
+	else {
+		// Re-initializing objects the master may already be using is undefined behaviour.
+		sharedData = std::launder(reinterpret_cast<PosixMutexCV*>(memPtr));
+		if (sharedData->initialized.load(std::memory_order_acquire) != 1u)
+			throw RUNTIME_ERROR("Signal not initialized by the master yet");
+	}
 
 #endif
 }

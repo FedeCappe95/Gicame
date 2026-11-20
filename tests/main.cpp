@@ -9,6 +9,7 @@
 #include "../headers/concurrency/Semaphore.h"
 #include "../headers/concurrency/MultiLock.h"
 #include "../headers/concurrency/Signal.h"
+#include "../headers/concurrency/InterprocessSignal.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
@@ -374,6 +375,27 @@ TEST_CASE("MultiLock", "[concurrency]") {
     REQUIRE_NOTHROW(ml.unlock());
     REQUIRE_NOTHROW(ml.unlock());
     REQUIRE_THROWS(ml.unlock());
+}
+
+TEST_CASE("InterprocessSignal - master already waiting when the slave connects", "[concurrency]") {
+    // Usual startup of a request/response channel: the master blocks waiting for the peer
+    // before the peer process has opened the signal.
+    Concurrency::InterprocessSignal master("TestIpSignalLateSlave", Concurrency::ConcurrencyRole::MASTER);
+    std::atomic<bool> waiterDone{false};
+
+    std::thread waiter([&]() {
+        master.wait();
+        waiterDone = true;
+    });
+
+    // Give the waiter thread time to actually enter the wait
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    Concurrency::InterprocessSignal slave("TestIpSignalLateSlave", Concurrency::ConcurrencyRole::SLAVE);
+    slave.signal();
+    waiter.join();   // Hangs if the slave re-initialized the shared state under the waiter
+
+    REQUIRE(waiterDone);
 }
 
 TEST_CASE("Signal - initial state is not signaled", "[concurrency]") {
