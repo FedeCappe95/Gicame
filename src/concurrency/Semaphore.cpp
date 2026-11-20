@@ -77,11 +77,17 @@ InterprocessSemaphore::InterprocessSemaphore(const std::string& name, const size
             handle = sem_open(posixName.c_str(), 0);
             if (unlikely(handle == SEM_FAILED))
                 throw RUNTIME_ERROR("sem_open(...) failed");
+            // Only the creator removes the name: an opener doing it would let later openers
+            // create a new, separate semaphore while this one is still in use.
+            unlinkOnDestruction = false;
         }
         else if (unlikely(errno == EINVAL)) {
             for (size_t i = 0; i < name.length(); ++i)
                 if (name[i] == '/')
                     throw RUNTIME_ERROR("sem_open(...) failed, invalid semaphore name (cannot contain '/')");
+            throw RUNTIME_ERROR("sem_open(...) failed");
+        }
+        else {
             throw RUNTIME_ERROR("sem_open(...) failed");
         }
     }

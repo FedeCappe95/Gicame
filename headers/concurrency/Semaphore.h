@@ -62,7 +62,7 @@ namespace Gicame::Concurrency {
 		 * @brief Acquire the semaphore with timeout
 		 * @param timeout Maximum time to wait for the lock
 		 */
-		AcquireResult acquireWithTimeout(const std::chrono::milliseconds timeout);
+		GICAME_API AcquireResult acquireWithTimeout(const std::chrono::milliseconds timeout);
 
 		/**
 		 * @brief Release the semaphore
@@ -88,7 +88,8 @@ namespace Gicame::Concurrency {
 
 		/**
 		 * @brief Set whether the semaphore should be unlinked on destruction
-		 * @param uod If true, unlink on destruction (default is true)
+		 * @param uod If true, unlink on destruction (default: true only for the instance that
+		 *            created the semaphore; ignored on Windows)
 		 */
 		GICAME_API void setUnlinkOnDestruction(bool uod);
 

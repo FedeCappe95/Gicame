@@ -377,6 +377,23 @@ TEST_CASE("Semaphore 2", "[concurrency]") {
     worker.join();
 }
 
+TEST_CASE("Semaphore - an opener going away does not split the semaphore", "[concurrency]") {
+    // E.g. a peer process that shared the lock exits while the creator keeps using it.
+    Semaphore creator("TestSemSplit", 1u);
+    {
+        Semaphore firstOpener("TestSemSplit", 1u);
+    }
+    Semaphore secondOpener("TestSemSplit", 1u);
+
+    REQUIRE(creator.try_lock());
+    REQUIRE(!secondOpener.try_lock());   // Succeeds if secondOpener got a new, separate semaphore
+    creator.unlock();
+}
+
+TEST_CASE("Semaphore - a name the system rejects throws instead of leaving a broken object", "[concurrency]") {
+    REQUIRE_THROWS(Semaphore(std::string(300u, 'a'), 1u));
+}
+
 TEST_CASE("MultiLock", "[concurrency]") {
     Semaphore testSem("TestSem", 1u);   // Starts with 2 free resource
     testSem.setUnlinkOnDestruction(true);
