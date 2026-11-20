@@ -45,7 +45,7 @@ namespace Gicame::Concurrency {
 	public:
 		/**
 		 * @brief Constructor
-		 * @param name The name of the semaphore (cannot be empty, cannot contain '/' on POSIX)
+		 * @param name The name of the semaphore (see Os::isValidObjectName)
 		 * @param maxConcurrency Maximum number of concurrent acquisitions (cannot be 0)
 		 */
 		GICAME_API InterprocessSemaphore(const std::string& name, const size_t maxConcurrency);

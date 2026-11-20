@@ -11,6 +11,7 @@
 #include "../headers/concurrency/Signal.h"
 #include "../headers/concurrency/InterprocessSignal.h"
 #include "../headers/concurrency/InterprocessQueue.h"
+#include "../headers/concurrency/InterprocessMutex.h"
 #include <stdint.h>
 #include <stdexcept>
 #include <string>
@@ -402,6 +403,77 @@ TEST_CASE("Semaphore - an opener going away does not split the semaphore", "[con
 
 TEST_CASE("Semaphore - a name the system rejects throws instead of leaving a broken object", "[concurrency]") {
     REQUIRE_THROWS(Semaphore(std::string(300u, 'a'), 1u));
+}
+
+TEST_CASE("InterprocessMutex - an owner dying while holding it is reported and the mutex stays usable", "[concurrency]") {
+    using AcquireResult = Concurrency::InterprocessMutex::AcquireResult;
+    Concurrency::InterprocessMutex mtx("TestMutexOwnerDied");
+
+    // Both systems treat a thread that ends while holding the mutex like a crashed process.
+    std::thread firstOwner([&]() { mtx.lock(); });
+    firstOwner.join();
+
+    mtx.lock();   // As std::lock_guard does: no exception, the owner death is checked afterwards
+    REQUIRE(mtx.isPreviousOwnerDead());
+    mtx.unlock();
+
+    std::thread secondOwner([&]() { mtx.lock(); });
+    secondOwner.join();
+
+    REQUIRE(mtx.acquire() == AcquireResult::OWNER_DIED);
+    REQUIRE(mtx.release());
+
+    REQUIRE(mtx.acquire() == AcquireResult::SUCCESS);
+    REQUIRE(!mtx.isPreviousOwnerDead());
+    REQUIRE(mtx.release());
+}
+
+TEST_CASE("InterprocessMutex - two instances with the same name exclude each other", "[concurrency]") {
+    using namespace std::chrono_literals;
+    using AcquireResult = Concurrency::InterprocessMutex::AcquireResult;
+
+    // Two instances, as in two processes
+    Concurrency::InterprocessMutex holder("TestMutexExclusion");
+    Concurrency::InterprocessMutex contender("TestMutexExclusion");
+
+    holder.lock();
+    bool tryLocked = true;
+    AcquireResult timedResult = AcquireResult::SUCCESS;
+    std::thread other([&]() {
+        tryLocked = contender.try_lock();
+        timedResult = contender.acquireWithTimeout(100ms);
+    });
+    other.join();
+    holder.unlock();
+
+    REQUIRE(!tryLocked);
+    REQUIRE(timedResult == AcquireResult::TIMEOUT);
+}
+
+TEST_CASE("InterprocessMutex - is recursive and free again after as many unlocks as locks", "[concurrency]") {
+    Concurrency::InterprocessMutex mtx("TestMutexRecursive");
+    Concurrency::InterprocessMutex contender("TestMutexRecursive");
+
+    auto contenderGetsIt = [&]() {
+        bool locked = false;
+        std::thread other([&]() {
+            locked = contender.try_lock();
+            if (locked)
+                contender.unlock();
+        });
+        other.join();
+        return locked;
+    };
+
+    mtx.lock();
+    REQUIRE(mtx.try_lock());   // Deadlocks or fails if the mutex is not recursive
+    mtx.unlock();
+    const bool freeAfterOneUnlock = contenderGetsIt();
+    mtx.unlock();
+    const bool freeAfterTwoUnlocks = contenderGetsIt();
+
+    REQUIRE(!freeAfterOneUnlock);
+    REQUIRE(freeAfterTwoUnlocks);
 }
 
 TEST_CASE("MultiLock", "[concurrency]") {

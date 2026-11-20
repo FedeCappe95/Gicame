@@ -1,4 +1,5 @@
 #include "sm/SharedMemory.h"
+#include "os/ObjectName.h"
 #include "utils/Numbers.h"
 
 
@@ -17,7 +18,6 @@
 #include <fcntl.h>           // For O_* constants
 #include <unistd.h>
 #include <sys/types.h>
-#include <limits.h>
 #endif
 
 
@@ -29,19 +29,6 @@
 using namespace Gicame;
 
 
-
-bool SharedMemory::isValidName(const std::string& name) {
-	if (name.empty())
-		return false;
-
-#ifdef WINDOWS
-	// '\' separates the kernel object namespaces, as in the "Local\" prefix added here.
-	return name.find('\\') == std::string::npos && (std::string("Local\\") + name).length() < MAX_PATH;
-#else
-	// '/' is allowed only as the leading character, which is added here.
-	return name.find('/') == std::string::npos && name.length() < NAME_MAX;
-#endif
-}
 
 SharedMemory::SharedMemory(const std::string& name, const size_t size) :
 #ifdef WINDOWS
@@ -56,7 +43,7 @@ SharedMemory::SharedMemory(const std::string& name, const size_t size) :
 #endif
 	unlinkOnDestruction(true)
 {
-	if (!isValidName(name))
+	if (!Os::isValidObjectName(name))
 		throw RUNTIME_ERROR("invalid shared memory name: " + name);
 }
 

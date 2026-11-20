@@ -26,13 +26,8 @@ namespace Gicame {
 
 	public:
 		/**
-		 * @brief Whether the operating system accepts name for a shared memory
-		 *
-		 * The rules are the system ones (not empty, no '/' on POSIX, no '\' on Windows, a length
-		 * limit). The constructor throws for a name that fails this check.
+		 * @brief Throws if the system rejects name (see Os::isValidObjectName)
 		 */
-		GICAME_API static bool isValidName(const std::string& name);
-
 		GICAME_API SharedMemory(const std::string& name, const size_t size);
 		GICAME_API SharedMemory(SharedMemory&& other);
 		GICAME_API ~SharedMemory();

@@ -1,4 +1,5 @@
 #include "concurrency/Semaphore.h"
+#include "os/ObjectName.h"
 #include "common.h"
 #include "utils/Numbers.h"
 #include <limits>
@@ -36,8 +37,8 @@ InterprocessSemaphore::InterprocessSemaphore(const std::string& name, const size
     if (unlikely(maxConcurrency == 0))
         throw RUNTIME_ERROR("maxConcurrency cannot be 0");
 
-    if (unlikely(name.empty()))
-        throw RUNTIME_ERROR("name cannot be empty");
+    if (unlikely(!Os::isValidObjectName(name)))
+        throw RUNTIME_ERROR("invalid semaphore name: " + name);
 
 #ifdef WINDOWS
 
@@ -48,9 +49,6 @@ InterprocessSemaphore::InterprocessSemaphore(const std::string& name, const size
      */
 
     const std::string windowsName = std::string("Local\\") + name;
-
-    if (unlikely(windowsName.length() > MAX_PATH - 1))
-        throw RUNTIME_ERROR("name too long");
 
     const LONG windowsMaxSemCount = Utilities::safeNumericCast<LONG>(maxConcurrency);
     const LONG windowsIniSemCount = Utilities::safeNumericCast<LONG>(maxConcurrency);
@@ -80,12 +78,6 @@ InterprocessSemaphore::InterprocessSemaphore(const std::string& name, const size
             // Only the creator removes the name: an opener doing it would let later openers
             // create a new, separate semaphore while this one is still in use.
             unlinkOnDestruction = false;
-        }
-        else if (unlikely(errno == EINVAL)) {
-            for (size_t i = 0; i < name.length(); ++i)
-                if (name[i] == '/')
-                    throw RUNTIME_ERROR("sem_open(...) failed, invalid semaphore name (cannot contain '/')");
-            throw RUNTIME_ERROR("sem_open(...) failed");
         }
         else {
             throw RUNTIME_ERROR("sem_open(...) failed");
