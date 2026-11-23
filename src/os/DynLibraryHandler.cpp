@@ -16,16 +16,40 @@ void DynLibraryHandler::xLibraryNotLoaded() {
 
 void DynLibraryHandler::unload()
 {
+	if (nativeHandle == nullptr)
+		return;
+
 #ifdef WINDOWS
-	if (nativeHandle) FreeLibrary(reinterpret_cast<HINSTANCE>(nativeHandle));
+	FreeLibrary(reinterpret_cast<HINSTANCE>(nativeHandle));
 #else
-	if (nativeHandle) dlclose(nativeHandle);
+	dlclose(nativeHandle);
 #endif
-	nativeHandle = NULL;
+	nativeHandle = nullptr;
+}
+
+DynLibraryHandler::DynLibraryHandler(DynLibraryHandler&& other) noexcept :
+	nativeHandle(other.nativeHandle),
+	unloadOnDestruction(other.unloadOnDestruction)
+{
+	// The destructor keys off nativeHandle, so clearing it is what makes the source inert.
+	other.nativeHandle = nullptr;
+}
+
+DynLibraryHandler& DynLibraryHandler::operator=(DynLibraryHandler&& other) noexcept {
+	if (this != &other) {
+		// The library held so far is let go as the destructor would do.
+		if (unloadOnDestruction)
+			unload();
+		nativeHandle = other.nativeHandle;
+		unloadOnDestruction = other.unloadOnDestruction;
+		other.nativeHandle = nullptr;
+	}
+	return *this;
 }
 
 DynLibraryHandler::~DynLibraryHandler() {
-	unload();
+	if (unloadOnDestruction)
+		unload();
 }
 
 DynLibraryHandler DynLibraryHandler::load(const std::filesystem::path& modulePath)
@@ -44,6 +68,10 @@ DynLibraryHandler DynLibraryHandler::load(const std::filesystem::path& modulePat
 	return DynLibraryHandler(libHandle);
 }
 
+bool DynLibraryHandler::isLoaded() const noexcept {
+	return nativeHandle != nullptr;
+}
+
 void* DynLibraryHandler::getSymbolAddress(const char* symbolName) {
 	if (!nativeHandle)
 		xLibraryNotLoaded();
@@ -53,4 +81,8 @@ void* DynLibraryHandler::getSymbolAddress(const char* symbolName) {
 #else
 	return dlsym(nativeHandle, symbolName);
 #endif
+}
+
+void DynLibraryHandler::setUnloadOnDestruction(bool uod) {
+	unloadOnDestruction = uod;
 }
