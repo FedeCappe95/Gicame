@@ -24,12 +24,30 @@
 using namespace Gicame;
 
 
+// Writing to a socket closed by the peer raises SIGPIPE on POSIX, which kills the process before
+// send() can report the error. Where send() has no MSG_NOSIGNAL (Apple), the socket must opt out.
+#if defined(MSG_NOSIGNAL)
+static constexpr int SEND_FLAGS = MSG_NOSIGNAL;
+#else
+static constexpr int SEND_FLAGS = 0;
+#endif
+
+static void disableSigPipe(const SocketDescriptor sockfd) {
+#if !defined(MSG_NOSIGNAL) && defined(SO_NOSIGPIPE)
+	const int on = 1;
+	setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on));
+#else
+	UNUSED(sockfd);
+#endif
+}
+
+
 TcpSocket::TcpSocket(
 	const SocketDescriptor sockfd, const SocketStatus socketStatus, const short sin_family
 ) : 
 	sockfd(sockfd), socketStatus(socketStatus), sin_family(sin_family), flagReceptionBlocking(false)
 {
-	// Nothing to do
+	disableSigPipe(sockfd);
 }
 
 TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
@@ -45,6 +63,7 @@ TcpSocket::TcpSocket(const InternetProtocolVersion ipv) :
 	if (sockfd < 0) {
 		throw RUNTIME_ERROR("Invalid sockfd");
     }
+	disableSigPipe(sockfd);
 }
 
 TcpSocket::TcpSocket(TcpSocket&& other) noexcept :
@@ -140,9 +159,9 @@ size_t TcpSocket::send(const void* buffer, const size_t size) {
 		throw RUNTIME_ERROR("It is impossible to send something using a non connected socket");
 
 	#ifdef WINDOWS
-	int actuallySent = ::send(sockfd, (const char*)buffer, (int)size, 0);
+	int actuallySent = ::send(sockfd, (const char*)buffer, (int)size, SEND_FLAGS);
 	#else
-	int actuallySent = ::send(sockfd, buffer, size, 0);
+	int actuallySent = ::send(sockfd, buffer, size, SEND_FLAGS);
 	#endif
 
 	if (actuallySent < 0) {

@@ -42,6 +42,7 @@ void Gicame::startWsaIfNeeded() {
 			std::string errorMessage = std::string("WSAStartup(...) failed, result is ") + std::to_string(errorCode);
 			throw RUNTIME_ERROR(errorMessage);
 	    }
+		wsaStarted = true;
 	}
 }
 #endif
