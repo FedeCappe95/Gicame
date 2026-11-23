@@ -14,10 +14,10 @@ void DynLibraryHandler::xLibraryNotLoaded() {
 	throw RUNTIME_ERROR("Library not loaded");
 }
 
-void DynLibraryHandler::unload()
+void DynLibraryHandler::unload() noexcept
 {
 	if (nativeHandle == nullptr)
-		xLibraryNotLoaded();
+		return;
 
 #ifdef WINDOWS
 	FreeLibrary(reinterpret_cast<HINSTANCE>(nativeHandle));
@@ -26,6 +26,11 @@ void DynLibraryHandler::unload()
 #endif
 	nativeHandle = nullptr;
 }
+
+DynLibraryHandler::DynLibraryHandler() noexcept :
+	nativeHandle(nullptr),
+	unloadOnDestruction(false)
+{}
 
 DynLibraryHandler::DynLibraryHandler(DynLibraryHandler&& other) noexcept :
 	nativeHandle(other.nativeHandle),
@@ -52,8 +57,11 @@ DynLibraryHandler::~DynLibraryHandler() {
 		unload();
 }
 
-DynLibraryHandler DynLibraryHandler::load(const std::filesystem::path& modulePath)
+bool DynLibraryHandler::load(const std::filesystem::path& modulePath)
 {
+	if (isLoaded())
+		throw RUNTIME_ERROR("Library already loaded");
+
 	// WIP: must prevent to load the same lib twice, or, once unloaded, bad things may happen
 
 #ifdef WINDOWS
@@ -63,9 +71,10 @@ DynLibraryHandler DynLibraryHandler::load(const std::filesystem::path& modulePat
 #endif
 
 	if (!libHandle)
-		throw RUNTIME_ERROR("Unable to load library");   // WIP: use a better exc
+		return false;
 	
-	return DynLibraryHandler(libHandle);
+	nativeHandle = libHandle;
+	return true;
 }
 
 bool DynLibraryHandler::isLoaded() const noexcept {
@@ -83,6 +92,6 @@ void* DynLibraryHandler::getSymbolAddress(const char* symbolName) {
 #endif
 }
 
-void DynLibraryHandler::setUnloadOnDestruction(bool uod) {
+void DynLibraryHandler::setUnloadOnDestruction(bool uod) noexcept {
 	unloadOnDestruction = uod;
 }

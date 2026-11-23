@@ -24,31 +24,38 @@ namespace Gicame::Os {
 		bool unloadOnDestruction;
 
 	private:   // Private methods
-		constexpr DynLibraryHandler(NativeHandle nativeHandle_) : nativeHandle(nativeHandle_), unloadOnDestruction(true) {}
 		[[noreturn]] void xLibraryNotLoaded();
 		
 	public:    // Public methods
+		GICAME_API DynLibraryHandler() noexcept;
 		GICAME_API DynLibraryHandler(DynLibraryHandler&& other) noexcept;
 		GICAME_API DynLibraryHandler& operator=(DynLibraryHandler&& other) noexcept;
 		GICAME_API ~DynLibraryHandler();
-		GICAME_API static DynLibraryHandler load(const std::filesystem::path& modulePath);
+
+		/**
+		 * @brief Load the library (throws if one is already loaded)
+		 * @return false if the system cannot load it
+		 */
+		GICAME_API bool load(const std::filesystem::path& modulePath);
+
 		GICAME_API bool isLoaded() const noexcept;
 
 		/**
-		 * @brief Unload the library now (throws if it is not loaded)
+		 * @brief Unload the library now (nothing happens if it is not loaded)
 		 *
 		 * Symbols taken from it are no longer valid afterwards.
 		 */
-		GICAME_API void unload();
+		GICAME_API void unload() noexcept;
 
 		GICAME_API void* getSymbolAddress(const char* symbolName);
 
 		/**
-		 * @brief Set whether the library is unloaded on destruction (default: true)
+		 * @brief Set whether the library is unloaded on destruction (default: false)
 		 *
-		 * Keep it loaded when symbols taken from it must outlive this object.
+		 * Unloading invalidates the symbols taken from the library: enable it only when none of
+		 * them outlives this object.
 		 */
-		GICAME_API void setUnloadOnDestruction(bool uod);
+		GICAME_API void setUnloadOnDestruction(bool uod) noexcept;
 
 		template <typename T, typename = std::enable_if_t<std::is_pointer_v<T>>>
 		inline T getSymbol(const char* symbolName) {
