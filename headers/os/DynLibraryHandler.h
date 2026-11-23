@@ -26,7 +26,6 @@ namespace Gicame::Os {
 	private:   // Private methods
 		constexpr DynLibraryHandler(NativeHandle nativeHandle_) : nativeHandle(nativeHandle_), unloadOnDestruction(true) {}
 		[[noreturn]] void xLibraryNotLoaded();
-		void unload();
 		
 	public:    // Public methods
 		GICAME_API DynLibraryHandler(DynLibraryHandler&& other) noexcept;
@@ -34,6 +33,14 @@ namespace Gicame::Os {
 		GICAME_API ~DynLibraryHandler();
 		GICAME_API static DynLibraryHandler load(const std::filesystem::path& modulePath);
 		GICAME_API bool isLoaded() const noexcept;
+
+		/**
+		 * @brief Unload the library now (throws if it is not loaded)
+		 *
+		 * Symbols taken from it are no longer valid afterwards.
+		 */
+		GICAME_API void unload();
+
 		GICAME_API void* getSymbolAddress(const char* symbolName);
 
 		/**

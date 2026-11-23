@@ -17,7 +17,7 @@ void DynLibraryHandler::xLibraryNotLoaded() {
 void DynLibraryHandler::unload()
 {
 	if (nativeHandle == nullptr)
-		return;
+		xLibraryNotLoaded();
 
 #ifdef WINDOWS
 	FreeLibrary(reinterpret_cast<HINSTANCE>(nativeHandle));
@@ -38,7 +38,7 @@ DynLibraryHandler::DynLibraryHandler(DynLibraryHandler&& other) noexcept :
 DynLibraryHandler& DynLibraryHandler::operator=(DynLibraryHandler&& other) noexcept {
 	if (this != &other) {
 		// The library held so far is let go as the destructor would do.
-		if (unloadOnDestruction)
+		if (unloadOnDestruction && isLoaded())
 			unload();
 		nativeHandle = other.nativeHandle;
 		unloadOnDestruction = other.unloadOnDestruction;
@@ -48,7 +48,7 @@ DynLibraryHandler& DynLibraryHandler::operator=(DynLibraryHandler&& other) noexc
 }
 
 DynLibraryHandler::~DynLibraryHandler() {
-	if (unloadOnDestruction)
+	if (unloadOnDestruction && isLoaded())
 		unload();
 }
 
