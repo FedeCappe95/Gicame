@@ -59,6 +59,13 @@ namespace Gicame {
 		void close();
 
 		/**
+		 * End the connection in both directions without releasing the socket: a thread blocked in
+		 * receive() returns 0. Use it from another thread before joining that thread, then close().
+		 * Return false on error.
+		 */
+		bool shutdown();
+
+		/**
 		 * Return true if the socket is connected
 		 */
 		virtual bool isConnected() const override;

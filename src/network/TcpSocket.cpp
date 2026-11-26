@@ -206,6 +206,16 @@ void TcpSocket::close() {
 	socketStatus = SocketStatus::CLOSED;
 }
 
+bool TcpSocket::shutdown() {
+	// close() from another thread does not wake a blocked recv() on Linux, and the descriptor
+	// could be reused while still in use; shutdown() wakes it and leaves the descriptor alone.
+	#ifdef WINDOWS
+	return ::shutdown(sockfd, SD_BOTH) == 0;
+	#else
+	return ::shutdown(sockfd, SHUT_RDWR) == 0;
+	#endif
+}
+
 bool TcpSocket::isConnected() const {
 	if (socketStatus != SocketStatus::CONNECTED)
 		return false;
